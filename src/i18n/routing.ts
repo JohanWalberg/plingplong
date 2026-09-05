@@ -15,6 +15,7 @@ export const pathnames = {
   "/home/[slug]": { sv: "/bostad/[slug]", en: "/home/[slug]" },
   "/map": { sv: "/karta", en: "/map" },
   "/municipalities": { sv: "/kommuner", en: "/municipalities" },
+  "/municipalities/[slug]": { sv: "/kommuner/[slug]", en: "/municipalities/[slug]" },
   "/landlords": { sv: "/hyresvardar", en: "/landlords" },
   "/landlords/[slug]": { sv: "/hyresvardar/[slug]", en: "/landlords/[slug]" },
   "/saved": { sv: "/sparade", en: "/saved" },
@@ -68,3 +69,6 @@ export const routing = defineRouting({
 });
 
 export type AppPathname = keyof typeof pathnames;
+
+/** Pathnames without dynamic segments, usable as plain `href` values. */
+export type StaticPathname = Exclude<AppPathname, `${string}[${string}`>;
