@@ -606,7 +606,12 @@
       "draftSaved": "Utkastet är sparat.",
       "invalidNumber": "Ange ett tal.",
       "invalidUrl": "Ange en fullständig adress som börjar med https://.",
-      "invalidDate": "Ange ett datum i formatet ÅÅÅÅ-MM-DD."
+      "invalidDate": "Ange ett datum i formatet ÅÅÅÅ-MM-DD.",
+      "fieldRequired": "Fältet behöver fyllas i.",
+      "imagesInvalid": "En bild kunde inte laddas upp. Använd JPG, PNG eller WebP under 8 MB.",
+      "currentImages": "Uppladdade bilder",
+      "published": "Bostaden är publicerad.",
+      "changesSaved": "Ändringarna är sparade."
     },
     "confirm": {
       "tag": "Publicerad",
@@ -676,7 +681,17 @@
       "fieldDeadline": "Sista ansökningsdag",
       "fieldMoveIn": "Inflyttning",
       "fieldAddress": "Adress",
-      "fieldStatus": "Status"
+      "fieldStatus": "Status",
+      "deleteDraftTitle": "Ta bort utkastet?",
+      "deleteDraftBody": "Utkastet raderas permanent.",
+      "scheduled": "Planerat",
+      "chartTable": "Visningar per dag som tabell",
+      "colDay": "Dag",
+      "colViews": "Visningar",
+      "extendSaved": "Sista ansökningsdag är ändrad.",
+      "unpublished": "Bostaden är avpublicerad.",
+      "republished": "Bostaden är publicerad igen.",
+      "editorReadOnly": "Du kan redigera utkast. Publicerade bostäder ändras av en kontoansvarig."
     },
     "source": {
       "title": "Anslut en källa",
@@ -760,7 +775,25 @@
       "runNow": "Hämta nu",
       "runQueued": "Hämtningen är köad.",
       "ownerOnly": "Endast kontoansvariga kan ansluta och ändra källor.",
-      "testRequired": "Testa anslutningen innan du ansluter källan."
+      "testRequired": "Testa anslutningen innan du ansluter källan.",
+      "runsTitle": "Hämtningar",
+      "colStarted": "Startad",
+      "colResult": "Resultat",
+      "colFound": "Hittade",
+      "colNew": "Nya",
+      "colGone": "Borta",
+      "ok": "OK",
+      "failed": "Misslyckad",
+      "noRuns": "Ingen hämtning än.",
+      "settingsTitle": "Inställningar",
+      "saved": "Inställningarna är sparade.",
+      "never": "Aldrig",
+      "errorInvalid": "Kontrollera adressen och försök igen.",
+      "mappingIntro": "Så kopplas era fält till våra.",
+      "backToList": "Alla källor",
+      "typeLabelShort": "Typ",
+      "colLastRun": "Senaste hämtning",
+      "htmlSaved": "Adressen är sparad. Vi hör av oss när avläsningen är uppsatt."
     },
     "account": {
       "title": "Konto",
@@ -793,7 +826,25 @@
       "changePassword": "Byt lösenord",
       "currentPassword": "Nuvarande lösenord",
       "passwordChanged": "Lösenordet är ändrat.",
-      "saved": "Sparat."
+      "saved": "Sparat.",
+      "roleChanged": "Rollen är ändrad.",
+      "memberRemoved": "Användaren är borttagen.",
+      "inviteInvalid": "Ange en giltig e-postadress."
+    },
+    "stats": {
+      "title": "Statistik",
+      "intro": "Visningar och klick vidare till er sida för alla era bostäder de senaste 30 dagarna.",
+      "totalViews": "Visningar 30 dagar",
+      "totalClicks": "Klick till er sida",
+      "chartLabel": "Visningar och klick per dag de senaste 30 dagarna",
+      "perListing": "Per bostad",
+      "colListing": "Bostad",
+      "colStatus": "Status",
+      "colViews": "Visningar",
+      "colClicks": "Klick vidare",
+      "empty": "Ingen statistik än. Statistik samlas när bostäder är publicerade.",
+      "views": "Visningar",
+      "clicks": "Klick"
     }
   },
   "admin": {

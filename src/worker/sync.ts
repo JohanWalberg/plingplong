@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, lt, lte, or, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { listingSlug, slugify } from "@/lib/slug";
 import { sendEmail } from "@/lib/email";
@@ -356,7 +356,7 @@ export async function expireDirectListings(now: Date = new Date()) {
 /** Raw payload retention: 90 days. */
 export async function pruneRawPayloads(now: Date = new Date()) {
   const cutoff = new Date(now.getTime() - 90 * 24 * 60 * 60_000);
-  await db.update(listingSource).set({ rawPayload: null, rawPayloadAt: null }).where(sql`${listingSource.rawPayloadAt} < ${cutoff}`);
+  await db.update(listingSource).set({ rawPayload: null, rawPayloadAt: null }).where(lt(listingSource.rawPayloadAt, cutoff));
 }
 
 /** Sources due for a run (used by the scheduler). */
@@ -364,7 +364,7 @@ export async function dueSources(now: Date = new Date()) {
   return db
     .select({ id: source.id })
     .from(source)
-    .where(and(inArray(source.status, ["pending", "active", "degraded", "failed", "needs_review"]), inArray(source.kind, ["feed", "api", "html"]), sql`(${source.nextRunAt} is null or ${source.nextRunAt} <= ${now})`));
+    .where(and(inArray(source.status, ["pending", "active", "degraded", "failed", "needs_review"]), inArray(source.kind, ["feed", "api", "html"]), or(isNull(source.nextRunAt), lte(source.nextRunAt, now))));
 }
 
 void municipality;

@@ -606,7 +606,12 @@
       "draftSaved": "Draft saved.",
       "invalidNumber": "Enter a number.",
       "invalidUrl": "Enter a full address starting with https://.",
-      "invalidDate": "Enter a date in the format YYYY-MM-DD."
+      "invalidDate": "Enter a date in the format YYYY-MM-DD.",
+      "fieldRequired": "This field is required.",
+      "imagesInvalid": "A photo could not be uploaded. Use JPG, PNG or WebP under 8 MB.",
+      "currentImages": "Uploaded photos",
+      "published": "The home is published.",
+      "changesSaved": "Changes saved."
     },
     "confirm": {
       "tag": "Published",
@@ -676,7 +681,17 @@
       "fieldDeadline": "Application deadline",
       "fieldMoveIn": "Move-in date",
       "fieldAddress": "Address",
-      "fieldStatus": "Status"
+      "fieldStatus": "Status",
+      "deleteDraftTitle": "Delete this draft?",
+      "deleteDraftBody": "The draft is deleted permanently.",
+      "scheduled": "Scheduled",
+      "chartTable": "Views per day as a table",
+      "colDay": "Day",
+      "colViews": "Views",
+      "extendSaved": "The application deadline has been changed.",
+      "unpublished": "The home has been unpublished.",
+      "republished": "The home is published again.",
+      "editorReadOnly": "You can edit drafts. Published homes are changed by an account owner."
     },
     "source": {
       "title": "Connect a source",
@@ -760,7 +775,25 @@
       "runNow": "Fetch now",
       "runQueued": "The fetch is queued.",
       "ownerOnly": "Only account owners can connect and change sources.",
-      "testRequired": "Test the connection before connecting the source."
+      "testRequired": "Test the connection before connecting the source.",
+      "runsTitle": "Fetches",
+      "colStarted": "Started",
+      "colResult": "Result",
+      "colFound": "Found",
+      "colNew": "New",
+      "colGone": "Gone",
+      "ok": "OK",
+      "failed": "Failed",
+      "noRuns": "No fetch yet.",
+      "settingsTitle": "Settings",
+      "saved": "Settings saved.",
+      "never": "Never",
+      "errorInvalid": "Check the address and try again.",
+      "mappingIntro": "How your fields map onto ours.",
+      "backToList": "All sources",
+      "typeLabelShort": "Type",
+      "colLastRun": "Last fetch",
+      "htmlSaved": "The address is saved. We will be in touch when the reader is set up."
     },
     "account": {
       "title": "Account",
@@ -793,7 +826,25 @@
       "changePassword": "Change password",
       "currentPassword": "Current password",
       "passwordChanged": "Your password has been changed.",
-      "saved": "Saved."
+      "saved": "Saved.",
+      "roleChanged": "Role changed.",
+      "memberRemoved": "User removed.",
+      "inviteInvalid": "Enter a valid email address."
+    },
+    "stats": {
+      "title": "Statistics",
+      "intro": "Views and click-throughs to your site for all your homes over the last 30 days.",
+      "totalViews": "Views, 30 days",
+      "totalClicks": "Clicks to your site",
+      "chartLabel": "Views and clicks per day for the last 30 days",
+      "perListing": "Per home",
+      "colListing": "Home",
+      "colStatus": "Status",
+      "colViews": "Views",
+      "colClicks": "Click-throughs",
+      "empty": "No statistics yet. Statistics are collected once homes are published.",
+      "views": "Views",
+      "clicks": "Clicks"
     }
   },
   "admin": {
