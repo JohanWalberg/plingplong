@@ -19,7 +19,9 @@
     "db:seed": "tsx --env-file=.env src/db/seed.ts",
     "db:reset": "tsx --env-file=.env src/db/reset.ts && pnpm db:migrate && pnpm db:seed",
     "worker": "tsx --env-file=.env src/worker/index.ts",
-    "i18n:check": "tsx scripts/check-messages.ts"
+    "i18n:check": "tsx scripts/check-messages.ts",
+    "start:all": "bash scripts/start.sh",
+    "db:down": "docker compose down"
   },
   "dependencies": {
     "better-auth": "^1.7.2",

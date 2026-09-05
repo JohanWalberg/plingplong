@@ -8,8 +8,15 @@ admin, in Swedish and English.
 Requirements: Node 26, pnpm 11, Docker.
 
 ```bash
-cp .env.example .env        # already done on first setup
 pnpm install
+pnpm start:all              # database, migrations, seed, web on :3000 and worker
+pnpm start:all --reset      # same, but drops and reseeds the database first
+```
+
+Or step by step:
+
+```bash
+cp .env.example .env
 pnpm db:up                  # Postgres 16 + PostGIS on localhost:5433
 pnpm db:migrate
 pnpm db:seed                # real municipalities, landlords, ~40 listings, users
