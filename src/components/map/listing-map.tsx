@@ -116,11 +116,8 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
     };
   }, [markers, ready, selectedId]);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !bounds) return;
-    map.fitBounds(bounds, { padding: 40, duration: 300, maxZoom: 15 });
-  }, [bounds]);
+  // Bounds are fitted once at creation. After that the user owns the viewport:
+  // refitting on every prop change would fight their zoom and pan.
 
   return <div ref={container} role="region" aria-label={ariaLabel} className="h-full w-full" />;
 }
