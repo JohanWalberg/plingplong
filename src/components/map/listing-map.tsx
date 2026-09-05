@@ -19,6 +19,10 @@ type Props = {
   onMoveEnd?: (bounds: [number, number, number, number]) => void;
   selectedId?: string | null;
   attribution?: string;
+  /** When set, the map eases to this point (used when a list item is chosen). */
+  focus?: { lon: number; lat: number; zoom?: number; key: number } | null;
+  /** Never start further out than this, even if the results are spread wide. */
+  minInitialZoom?: number;
 };
 
 // OpenFreeMap: free OSM-based vector tiles, no key. Swap for Protomaps/MapTiler via NEXT_PUBLIC_MAP_STYLE_URL.
@@ -29,7 +33,7 @@ const DEFAULT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
  * The style URL comes from NEXT_PUBLIC_MAP_STYLE_URL (self-hosted or metered
  * tiles); the MapLibre demo style is the zero-config fallback.
  */
-export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, interactive = true, onSelect, onMoveEnd, selectedId, attribution }: Props) {
+export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, interactive = true, onSelect, onMoveEnd, selectedId, attribution, focus, minInitialZoom = 13 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
   const markerEls = useRef<maplibregl.Marker[]>([]);
@@ -53,7 +57,10 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
     });
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: attribution }), "bottom-right");
     if (interactive) map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    if (bounds) map.fitBounds(bounds, { padding: 40, duration: 0, maxZoom: 15 });
+    if (bounds) {
+      map.fitBounds(bounds, { padding: 40, duration: 0, maxZoom: 15 });
+      if (map.getZoom() < minInitialZoom) map.setZoom(minInitialZoom);
+    }
     map.on("load", () => setReady(true));
     map.on("moveend", () => {
       const b = map.getBounds();
@@ -118,6 +125,12 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
 
   // Bounds are fitted once at creation. After that the user owns the viewport:
   // refitting on every prop change would fight their zoom and pan.
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !focus) return;
+    map.easeTo({ center: [focus.lon, focus.lat], zoom: Math.max(map.getZoom(), focus.zoom ?? 15), duration: 500 });
+  }, [focus]);
 
   return <div ref={container} role="region" aria-label={ariaLabel} className="h-full w-full" />;
 }
