@@ -1064,5 +1064,14 @@
     "resetBody": "Hi,\n\nChoose a new password here (the link is valid for one hour): {url}\n\nIf you did not request this you can ignore this email.\n\nHyrabostad",
     "sourceFailedSubject": "The source {source} is not responding",
     "sourceFailedBody": "Hi,\n\nWe have not been able to read {source} on the last {count} attempts. The homes are still shown but will not update until the source responds again.\n\nLatest error: {error}\n\nHyrabostad"
+  },
+  "map": {
+    "hint": "Move the map to update the results",
+    "ariaLabel": "Map of available homes",
+    "listLabel": "Homes on the map",
+    "empty": "No homes in this part of the map.",
+    "attribution": "Map data © OpenStreetMap contributors",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   }
 }

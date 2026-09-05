@@ -1064,5 +1064,14 @@
     "resetBody": "Hej,\n\nVälj ett nytt lösenord här (länken gäller i en timme): {url}\n\nHar du inte begärt detta kan du bortse från mejlet.\n\nHyrabostad",
     "sourceFailedSubject": "Källan {source} svarar inte",
     "sourceFailedBody": "Hej,\n\nVi har inte kunnat läsa av {source} vid de senaste {count} försöken. Bostäderna visas fortfarande men uppdateras inte förrän källan svarar igen.\n\nSenaste fel: {error}\n\nHyrabostad"
+  },
+  "map": {
+    "hint": "Flytta kartan för att uppdatera resultaten",
+    "ariaLabel": "Karta över lediga bostäder",
+    "listLabel": "Bostäder på kartan",
+    "empty": "Inga bostäder i det här kartutsnittet.",
+    "attribution": "Kartdata © OpenStreetMap-bidragsgivare",
+    "zoomIn": "Zooma in",
+    "zoomOut": "Zooma ut"
   }
 }

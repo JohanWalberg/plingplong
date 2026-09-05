@@ -200,15 +200,44 @@ export async function similarListings(locale: Locale, ref: { id: string; municip
   return rows as SearchResultItem[];
 }
 
+/**
+ * Listing detail. Geometry columns are excluded from the relational load
+ * (PostGIS geometry inside nested JSON cannot be decoded by Drizzle) and the
+ * coordinates are selected explicitly instead.
+ */
 export async function getListingBySlug(slug: string) {
   return db.query.listing.findFirst({
     where: eq(listing.slug, slug),
+    columns: { location: false },
+    extras: {
+      lat: sql<number | null>`ST_Y(${listing.location})`.as("lat"),
+      lon: sql<number | null>`ST_X(${listing.location})`.as("lon"),
+    },
     with: {
       landlord: true,
-      municipality: true,
-      area: true,
+      municipality: { columns: { centroid: false, geom: false } },
+      area: { columns: { centroid: false, geom: false } },
       images: { orderBy: (i, { asc }) => [asc(i.position)] },
       sources: { with: { source: { with: { landlord: true } } } },
+    },
+  });
+}
+
+export async function getListingById(id: string) {
+  return db.query.listing.findFirst({
+    where: eq(listing.id, id),
+    columns: { location: false },
+    extras: {
+      lat: sql<number | null>`ST_Y(${listing.location})`.as("lat"),
+      lon: sql<number | null>`ST_X(${listing.location})`.as("lon"),
+    },
+    with: {
+      landlord: true,
+      municipality: { columns: { centroid: false, geom: false } },
+      area: { columns: { centroid: false, geom: false } },
+      images: { orderBy: (i, { asc }) => [asc(i.position)] },
+      sources: { with: { source: { with: { landlord: true } } } },
+      revisions: { orderBy: (r, { desc }) => [desc(r.changedAt)] },
     },
   });
 }
