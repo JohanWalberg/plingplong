@@ -41,6 +41,8 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
 
   useEffect(() => {
     if (!container.current || mapRef.current) return;
+    // Worker served from /public; see scripts/copy-maplibre-worker.mjs.
+    maplibregl.setWorkerUrl("/vendor/maplibre/maplibre-gl-worker.mjs");
     const map = new maplibregl.Map({
       container: container.current,
       style: process.env.NEXT_PUBLIC_MAP_STYLE_URL || DEFAULT_STYLE,
@@ -59,6 +61,7 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
     });
     map.on("click", () => onSelectRef.current?.(null));
     mapRef.current = map;
+    if (process.env.NODE_ENV !== "production") (window as unknown as { __hbMap?: MLMap }).__hbMap = map;
     return () => {
       map.remove();
       mapRef.current = null;
@@ -70,6 +73,7 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
     const map = mapRef.current;
     if (!map || !ready) return;
     const render = () => {
+      if (process.env.NODE_ENV !== "production") (window as unknown as { __hbMarkers?: MapMarker[] }).__hbMarkers = markers;
       for (const m of markerEls.current) m.remove();
       markerEls.current = [];
       const index = new Supercluster<{ marker: MapMarker }>({ radius: 48, maxZoom: 16 });
