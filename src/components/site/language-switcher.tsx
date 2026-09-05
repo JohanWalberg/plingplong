@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useParams } from "next/navigation";
@@ -11,7 +12,18 @@ import { routing, type Locale } from "@/i18n/routing";
  * string (search and filter state). Slugs that differ per locale are passed
  * in via `alternates` by the page (e.g. municipality pages).
  */
-export function LanguageSwitcher({ alternates, variant = "light" }: { alternates?: Partial<Record<Locale, Record<string, string>>>; variant?: "light" | "dark" | "text" }) {
+type SwitcherProps = { alternates?: Partial<Record<Locale, Record<string, string>>>; variant?: "light" | "dark" | "text" };
+
+/** Suspense wrapper: useSearchParams needs a boundary on statically rendered pages. */
+export function LanguageSwitcher(props: SwitcherProps) {
+  return (
+    <Suspense fallback={null}>
+      <LanguageSwitcherInner {...props} />
+    </Suspense>
+  );
+}
+
+function LanguageSwitcherInner({ alternates, variant = "light" }: SwitcherProps) {
   const locale = useLocale() as Locale;
   const pathname = usePathname();
   const params = useParams();

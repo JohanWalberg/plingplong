@@ -15,7 +15,7 @@ export interface Storage {
   url(key: string): string;
 }
 
-const ROOT = path.resolve(process.env.UPLOAD_DIR ?? "./storage/uploads");
+const ROOT = path.resolve(/*turbopackIgnore: true*/ process.env.UPLOAD_DIR ?? "./storage/uploads");
 const TYPES: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
 
 function safe(key: string) {

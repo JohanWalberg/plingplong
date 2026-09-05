@@ -13,7 +13,7 @@
   --color-text: #1a1815;
   --color-text-secondary: #4a453d;
   --color-text-muted: #6b655d;
-  --color-text-faint: #8a8378;
+  --color-text-faint: #6b655d; /* design had #8a8378; darkened for WCAG AA 4.5:1 */
   --color-border: #e2ddd5;
   --color-border-strong: #cfc8bc;
   --color-hairline: #f0ece5;

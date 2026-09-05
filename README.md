@@ -49,3 +49,17 @@ pnpm test:e2e     # Playwright + axe
 - `src/db/schema.ts` Drizzle schema, `drizzle/` migrations, `src/db/seed.ts` seed.
 - `src/worker/` ingestion (pg-boss jobs, adapters, diffing).
 - `docs/` design review and product decisions.
+
+## End-to-end and crawl testing
+
+```bash
+pnpm exec playwright install chromium   # once
+pnpm test:e2e                            # needs the dev server on :3000 and seeded data
+node scripts/dev-feed-server.mjs 4010   # serves adapter fixtures for local crawls
+pnpm exec tsx --env-file=.env scripts/sync-once.ts <landlord-slug|source-id>
+```
+
+The e2e suite mutates data (publishes a home, approves an application). Run
+`pnpm db:reset` afterwards to get back to the seed.
+
+See `docs/STATUS.md` for what is built and what is pending.
