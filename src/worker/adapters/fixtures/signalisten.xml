@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vacancies generated="2026-09-04T14:40:00+02:00">
+  <listing>
+    <id>SIG-2026-04412</id>
+    <address>
+      <street>Gustav III:s Boulevard 46</street>
+      <district>Arenastaden</district>
+      <postcode>16973</postcode>
+      <municipality>Solna</municipality>
+    </address>
+    <rent><monthly>9340</monthly><currency>SEK</currency></rent>
+    <rooms>2</rooms>
+    <area_sqm>54</area_sqm>
+    <floor>4</floor>
+    <move_in>2026-11-01</move_in>
+    <application>
+      <deadline>2026-09-08</deadline>
+      <url>https://signalisten.se/ledigt/2026-04412</url>
+    </application>
+    <images><image>https://signalisten.se/img/04412-1.jpg</image></images>
+    <description>Ljus tvåa med balkong mot innergården. Hiss finns.</description>
+  </listing>
+  <listing>
+    <id>SIG-2026-04401</id>
+    <address>
+      <street>Hagalundsgatan 17</street>
+      <district>Hagalund</district>
+      <postcode>169 63</postcode>
+      <municipality>Solna</municipality>
+    </address>
+    <rent><monthly>7 890 kr/mån</monthly></rent>
+    <rooms>1 rok</rooms>
+    <area_sqm>41 m²</area_sqm>
+    <floor>6</floor>
+    <application>
+      <deadline>11 september 2026</deadline>
+      <url>https://signalisten.se/ledigt/2026-04401</url>
+    </application>
+  </listing>
+  <listing>
+    <id>SIG-2026-04418</id>
+    <address>
+      <street>Råsundavägen 102</street>
+      <district>Råsunda</district>
+      <municipality>Solna</municipality>
+    </address>
+    <rent><monthly></monthly></rent>
+    <rooms>3</rooms>
+    <area_sqm></area_sqm>
+    <application>
+      <url>https://signalisten.se/ledigt/2026-04418</url>
+    </application>
+  </listing>
+</vacancies>

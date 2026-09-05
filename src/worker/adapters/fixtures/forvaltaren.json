@@ -1,0 +1,34 @@
+{
+  "meta": { "count": 2, "generated": "2026-09-04T14:41:00+02:00" },
+  "data": {
+    "apartments": [
+      {
+        "objectId": "FV-2211",
+        "streetAddress": "Sturegatan 26",
+        "city": "Sundbyberg",
+        "area": "Centrala Sundbyberg",
+        "zip": "17231",
+        "monthlyRent": 12450,
+        "numberOfRooms": 3,
+        "livingArea": 78,
+        "floor": 3,
+        "availableFrom": "2026-10-01",
+        "applicationDeadline": "2026-09-04T23:59:00+02:00",
+        "queueType": "Bostadskö",
+        "link": "https://www.forvaltaren.se/ledigt/FV-2211",
+        "position": { "lat": 59.362, "lon": 17.972 }
+      },
+      {
+        "objectId": "FV-2230",
+        "streetAddress": "Landsvägen 40",
+        "city": "Sundbyberg",
+        "monthlyRent": "8 990",
+        "numberOfRooms": "2,5",
+        "livingArea": "50,5",
+        "queueType": "Ingen kö",
+        "category": "Seniorboende 65+",
+        "link": "https://www.forvaltaren.se/ledigt/FV-2230"
+      }
+    ]
+  }
+}
