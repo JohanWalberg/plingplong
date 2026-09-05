@@ -23,7 +23,8 @@ test("lead approves an application and the landlord appears", async ({ page }) =
 
 test("support cannot decide applications", async ({ page }) => {
   await signIn(page, "support@hyrabostad.se", "admin");
-  await page.goto("/sv/admin/hyresvardar/ansokningar");
+  // The needs-info tab always has an undecided application in the seed.
+  await page.goto("/sv/admin/hyresvardar/ansokningar?tab=needs_info");
   await expect(page.getByRole("button", { name: "Godkänn och öppna publicering" })).toBeDisabled();
 });
 
