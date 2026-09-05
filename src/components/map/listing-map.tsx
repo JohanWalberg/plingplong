@@ -21,7 +21,8 @@ type Props = {
   attribution?: string;
 };
 
-const DEFAULT_STYLE = "https://demotiles.maplibre.org/style.json";
+// OpenFreeMap: free OSM-based vector tiles, no key. Swap for Protomaps/MapTiler via NEXT_PUBLIC_MAP_STYLE_URL.
+const DEFAULT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 
 /**
  * MapLibre map with rent-labelled markers and supercluster clustering.
