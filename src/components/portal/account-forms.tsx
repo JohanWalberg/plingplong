@@ -107,6 +107,7 @@ export function MemberControls({ userId, name, role, isSelf }: { userId: string;
 export function ProfileForm({ name, email }: { name: string; email: string }) {
   const t = useTranslations("portal.account");
   const ta = useTranslations("auth");
+  const tc = useTranslations("common");
   const locale = useLocale() as Locale;
   const { toast } = useToast();
   const router = useRouter();
@@ -131,7 +132,7 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
         <Input label={t("name")} name="name" defaultValue={name} required autoComplete="name" />
         <Input label={t("email")} value={email} readOnly type="email" />
         <Button type="submit" variant="secondary" loading={pending} className="self-start">
-          {ta("name") === t("name") ? t("saved") : t("name")}
+          {tc("save")}
         </Button>
       </form>
       <form
