@@ -19,7 +19,7 @@ test("owner publishes a home, it appears publicly, then unpublishes it", async (
   await page.getByLabel("Ansökningslänk").fill("https://signalisten.se/ledigt/test");
   await page.getByRole("button", { name: "Publicera bostaden" }).click();
   await page.waitForURL(/\/publicerad/);
-  await expect(page.getByText("Bostaden är publicerad.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bostaden är publicerad." })).toBeVisible();
 
   // Public page shows the direct-published mark.
   const slug = `${address.toLowerCase().replace(/\s+/g, "-")}-solna`;
