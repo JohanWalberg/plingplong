@@ -8,6 +8,10 @@ import { alternatesFor } from "@/lib/seo";
 import { SiteHeader } from "@/components/site/header";
 import { StatusPill } from "@/components/ui/badge";
 
+// Rendered at build time and refreshed every five minutes; listing changes from
+// the portal and admin clear it immediately through invalidateListingCaches().
+export const revalidate = 300;
+
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

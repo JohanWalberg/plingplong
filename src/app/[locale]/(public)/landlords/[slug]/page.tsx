@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { eq } from "drizzle-orm";
+import { db, schema } from "@/db";
 import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/lib/locale";
 import { alternatesFor } from "@/lib/seo";
@@ -14,6 +16,12 @@ import { municipalityName, municipalitySlug } from "@/lib/queries/places";
 import { initials } from "@/lib/listing-display";
 
 export const revalidate = 300;
+
+/** Prerender every known landlord; new ones render on demand. */
+export async function generateStaticParams() {
+  const rows = await db.select({ slug: schema.landlord.slug }).from(schema.landlord).where(eq(schema.landlord.isKnown, true));
+  return rows.map((r) => ({ slug: r.slug }));
+}
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 

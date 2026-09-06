@@ -40,6 +40,20 @@ roles.
 sign-up, password reset and metrics, application retention (90/180 days) in
 the nightly housekeeping job, owner-initiated account closure.
 
+**Rendering and caching (2026-09-06).** The home page, municipality and
+landlord indexes, coverage page and every municipality and landlord page
+are prerendered per locale and refreshed every five minutes (ISR), and the
+content pages are fully static. Two things had silently kept them dynamic:
+translations read in the public layout's footer and in the loading
+skeletons without a request locale, which made next-intl fall back to
+request headers. The public layout now sets the locale, and loading files
+read it from `next/root-params`, which required `[locale]/layout.tsx` to be
+the root layout (the bare `app/layout.tsx` is gone; `global-not-found.tsx`
+covers unmatched URLs). Search results stay uncached as the brief asks; the
+facet, coverage and source-health lookups beside them are memoized for
+`CACHE_TTL_SECONDS`, and every web-side listing change clears that memo and
+the ISR pages through `invalidateListingCaches()`.
+
 **UI polish (2026-09-06).** Skeleton loading states on every data-backed
 route, with the signed-in portal and admin pages in `(app)` and `(staff)`
 route groups so sign-in pages keep their own look. Listing photos through
@@ -80,7 +94,8 @@ priority order.
 9. **Saved-search alerts** (post-MVP in the brief). Saved searches are
    browser-only links today.
 10. **ISR on-demand invalidation** when a crawl changes a municipality's
-    listing set. Pages use a five-minute revalidate instead.
+    listing set. Portal and admin changes invalidate immediately; crawls in
+    the worker still rely on the five-minute revalidate.
 11. **Observability.** No Sentry or structured log shipping; source health is
     in the database as the brief asks.
 12. **Deployment.** No Vercel or Fly.io configuration, no CI workflow. The

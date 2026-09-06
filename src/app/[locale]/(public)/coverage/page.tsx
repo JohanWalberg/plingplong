@@ -8,6 +8,9 @@ import { alternatesFor } from "@/lib/seo";
 import { SiteHeader } from "@/components/site/header";
 import { municipalityName, municipalitySlug } from "@/lib/queries/places";
 
+// Aggregates over all sources; refreshed every five minutes.
+export const revalidate = 300;
+
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -6,6 +6,10 @@ import { SearchBox } from "@/components/search/search-box";
 import { ListingCard } from "@/components/listing/listing-card";
 import { latestListings } from "@/lib/queries/listings";
 
+// Rendered at build time and refreshed every five minutes; listing changes from
+// the portal and admin clear it immediately through invalidateListingCaches().
+export const revalidate = 300;
+
 const POPULAR = ["stockholm", "solna", "goteborg", "malmo", "uppsala"] as const;
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {

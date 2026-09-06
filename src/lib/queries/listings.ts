@@ -89,7 +89,7 @@ const cardSelect = (locale: Locale) => ({
 
 export type SearchResultItem = ListingCardData & { id: string; lat: number | null; lon: number | null };
 
-async function searchListingsQuery(locale: Locale, scope: SearchScope, f: SearchFilters, pageSize = PAGE_SIZE) {
+export async function searchListings(locale: Locale, scope: SearchScope, f: SearchFilters, pageSize = PAGE_SIZE) {
   const where = and(...whereClauses(scope, f));
   const [rows, [{ count }]] = await Promise.all([
     db
@@ -109,8 +109,6 @@ async function searchListingsQuery(locale: Locale, scope: SearchScope, f: Search
   ]);
   return { items: rows as SearchResultItem[], total: count, pageSize, page: f.page, pages: Math.max(1, Math.ceil(count / pageSize)) };
 }
-/** Memoized for the cache TTL; keyed by locale, scope and filters. */
-export const searchListings = memoize(LISTINGS_NS, searchListingsQuery);
 
 /** All matching listings with coordinates for the map (capped). */
 export async function searchListingsForMap(locale: Locale, scope: SearchScope, f: SearchFilters, cap = 500) {
@@ -138,7 +136,7 @@ async function landlordFacetQuery(scope: SearchScope, f: SearchFilters) {
     .orderBy(desc(sql`count(*)`), asc(landlord.name))
     .limit(12);
 }
-/** Memoized; see searchListings. */
+/** Memoized for CACHE_TTL_SECONDS; results themselves stay uncached as the brief asks. */
 export const landlordFacet = memoize(LISTINGS_NS, landlordFacetQuery);
 
 /** Coverage: monitored vs known landlords in a municipality. Never a share of the market. */
@@ -153,7 +151,7 @@ async function coverageForQuery(municipalityId: string) {
     .where(eq(landlordMunicipality.municipalityId, municipalityId));
   return row ?? { known: 0, monitored: 0 };
 }
-/** Memoized; see searchListings. */
+/** Memoized for CACHE_TTL_SECONDS; results themselves stay uncached as the brief asks. */
 export const coverageFor = memoize(LISTINGS_NS, coverageForQuery);
 
 /** Sources in a municipality that are currently failing or degraded, for the partial-coverage banner. */
@@ -166,10 +164,10 @@ async function failingSourcesForQuery(municipalityId: string) {
     .where(and(eq(landlordMunicipality.municipalityId, municipalityId), inArray(source.status, ["failed", "degraded"])))
     .groupBy(landlord.name, source.status);
 }
-/** Memoized; see searchListings. */
+/** Memoized for CACHE_TTL_SECONDS; results themselves stay uncached as the brief asks. */
 export const failingSourcesFor = memoize(LISTINGS_NS, failingSourcesForQuery);
 
-async function latestListingsQuery(locale: Locale, limit = 3) {
+export async function latestListings(locale: Locale, limit = 3) {
   const rows = await db
     .select(cardSelect(locale))
     .from(listing)
@@ -180,8 +178,6 @@ async function latestListingsQuery(locale: Locale, limit = 3) {
     .limit(limit);
   return rows as SearchResultItem[];
 }
-/** Memoized; the home page reads this on every request. */
-export const latestListings = memoize(LISTINGS_NS, latestListingsQuery);
 
 export async function listingsForMunicipality(locale: Locale, municipalityId: string, limit = 3) {
   const f = { maxRent: undefined, rooms: [], sizeMin: undefined, sizeMax: undefined, queue: [], landlord: [], segment: [], moveInBefore: undefined, sort: "new", page: 1 } as SearchFilters;

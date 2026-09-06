@@ -1,5 +1,7 @@
 import { AdminLoading } from "@/components/admin/admin-loading";
+import { loadingLocale } from "@/lib/loading-locale";
 
-export default function Loading() {
+export default async function Loading() {
+  await loadingLocale();
   return <AdminLoading active="coverage" kpis={0} />;
 }

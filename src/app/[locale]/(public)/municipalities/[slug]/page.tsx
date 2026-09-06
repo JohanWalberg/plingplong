@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { db, schema } from "@/db";
 import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/lib/locale";
 import { alternatesFor } from "@/lib/seo";
@@ -14,6 +15,12 @@ import { areaCounts, coverageFor, landlordCountsFor, listingsForMunicipality, mu
 import { countyName, findMunicipalityBySlug, municipalityName, municipalitySlug } from "@/lib/queries/places";
 
 export const revalidate = 300;
+
+/** Prerender every municipality per locale; new ones render on demand. */
+export async function generateStaticParams({ params }: { params: { locale: string } }) {
+  const rows = await db.select({ sv: schema.municipality.slugSv, en: schema.municipality.slugEn }).from(schema.municipality);
+  return rows.map((r) => ({ slug: params.locale === "en" ? r.en : r.sv }));
+}
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
