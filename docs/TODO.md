@@ -17,7 +17,7 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 - [?] **A2. Geocoding.** Register for Lantmäteriet's address API, add a
   geocoder step in the crawl for listings without coordinates, store the result
   on the listing, fall back to area centroid only when geocoding fails.
-- [ ] **A3. Error boundaries.** `error.tsx` for public, portal and admin route
+- [x] **A3. Error boundaries.** `error.tsx` for public, portal and admin route
   groups with a retry action and the copy that already exists under
   `states.errorTitle` / `states.errorBody`.
 - [ ] **A4. Save-search button on the results page.** The component exists
