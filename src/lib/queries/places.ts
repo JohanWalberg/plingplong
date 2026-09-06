@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { and, eq, ilike, or, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { Locale } from "@/i18n/routing";
@@ -21,11 +22,11 @@ export function countyName(m: { countySv: string; countyEn: string }, locale: Lo
 }
 
 /** Resolve a municipality by slug in either locale, so language switches keep the entity. */
-export async function findMunicipalityBySlug(slug: string) {
+export const findMunicipalityBySlug = cache(async (slug: string) => {
   return db.query.municipality.findFirst({
     where: or(eq(municipality.slugSv, slug), eq(municipality.slugEn, slug)),
   });
-}
+});
 
 export async function findArea(municipalityId: string, slug: string) {
   return db.query.area.findFirst({ where: and(eq(area.municipalityId, municipalityId), eq(area.slug, slug)) });

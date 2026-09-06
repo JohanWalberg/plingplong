@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { and, asc, desc, eq, gte, inArray, isNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { Locale } from "@/i18n/routing";
@@ -205,7 +206,7 @@ export async function similarListings(locale: Locale, ref: { id: string; municip
  * (PostGIS geometry inside nested JSON cannot be decoded by Drizzle) and the
  * coordinates are selected explicitly instead.
  */
-export async function getListingBySlug(slug: string) {
+export const getListingBySlug = cache(async (slug: string) => {
   return db.query.listing.findFirst({
     where: eq(listing.slug, slug),
     columns: { location: false },
@@ -221,7 +222,7 @@ export async function getListingBySlug(slug: string) {
       sources: { with: { source: { with: { landlord: true } } } },
     },
   });
-}
+});
 
 export async function getListingById(id: string) {
   return db.query.listing.findFirst({

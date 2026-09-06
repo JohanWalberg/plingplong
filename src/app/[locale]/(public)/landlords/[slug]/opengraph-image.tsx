@@ -1,9 +1,8 @@
 import { getTranslations } from "next-intl/server";
-import { eq } from "drizzle-orm";
-import { db, schema } from "@/db";
 import { ogCard, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og";
 import { resolveLocale } from "@/lib/locale";
 import { listingsForLandlord } from "@/lib/queries/listings";
+import { landlordBySlug } from "@/lib/queries/landlords";
 import { municipalityName } from "@/lib/queries/places";
 import { formatNumber } from "@/lib/format";
 
@@ -14,7 +13,7 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
   const { slug } = await params;
   const locale = await resolveLocale(params);
   const [l, t] = await Promise.all([
-    db.query.landlord.findFirst({ where: eq(schema.landlord.slug, slug), with: { municipalities: { with: { municipality: { columns: { centroid: false, geom: false } } } } } }),
+    landlordBySlug(slug),
     getTranslations({ locale, namespace: "landlord" }),
   ]);
   if (!l) return ogCard({ kicker: t("kicker"), title: slug });

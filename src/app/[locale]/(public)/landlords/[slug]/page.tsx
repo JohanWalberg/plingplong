@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { eq } from "drizzle-orm";
-import { db, schema } from "@/db";
 import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/lib/locale";
 import { alternatesFor } from "@/lib/seo";
@@ -11,6 +9,7 @@ import { ListingCard } from "@/components/listing/listing-card";
 import { Freshness } from "@/components/listing/freshness";
 import { Card, Kicker, icons, Callout } from "@/components/ui/misc";
 import { listingsForLandlord } from "@/lib/queries/listings";
+import { landlordBySlug } from "@/lib/queries/landlords";
 import { municipalityName, municipalitySlug } from "@/lib/queries/places";
 import { initials } from "@/lib/listing-display";
 
@@ -18,17 +17,10 @@ export const revalidate = 300;
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-async function load(slug: string) {
-  return db.query.landlord.findFirst({
-    where: eq(schema.landlord.slug, slug),
-    with: { municipalities: { with: { municipality: { columns: { centroid: false, geom: false } } } }, sources: true },
-  });
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const locale = await resolveLocale(params);
-  const l = await load(slug);
+  const l = await landlordBySlug(slug);
   if (!l) return {};
   const t = await getTranslations({ locale, namespace: "landlord" });
   const description = (locale === "sv" ? l.descriptionSv : l.descriptionEn) ?? t("listingsTitle", { name: l.name });
@@ -38,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LandlordPage({ params }: Props) {
   const { slug } = await params;
   const locale = await resolveLocale(params);
-  const l = await load(slug);
+  const l = await landlordBySlug(slug);
   if (!l) notFound();
   const t = await getTranslations("landlord");
   const tl = await getTranslations("listing");
