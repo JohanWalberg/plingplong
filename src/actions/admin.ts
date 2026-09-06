@@ -28,7 +28,7 @@ function revalidateAdmin() {
 
 export async function runSourceSync(locale: Locale, sourceId: string) {
   await requireStaff(locale, "support");
-  await enqueueSourceSync(sourceId, true);
+  await enqueueSourceSync(sourceId, true, true);
   revalidateAdmin();
 }
 

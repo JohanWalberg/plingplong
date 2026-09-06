@@ -11,10 +11,10 @@ async function main() {
   const boss = await createBoss();
   boss.on("error", (e: unknown) => console.error("[pg-boss]", e));
 
-  await boss.work<{ sourceId: string; manual?: boolean }>(QUEUES.sync, async (jobs: Job<{ sourceId: string; manual?: boolean }>[]) => {
+  await boss.work<{ sourceId: string; manual?: boolean; force?: boolean }>(QUEUES.sync, async (jobs: Job<{ sourceId: string; manual?: boolean; force?: boolean }>[]) => {
     const [job] = jobs;
     const started = Date.now();
-    const out = await syncSource(job.data.sourceId, { manual: job.data.manual });
+    const out = await syncSource(job.data.sourceId, { manual: job.data.manual, force: job.data.force });
     console.log(`[sync] ${job.data.sourceId} ${out.ok ? "ok" : "FAILED"} found=${out.found} new=${out.created} upd=${out.updated} gone=${out.gone}${out.anomaly ? " ANOMALY" : ""}${out.error ? ` err=${out.error}` : ""} (${Date.now() - started}ms)`);
   });
 

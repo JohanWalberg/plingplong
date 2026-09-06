@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull, lt, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, lt, lte, or, sql, ne } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { listingSlug, slugify } from "@/lib/slug";
 import { sendEmail } from "@/lib/email";
@@ -21,10 +21,12 @@ type SyncOutcome = { ok: boolean; found: number; created: number; updated: numbe
  * - Absent on a successful run → removed (unless the anomaly guard fires).
  * - Failed run → nothing removed, source degraded/failed, contact emailed at 3.
  */
-export async function syncSource(sourceId: string, opts: { manual?: boolean } = {}): Promise<SyncOutcome> {
+/** `manual` marks an on-demand run; `force` (staff only) is the sole way to run a disabled source. Objected sources never run. */
+export async function syncSource(sourceId: string, opts: { manual?: boolean; force?: boolean } = {}): Promise<SyncOutcome> {
   const src = await db.query.source.findFirst({ where: eq(source.id, sourceId), with: { landlord: { with: { municipalities: true } } } });
   if (!src) throw new Error(`source ${sourceId} not found`);
-  if (src.status === "disabled" && !opts.manual) return { ok: false, found: 0, created: 0, updated: 0, gone: 0, anomaly: false, error: "disabled" };
+  if (src.consent === "objected") return { ok: false, found: 0, created: 0, updated: 0, gone: 0, anomaly: false, error: "objected" };
+  if (src.status === "disabled" && !opts.force) return { ok: false, found: 0, created: 0, updated: 0, gone: 0, anomaly: false, error: "disabled" };
   if (src.kind === "manual" || !src.url) return { ok: true, found: 0, created: 0, updated: 0, gone: 0, anomaly: false };
 
   const [run] = await db.insert(sourceRun).values({ sourceId }).returning({ id: sourceRun.id });
@@ -52,7 +54,8 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean } = 
   const previous = await db
     .select({ found: sourceRun.listingsFound })
     .from(sourceRun)
-    .where(and(eq(sourceRun.sourceId, src.id), eq(sourceRun.ok, true), sql`${sourceRun.id} <> ${run.id}`))
+    // Runs flagged as anomalies stay out of the baseline, otherwise three empty runs would pull the median to zero and switch the guard off.
+    .where(and(eq(sourceRun.sourceId, src.id), eq(sourceRun.ok, true), eq(sourceRun.anomaly, false), sql`${sourceRun.id} <> ${run.id}`))
     .orderBy(desc(sourceRun.startedAt))
     .limit(5);
   const { anomaly } = isAnomalousDrop(found, previous.map((p) => p.found ?? 0));
@@ -218,7 +221,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean } = 
   await db
     .update(source)
     .set({
-      status: anomaly ? "needs_review" : src.status === "needs_review" ? "needs_review" : "active",
+      status: src.status === "disabled" ? "disabled" : anomaly ? "needs_review" : src.status === "needs_review" ? "needs_review" : "active",
       lastRunAt: now,
       lastSuccessAt: now,
       nextRunAt: new Date(now.getTime() + src.fetchIntervalMinutes * 60_000),
@@ -364,7 +367,8 @@ export async function dueSources(now: Date = new Date()) {
   return db
     .select({ id: source.id })
     .from(source)
-    .where(and(inArray(source.status, ["pending", "active", "degraded", "failed", "needs_review"]), inArray(source.kind, ["feed", "api", "html"]), or(isNull(source.nextRunAt), lte(source.nextRunAt, now))));
+    // Sources in review wait for staff (markSourceReviewed re-arms them); objected sources never run.
+    .where(and(inArray(source.status, ["pending", "active", "degraded", "failed"]), ne(source.consent, "objected"), inArray(source.kind, ["feed", "api", "html"]), or(isNull(source.nextRunAt), lte(source.nextRunAt, now))));
 }
 
 void municipality;

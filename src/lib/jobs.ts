@@ -27,9 +27,10 @@ export function createBoss(): Promise<PgBoss> {
   return globalForBoss.__hyrabostadBoss;
 }
 
-export async function enqueueSourceSync(sourceId: string, manual = true) {
+/** `force` runs a disabled source and must only be passed from staff actions. */
+export async function enqueueSourceSync(sourceId: string, manual = true, force = false) {
   const boss = await createBoss();
-  return boss.send(QUEUES.sync, { sourceId, manual }, { singletonKey: sourceId, singletonSeconds: 60, retryLimit: 0 });
+  return boss.send(QUEUES.sync, { sourceId, manual, force }, { singletonKey: sourceId, singletonSeconds: 60, retryLimit: 0 });
 }
 
 export async function enqueueAllSyncs(sourceIds: string[]) {
