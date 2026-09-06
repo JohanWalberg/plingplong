@@ -7,6 +7,7 @@ import { submitApplication, type SignupState } from "@/actions/signup";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Input, RadioBox, ValidationSummary } from "@/components/ui/form";
 import { Callout } from "@/components/ui/misc";
+import { Link } from "@/i18n/navigation";
 
 export function SignupForm({ manualPublishing = true }: { manualPublishing?: boolean }) {
   const t = useTranslations("portal.signup");
@@ -74,7 +75,17 @@ export function SignupForm({ manualPublishing = true }: { manualPublishing?: boo
       </fieldset>
 
       <div>
-        <Checkbox name="terms" label={t("terms")} />
+        <Checkbox
+          name="terms"
+          label={
+            <>
+              {t("terms")}{" "}
+              <Link href="/terms" target="_blank" className="font-[650]">
+                {t("termsLink")}
+              </Link>
+            </>
+          }
+        />
         {err("terms") ? <p className="text-meta font-[600] text-error-text">{err("terms")}</p> : null}
       </div>
 

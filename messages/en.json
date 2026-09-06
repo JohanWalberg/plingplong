@@ -193,7 +193,10 @@
     "noSavedHomes": "You have no saved homes yet.",
     "removeSaved": "Remove from saved",
     "share": "Share",
-    "mapOf": "Map of {address}"
+    "mapOf": "Map of {address}",
+    "galleryLabel": "{count} photos",
+    "galleryPhoto": "Photo {n} of {count}",
+    "galleryCaption": "Photo {n} of {count}"
   },
   "freshness": {
     "justNow": "Checked just now",
@@ -308,7 +311,8 @@
     "privacy": "Personal data",
     "cookies": "Cookies",
     "copyright": "© {year} Hyrabostad",
-    "noApply": "Applications always happen with the landlord."
+    "noApply": "Applications always happen with the landlord.",
+    "terms": "Terms for landlords"
   },
   "pages": {
     "howItWorksTitle": "How it works",
@@ -354,7 +358,22 @@
     "cookiesTitle": "Cookies",
     "cookiesIntro": "Hyrabostad uses no tracking cookies and no third-party analytics on the public pages.",
     "cookiesNecessaryTitle": "Necessary storage",
-    "cookiesNecessaryBody": "Your language choice, saved searches and saved homes are stored in your browser. Signed-in landlords and staff get a session cookie required for sign-in."
+    "cookiesNecessaryBody": "Your language choice, saved searches and saved homes are stored in your browser. Signed-in landlords and staff get a session cookie required for sign-in.",
+    "termsTitle": "Terms for landlords",
+    "termsIntro": "These terms apply to organisations that publish homes on Hyrabostad, directly in the portal or through a connected source. Draft: to be reviewed by the owner before launch.",
+    "terms1Title": "Who may publish",
+    "terms1Body": "Accounts are open to housing companies, registered property owners and organisations with an organisation number. Every application is reviewed by hand and the account opens only after approval. Private individuals cannot publish.",
+    "terms2Title": "Your responsibility for the content",
+    "terms2Body": "You confirm that you are entitled to publish the homes you add or connect, that the details are accurate and that you keep them up to date. You are responsible for the photos and texts you provide. We do not alter your details; when a detail is missing we show that it is missing.",
+    "terms3Title": "What we do",
+    "terms3Body": "We show your homes in search with you named as the source and always link onward to your own application or contact route. We handle no applications, charge people searching nothing and do not charge you. Connected sources are read about once an hour.",
+    "terms4Title": "Unpublishing and suspension",
+    "terms4Body": "You can unpublish a home or disable a source at any time. We may remove homes or close accounts that break these terms, for example incorrect or misleading details, and will notify you at the contact person's email.",
+    "terms5Title": "Personal data",
+    "terms5Body": "The contact person's name, email and phone are processed as described on our personal data page. Details in listings are ones you chose to publish.",
+    "terms6Title": "Changes",
+    "terms6Body": "We may update these terms. Material changes are announced by email to account owners at least 30 days before they take effect.",
+    "termsUpdated": "Last updated {date}"
   },
   "auth": {
     "portalTitle": "Sign in as a landlord",
@@ -491,7 +510,8 @@
       "doneTitle": "Your application has been sent.",
       "doneBody": "We review applications by hand, normally within one working day. You will get an email at {email} when the account opens.",
       "needsInfoTitle": "We need more detail",
-      "needsInfoBody": "Our reviewer has sent a question to {email}. Reply to the email and the review continues."
+      "needsInfoBody": "Our reviewer has sent a question to {email}. Reply to the email and the review continues.",
+      "termsLink": "Read the terms"
     },
     "nav": {
       "homes": "Homes",

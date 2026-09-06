@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   };
 
   push(() => "/", undefined, 1);
-  for (const p of ["/homes", "/map", "/municipalities", "/landlords", "/how-it-works", "/coverage", "/faq", "/contact", "/about-collection", "/privacy", "/cookies", "/for-landlords"] as const) push(() => p);
+  for (const p of ["/homes", "/map", "/municipalities", "/landlords", "/how-it-works", "/coverage", "/faq", "/contact", "/about-collection", "/privacy", "/cookies", "/terms", "/for-landlords"] as const) push(() => p);
 
   const munis = await db.query.municipality.findMany({ columns: { slugSv: true, slugEn: true } });
   for (const m of munis) {

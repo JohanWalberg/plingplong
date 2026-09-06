@@ -72,6 +72,7 @@ export async function PortalPublicShell({ children, wide = false }: { children: 
   const t = await getTranslations("portal.landing");
   const tc = await getTranslations("common");
   const ta = await getTranslations("auth");
+  const tp = await getTranslations("footer");
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <header className="border-b border-line bg-surface">
@@ -106,9 +107,15 @@ export async function PortalPublicShell({ children, wide = false }: { children: 
       <main id="main" className={`mx-auto w-full flex-1 px-4 py-10 sm:px-6 ${wide ? "max-w-[1200px]" : "max-w-[1040px]"}`}>
         {children}
       </main>
-      <p className="border-t border-line px-4 py-4 text-center text-[13px] text-muted">
+      <p className="flex flex-wrap justify-center gap-x-4 border-t border-line px-4 py-4 text-center text-[13px] text-muted">
         <Link href="/" className="text-muted hover:text-ink">
           {ta("backPublic")}
+        </Link>
+        <Link href="/terms" className="text-muted hover:text-ink">
+          {tp("terms")}
+        </Link>
+        <Link href="/privacy" className="text-muted hover:text-ink">
+          {tp("privacy")}
         </Link>
       </p>
     </div>

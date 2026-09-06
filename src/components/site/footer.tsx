@@ -37,6 +37,7 @@ export async function SiteFooter() {
         { label: t("portalLogin"), href: "/portal/sign-in", highlight: true },
         { label: t("connectSource"), href: "/for-landlords" },
         { label: t("publishManually"), href: "/for-landlords" },
+        { label: t("terms"), href: "/terms" },
       ],
     },
   ];

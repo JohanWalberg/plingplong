@@ -23,10 +23,10 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 - [x] **A4. Save-search button on the results page.** The component exists
   (`src/components/search/save-search-button.tsx`) but is not placed. Add it to
   the results toolbar with the current heading as label.
-- [ ] **A5. Terms of use for landlords.** Static page in both languages, linked
+- [x] **A5. Terms of use for landlords.** Static page in both languages, linked
   from the sign-up checkbox and the portal footer. Needs a short text from the
   owner or a draft to approve.
-- [ ] **A6. Photo gallery on the listing detail page.** Show all images for
+- [x] **A6. Photo gallery on the listing detail page.** Show all images for
   manual listings (thumbnails, keyboard-navigable), first image for feeds.
 - [x] **A7. Catalogue the remaining English-only admin strings.** Listing
   detail table headers, staff invite hint, "Pending" status label in the source

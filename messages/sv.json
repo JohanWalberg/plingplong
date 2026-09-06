@@ -193,7 +193,10 @@
     "noSavedHomes": "Du har inga sparade bostäder än.",
     "removeSaved": "Ta bort från sparade",
     "share": "Dela",
-    "mapOf": "Karta över {address}"
+    "mapOf": "Karta över {address}",
+    "galleryLabel": "{count} bilder",
+    "galleryPhoto": "Bild {n} av {count}",
+    "galleryCaption": "Bild {n} av {count}"
   },
   "freshness": {
     "justNow": "Kontrollerad nyss",
@@ -308,7 +311,8 @@
     "privacy": "Personuppgifter",
     "cookies": "Cookies",
     "copyright": "© {year} Hyrabostad",
-    "noApply": "Ansökan sker alltid hos hyresvärden."
+    "noApply": "Ansökan sker alltid hos hyresvärden.",
+    "terms": "Villkor för hyresvärdar"
   },
   "pages": {
     "howItWorksTitle": "Så fungerar det",
@@ -354,7 +358,22 @@
     "cookiesTitle": "Cookies",
     "cookiesIntro": "Hyrabostad använder inga spårningscookies och ingen tredjepartsanalys på de publika sidorna.",
     "cookiesNecessaryTitle": "Nödvändig lagring",
-    "cookiesNecessaryBody": "Ditt språkval, sparade sökningar och sparade bostäder lagras i din webbläsare. Inloggade hyresvärdar och personal får en sessionscookie som krävs för inloggningen."
+    "cookiesNecessaryBody": "Ditt språkval, sparade sökningar och sparade bostäder lagras i din webbläsare. Inloggade hyresvärdar och personal får en sessionscookie som krävs för inloggningen.",
+    "termsTitle": "Villkor för hyresvärdar",
+    "termsIntro": "Dessa villkor gäller för organisationer som publicerar bostäder på Hyrabostad, direkt i portalen eller genom en ansluten källa. Utkast: granskas av ansvarig innan lansering.",
+    "terms1Title": "Vem får publicera",
+    "terms1Body": "Konton är öppna för bostadsbolag, registrerade fastighetsägare och organisationer med organisationsnummer. Varje ansökan granskas manuellt och kontot öppnas först efter godkännande. Privatpersoner kan inte publicera.",
+    "terms2Title": "Ert ansvar för innehållet",
+    "terms2Body": "Ni bekräftar att ni har rätt att publicera de bostäder ni lägger upp eller ansluter, att uppgifterna är korrekta och att ni håller dem uppdaterade. Ni ansvarar för bilder och texter ni tillhandahåller. Vi ändrar inte era uppgifter; saknas en uppgift visar vi att den saknas.",
+    "terms3Title": "Vad vi gör",
+    "terms3Body": "Vi visar era bostäder i sökningen med er som angiven källa och länkar alltid vidare till er egen ansökan eller kontaktväg. Vi hanterar inga ansökningar, tar inga avgifter från hyressökande och tar inte betalt av er. Anslutna källor läses av ungefär en gång i timmen.",
+    "terms4Title": "Avpublicering och avstängning",
+    "terms4Body": "Ni kan avpublicera en bostad eller stänga av en källa när som helst. Vi kan ta bort bostäder eller stänga konton som bryter mot dessa villkor, till exempel vid felaktiga eller vilseledande uppgifter, och meddelar er då via kontaktpersonens e-post.",
+    "terms5Title": "Personuppgifter",
+    "terms5Body": "Kontaktpersonens namn, e-post och telefon behandlas enligt vår sida om personuppgifter. Uppgifter i annonser är sådana ni själva valt att publicera.",
+    "terms6Title": "Ändringar",
+    "terms6Body": "Vi kan uppdatera villkoren. Väsentliga ändringar meddelas via e-post till kontoansvariga minst 30 dagar innan de börjar gälla.",
+    "termsUpdated": "Senast uppdaterad {date}"
   },
   "auth": {
     "portalTitle": "Logga in som hyresvärd",
@@ -491,7 +510,8 @@
       "doneTitle": "Ansökan är skickad.",
       "doneBody": "Vi granskar ansökan manuellt, normalt inom en arbetsdag. Ni får ett mejl till {email} när kontot öppnas.",
       "needsInfoTitle": "Vi behöver en komplettering",
-      "needsInfoBody": "Vår granskare har skickat en fråga till {email}. Svara på mejlet så fortsätter granskningen."
+      "needsInfoBody": "Vår granskare har skickat en fråga till {email}. Svara på mejlet så fortsätter granskningen.",
+      "termsLink": "Läs villkoren"
     },
     "nav": {
       "homes": "Bostäder",
