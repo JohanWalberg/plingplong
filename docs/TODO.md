@@ -65,13 +65,22 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 
 - [ ] **D1. Seed data polish.** More listings with photos, a few in Göteborg,
   Malmö and Uppsala so the popular-search pills are not empty.
-- [ ] **D2. Mobile map view.** Dedicated narrow layout (list under the map)
+- [x] **D2. Mobile map view.** Dedicated narrow layout (list under the map)
   instead of hiding the list.
-- [ ] **D3. Portal statistics: saves.** Count saves via the metrics endpoint
+- [x] **D3. Portal statistics: saves.** Count saves via the metrics endpoint
   when a seeker saves a home; the column exists.
-- [ ] **D4. Accessibility sweep** of pages not covered by the e2e axe run:
+- [x] **D4. Accessibility sweep** of pages not covered by the e2e axe run:
   portal sources, statistics, account; admin sources detail, listings,
-  settings.
+  settings. Now `e2e/a11y.spec.ts`, run with the rest.
+- [x] **D5. Loading skeletons** on every data-backed route, per the brief's
+  definition of done.
+- [x] **D6. next/image** for listing photos; uploads resized and converted.
+- [x] **D7. Open Graph metadata** and generated share images.
+- [ ] **D8. Server-rendered 404 shell.** Pages that call `notFound()` hydrate
+  correctly (axe passes in the browser) but the streamed HTML is Next's bare
+  `__next_error__` shell without `lang` or the stylesheet, so a 404 flashes
+  unstyled. Removing the root layout did not change it; needs a look at how
+  Next 16 renders not-found under a `[locale]` root.
 
 ## E. Post-MVP (from the brief)
 

@@ -40,6 +40,19 @@ roles.
 sign-up, password reset and metrics, application retention (90/180 days) in
 the nightly housekeeping job, owner-initiated account closure.
 
+**UI polish (2026-09-06).** Skeleton loading states on every data-backed
+route, with the signed-in portal and admin pages in `(app)` and `(staff)`
+route groups so sign-in pages keep their own look. Listing photos through
+`next/image`: uploads and seed images are resized and served as AVIF/WebP,
+hotlinked landlord photos are marked unoptimized per image. Open Graph
+metadata and generated share images for listings, municipalities, landlords
+and a site default. Map view stacks the list under the map on phones. Saves
+are counted and shown in portal statistics. An axe sweep covers every
+portal, admin and public page; unknown paths under a locale reach the
+localised not-found page, and unknown listing, municipality and landlord
+slugs answer a real 404 from a per-slug layout that runs before the loading
+boundary.
+
 ## Pending
 
 Items the brief or the design call for that are not built yet, in rough
@@ -75,6 +88,9 @@ priority order.
     `pnpm build`, `pnpm test:e2e`.
 13. **Takedown SLA process.** Staff can now remove a listing with a logged
     reason from the admin listing page; there is still no ticket flow.
+14. **Server-rendered 404 shell.** `notFound()` pages stream Next's bare
+    `__next_error__` html without `lang` or the stylesheet; the browser
+    hydrates the right tree, so axe passes, but the 404 flashes unstyled.
 
 ## Conflicts and gaps from the design review, current state
 
@@ -109,6 +125,12 @@ state the fetch cadence publicly (they do today).
 - Sublet contracts are out of scope; the schema keeps the column.
 - Listings from feeds without coordinates are placed at the area centroid, so
   map markers for those are approximate.
+
+## Running the end-to-end suite
+
+`pnpm test:e2e` needs the dev server on port 3000 and the seed data. The
+last spec closes the seed landlord's account, so run `pnpm db:reset` before
+each full run or the portal sign-ins time out.
 
 ## Local testing of crawls
 
