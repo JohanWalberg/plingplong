@@ -42,9 +42,11 @@ export function SignupForm({ manualPublishing = true }: { manualPublishing?: boo
     return t("fieldRequired");
   };
   const errorCount = Object.keys(errors).length;
+  const formError = state && !state.ok ? state.formError : undefined;
 
   return (
     <form action={action} noValidate className="flex flex-col gap-6">
+      {formError ? <ValidationSummary title={t("rateLimited")} /> : null}
       {errorCount ? (
         <div ref={summaryRef} tabIndex={-1}>
           <ValidationSummary title={t("validationTitle", { count: errorCount })} body={t("validationBody")} />

@@ -511,7 +511,8 @@
       "doneBody": "Vi granskar ansökan manuellt, normalt inom en arbetsdag. Ni får ett mejl till {email} när kontot öppnas.",
       "needsInfoTitle": "Vi behöver en komplettering",
       "needsInfoBody": "Vår granskare har skickat en fråga till {email}. Svara på mejlet så fortsätter granskningen.",
-      "termsLink": "Läs villkoren"
+      "termsLink": "Läs villkoren",
+      "rateLimited": "För många försök. Vänta en stund och försök igen."
     },
     "nav": {
       "homes": "Bostäder",
@@ -1079,7 +1080,22 @@
       "colOrigin": "Ursprung",
       "queue": "Kökrav",
       "slug": "Slug",
-      "geo": "Koordinater"
+      "geo": "Koordinater",
+      "editTitle": "Redigera uppgifter",
+      "saved": "Uppgifterna är sparade.",
+      "remove": "Ta bort från sökningen",
+      "removeTitle": "Ta bort bostaden från sökningen?",
+      "removeBody": "Bostaden visas som inte längre tillgänglig. Skälet sparas i historiken och visas inte publikt.",
+      "reason": "Skäl",
+      "restore": "Visa igen",
+      "removedBy": "Borttagen av personal",
+      "fieldArea": "Område",
+      "fieldFloor": "Våning",
+      "fieldQueue": "Kökrav",
+      "fieldSegment": "Målgrupp",
+      "fieldDescription": "Beskrivning",
+      "fieldUrl": "Ansökningslänk",
+      "editNote": "Ändringar loggas med ditt namn. Hämtade bostäder skrivs över vid nästa avläsning om källan säger något annat."
     },
     "duplicates": {
       "title": "Dubblettgranskning",

@@ -511,7 +511,8 @@
       "doneBody": "We review applications by hand, normally within one working day. You will get an email at {email} when the account opens.",
       "needsInfoTitle": "We need more detail",
       "needsInfoBody": "Our reviewer has sent a question to {email}. Reply to the email and the review continues.",
-      "termsLink": "Read the terms"
+      "termsLink": "Read the terms",
+      "rateLimited": "Too many attempts. Wait a while and try again."
     },
     "nav": {
       "homes": "Homes",
@@ -1079,7 +1080,22 @@
       "colOrigin": "Origin",
       "queue": "Queue requirement",
       "slug": "Slug",
-      "geo": "Coordinates"
+      "geo": "Coordinates",
+      "editTitle": "Edit details",
+      "saved": "Details saved.",
+      "remove": "Remove from search",
+      "removeTitle": "Remove this home from search?",
+      "removeBody": "The home shows as no longer available. The reason is kept in the history and not shown publicly.",
+      "reason": "Reason",
+      "restore": "Show again",
+      "removedBy": "Removed by staff",
+      "fieldArea": "District",
+      "fieldFloor": "Floor",
+      "fieldQueue": "Queue requirement",
+      "fieldSegment": "Housing type",
+      "fieldDescription": "Description",
+      "fieldUrl": "Application link",
+      "editNote": "Changes are logged with your name. Fetched homes are overwritten at the next read if the source says otherwise."
     },
     "duplicates": {
       "title": "Duplicate review",

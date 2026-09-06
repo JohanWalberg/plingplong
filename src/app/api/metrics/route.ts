@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { stockholmDate } from "@/lib/format";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 const body = z.object({ listingId: z.string().uuid(), kind: z.enum(["view", "click", "save"]) });
 
@@ -10,6 +11,8 @@ const body = z.object({ listingId: z.string().uuid(), kind: z.enum(["view", "cli
  * not run JavaScript never reach this endpoint, which keeps the numbers honest.
  */
 export async function POST(req: Request) {
+  const limit = rateLimit(`metrics:${clientIp(req.headers)}`, 120, 60);
+  if (!limit.ok) return new Response(null, { status: 429, headers: { "retry-after": String(limit.retryAfterSeconds) } });
   let parsed;
   try {
     parsed = body.safeParse(await req.json());

@@ -31,6 +31,17 @@ export const auth = betterAuth({
       locale: { type: "string", defaultValue: "sv", input: true },
     },
   },
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 30,
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+      "/sign-up/email": { window: 3600, max: 5 },
+      "/request-password-reset": { window: 3600, max: 3 },
+      "/reset-password": { window: 3600, max: 5 },
+    },
+  },
   session: {
     // Landlord sessions: seven days, refreshed daily. Staff sessions are cut
     // to eight hours by the staff guard (see src/lib/access.ts).

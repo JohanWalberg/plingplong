@@ -10,6 +10,8 @@ import { renderEmail } from "@/lib/email-templates";
 import { domainMatches, isValidOrgNumber, normaliseOrgNumber, orgNumberKind } from "@/lib/org-number";
 import { testSource } from "@/lib/source-test";
 import type { Locale } from "@/i18n/routing";
+import { headers } from "next/headers";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 const schemaInput = z.object({
   locale: z.enum(["sv", "en"]),
@@ -28,6 +30,8 @@ const schemaInput = z.object({
 export type SignupState = { ok: true; email: string } | { ok: false; errors: Record<string, string>; formError?: string };
 
 export async function submitApplication(_prev: SignupState | null, formData: FormData): Promise<SignupState> {
+  const limit = rateLimit(`signup:${clientIp(await headers())}`, 5, 3600);
+  if (!limit.ok) return { ok: false, errors: {}, formError: "rate_limited" };
   const raw = Object.fromEntries(formData.entries());
   const parsed = schemaInput.safeParse(raw);
   const errors: Record<string, string> = {};
