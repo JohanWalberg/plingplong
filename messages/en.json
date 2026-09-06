@@ -197,7 +197,9 @@
     "mapOf": "Map of {address}",
     "galleryLabel": "{count} photos",
     "galleryPhoto": "Photo {n} of {count}",
-    "galleryCaption": "Photo {n} of {count}"
+    "galleryCaption": "Photo {n} of {count}",
+    "linkCopied": "Link copied.",
+    "shareFailed": "Could not copy the link. Copy the address from the browser instead."
   },
   "freshness": {
     "justNow": "Checked just now",

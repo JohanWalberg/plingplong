@@ -117,6 +117,11 @@ export const icons = {
       <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
+  share: (
+    <svg aria-hidden="true" viewBox="0 0 16 16" className="h-4 w-4 shrink-0">
+      <path d="M8 2v8M5 5l3-3 3 3M3.5 9.5v3h9v-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
   removed: (
     <svg aria-hidden="true" viewBox="0 0 16 16" className="h-4 w-4 shrink-0">
       <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />

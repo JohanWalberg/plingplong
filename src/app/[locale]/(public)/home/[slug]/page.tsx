@@ -11,6 +11,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { Freshness } from "@/components/listing/freshness";
 import { Gallery } from "@/components/listing/gallery";
 import { SaveButton } from "@/components/listing/save-button";
+import { ShareButton } from "@/components/listing/share-button";
 import { OutboundLink, TrackView } from "@/components/listing/track";
 import { ListingCard, getBadgeLabels } from "@/components/listing/listing-card";
 import { LazyListingMap } from "@/components/map/lazy-listing-map";
@@ -259,7 +260,10 @@ export default async function ListingPage({ params }: Props) {
                   <div className="mt-5 flex flex-col gap-2">
                     {l.applyRoute === "contact" && l.applicationContact ? <p className="text-[13px] text-muted">{t("contactRouteNote")}</p> : applyUrl ? <p className="text-[13px] text-muted">{t("leaveNote")}</p> : null}
                     {applyAction("lg", "w-full")}
-                    <SaveButton slug={l.slug} listingId={l.id} size="md" className="w-full" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <SaveButton slug={l.slug} listingId={l.id} size="md" className="w-full" />
+                      <ShareButton title={`${l.address}, ${place}`} size="md" className="w-full" />
+                    </div>
                   </div>
                 ) : null}
               </Card>

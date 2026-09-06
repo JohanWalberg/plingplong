@@ -197,7 +197,9 @@
     "mapOf": "Karta över {address}",
     "galleryLabel": "{count} bilder",
     "galleryPhoto": "Bild {n} av {count}",
-    "galleryCaption": "Bild {n} av {count}"
+    "galleryCaption": "Bild {n} av {count}",
+    "linkCopied": "Länken är kopierad.",
+    "shareFailed": "Länken kunde inte kopieras. Kopiera adressen från webbläsaren i stället."
   },
   "freshness": {
     "justNow": "Kontrollerad nyss",

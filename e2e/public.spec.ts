@@ -66,3 +66,12 @@ test("search box suggests places and the keyboard picks one", async ({ page }) =
   await page.waitForURL(/\/sv\/bostader\/solna/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Solna");
 });
+
+test("share copies the canonical link", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/sv/bostad/hornsgatan-152-stockholm");
+  await page.getByRole("button", { name: "Dela" }).click();
+  await expect(page.getByText("Länken är kopierad.")).toBeVisible();
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toMatch(/\/sv\/bostad\/hornsgatan-152-stockholm$/);
+});
