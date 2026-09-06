@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, Fieldset, Select } from "@/components/ui/form";
 import { Dialog } from "@/components/ui/dialog";
 import { FilterChip, icons } from "@/components/ui/misc";
-import { formatNumber, formatSek } from "@/lib/format";
+import { formatNumber, formatSek, stockholmDate } from "@/lib/format";
 import { useSearchTransition } from "./search-transition";
 import {
   activeFilterCount,
@@ -208,7 +208,7 @@ export function FilterPanel({ filters, landlords, total, onApplied }: Props & { 
               {[1, 2, 3, 6].map((months) => {
                 const d = new Date();
                 d.setMonth(d.getMonth() + months);
-                const iso = d.toISOString().slice(0, 10);
+                const iso = stockholmDate(d);
                 return (
                   <option key={iso} value={iso}>
                     {t("moveInBefore", { date: new Intl.DateTimeFormat(locale === "sv" ? "sv-SE" : "en-GB", { month: "long", year: "numeric" }).format(d) })}

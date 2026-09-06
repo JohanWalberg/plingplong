@@ -83,6 +83,16 @@ export function toDate(d: Date | string): Date {
 }
 
 /** Calendar date (YYYY-MM-DD) in Stockholm time for a given instant. */
+/** The instant Stockholm's calendar day began for `d`, on any server time zone and across DST. */
+export function stockholmDayStart(d: Date = new Date()): Date {
+  const ymd = stockholmDate(d);
+  const guess = new Date(`${ymd}T00:00:00Z`);
+  const offsetText = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Stockholm", timeZoneName: "longOffset" }).formatToParts(guess).find((p) => p.type === "timeZoneName")?.value ?? "GMT+01:00";
+  const m = /([+-])(\d{2}):(\d{2})/.exec(offsetText);
+  const offsetMin = m ? (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) : 60;
+  return new Date(guess.getTime() - offsetMin * 60_000);
+}
+
 export function stockholmDate(d: Date = new Date()): string {
   return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 }

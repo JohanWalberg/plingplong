@@ -1,4 +1,5 @@
 import { and, desc, eq, gte, ilike, inArray, lt, or, sql } from "drizzle-orm";
+import { stockholmDayStart } from "@/lib/format";
 import { escapeLike } from "@/lib/like";
 import { db, schema } from "@/db";
 
@@ -6,8 +7,7 @@ const { source, sourceRun, landlord, listing, landlordApplication, duplicateCand
 
 export async function overviewKpis() {
   const dayAgo = new Date(Date.now() - 24 * 60 * 60_000);
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const todayStart = stockholmDayStart();
   const [[l], [s], [errs], [pending], [today]] = await Promise.all([
     db.select({ n: sql<number>`count(*)::int` }).from(listing).where(eq(listing.status, "active")),
     db

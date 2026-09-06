@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { formatDateShort } from "@/lib/format";
 import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/lib/locale";
 import { requireStaff } from "@/lib/access";
@@ -47,7 +48,7 @@ export default async function AdminLandlordsPage({ params, searchParams }: Props
                   <Link href={{ pathname: "/admin/landlords/[id]", params: { id: r.id } }} className="font-[600]">
                     {r.name}
                   </Link>
-                  {r.approvedAt ? <span className="ml-2 text-meta text-muted">{t("approvedAt", { date: r.approvedAt.toISOString().slice(0, 10) })}</span> : null}
+                  {r.approvedAt ? <span className="ml-2 text-meta text-muted">{t("approvedAt", { date: formatDateShort(locale, r.approvedAt) })}</span> : null}
                 </Td>
                 <Td className="font-mono text-[12.5px]">{r.orgNumber ?? "—"}</Td>
                 <Td>{tl(`type${r.type[0].toUpperCase()}${r.type.slice(1)}` as "typePrivate")}</Td>
