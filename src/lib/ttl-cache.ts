@@ -25,13 +25,18 @@ const DEFAULT_TTL_MS = (() => {
   return Number.isFinite(n) && n >= 0 ? n * 1000 : 60_000;
 })();
 
+let memoSeq = 0;
+
 export function memoize<A extends unknown[], R>(ns: string, fn: (...args: A) => Promise<R>, { ttlMs = DEFAULT_TTL_MS, max = 500, now = Date.now }: { ttlMs?: number; max?: number; now?: () => number } = {}) {
   if (ttlMs <= 0) return fn;
   let store = stores.get(ns);
   if (!store) stores.set(ns, (store = new Map()));
   const s = store;
+  // Each memoized function gets its own key prefix: two functions in one
+  // namespace called with equal arguments must never share an entry.
+  const id = `${fn.name || "fn"}#${memoSeq++}:`;
   return async (...args: A): Promise<R> => {
-    const key = JSON.stringify(args);
+    const key = id + JSON.stringify(args);
     const hit = s.get(key);
     const t = now();
     if (hit && hit.expires > t) return hit.value as Promise<R>;
