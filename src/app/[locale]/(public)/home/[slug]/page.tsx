@@ -9,7 +9,7 @@ import { Badge, BadgeList } from "@/components/ui/badge";
 import { Card, Callout, Kicker, icons } from "@/components/ui/misc";
 import { buttonClasses } from "@/components/ui/button";
 import { Freshness } from "@/components/listing/freshness";
-import { ListingImage } from "@/components/listing/listing-image";
+import { Gallery } from "@/components/listing/gallery";
 import { SaveButton } from "@/components/listing/save-button";
 import { OutboundLink, TrackView } from "@/components/listing/track";
 import { ListingCard, getBadgeLabels } from "@/components/listing/listing-card";
@@ -133,7 +133,7 @@ export default async function ListingPage({ params }: Props) {
 
               {l.imageUrl || l.images.length ? (
                 <Card as="section" className="overflow-hidden">
-                  <ListingImage src={l.imageUrl ?? `/api/uploads/${l.images[0]!.storageKey}`} address={l.address} noImage={t("noImage")} className="max-h-[480px] min-h-[200px] w-full" />
+                  <Gallery images={l.imageUrl ? [l.imageUrl] : l.images.map((i) => `/api/uploads/${i.storageKey}`)} address={l.address} />
                 </Card>
               ) : null}
 
