@@ -6,8 +6,11 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   typedRoutes: false,
   images: {
-    // Fetched listings hotlink the landlord's own image URL; sizes are unknown.
-    unoptimized: true,
+    // Uploads (/api/uploads/*) go through the optimizer. Fetched listings hotlink
+    // the landlord's own image URL from any host, so ListingImage marks those
+    // unoptimized instead of allowlisting hosts here. picsum is the seed data.
+    remotePatterns: [{ protocol: "https", hostname: "picsum.photos" }],
+    formats: ["image/avif", "image/webp"],
   },
   async headers() {
     return [

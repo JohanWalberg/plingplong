@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "@/i18n/routing";
 import { BadgeList } from "@/components/ui/badge";
@@ -48,8 +49,9 @@ export function CardPreview({ data }: { data: PreviewData }) {
   return (
     <article className="overflow-hidden rounded-md border border-line bg-surface">
       {data.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={data.imageUrl} alt="" className="h-[132px] w-full object-cover" />
+        <span className="relative block h-[132px] w-full overflow-hidden">
+          <Image src={data.imageUrl} alt="" fill sizes="(min-width: 1024px) 360px, 100vw" unoptimized={!data.imageUrl.startsWith("/")} className="object-cover" />
+        </span>
       ) : (
         <div className="flex h-[132px] items-center justify-center bg-placeholder text-meta text-faint">{t("noImage")}</div>
       )}

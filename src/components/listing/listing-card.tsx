@@ -48,8 +48,8 @@ export async function getBadgeLabels(): Promise<BadgeLabels> {
   };
 }
 
-function ImageArea({ imageUrl, address, noImage, className }: { imageUrl: string | null; address: string; noImage: string; className: string }) {
-  return <ListingImage src={imageUrl} address={address} noImage={noImage} className={className} />;
+function ImageArea({ imageUrl, address, noImage, className, sizes }: { imageUrl: string | null; address: string; noImage: string; className: string; sizes: string }) {
+  return <ListingImage src={imageUrl} address={address} noImage={noImage} className={className} sizes={sizes} />;
 }
 
 function DeadlinePill({ deadline, locale, t }: { deadline: string | null; locale: Locale; t: Awaited<ReturnType<typeof getTranslations<"deadline">>> }) {
@@ -79,7 +79,7 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
   if (variant === "home" || variant === "compact") {
     return (
       <article className="group relative flex flex-col overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)]">
-        <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[132px] w-full" />
+        <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[132px] w-full" sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" />
         <div className="flex flex-1 flex-col gap-2 p-4">
           <div className="flex items-baseline justify-between gap-3">
             <p className="text-[20px] font-[700] leading-none tabular text-ink">{rent}</p>
@@ -103,7 +103,7 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
 
   return (
     <article className="group relative grid grid-cols-1 overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)] sm:grid-cols-[212px_1fr]">
-      <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[150px] w-full sm:h-full sm:min-h-[158px]" />
+      <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[150px] w-full sm:h-full sm:min-h-[158px]" sizes="(min-width: 640px) 212px, 100vw" />
       <div className="flex flex-col gap-3 p-4">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
           <div className="min-w-0">

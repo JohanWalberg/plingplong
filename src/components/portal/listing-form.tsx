@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -207,8 +208,9 @@ export function ListingForm({ existingId, initial, status, municipalities, image
                 .filter((i) => !removed.includes(i.id))
                 .map((i) => (
                   <li key={i.id} className="relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={i.url} alt="" className="h-24 w-full rounded object-cover" />
+                    <span className="relative block h-24 w-full overflow-hidden rounded">
+                      <Image src={i.url} alt="" fill sizes="200px" className="object-cover" />
+                    </span>
                     <button type="button" onClick={() => setRemoved((r) => [...r, i.id])} className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 text-[16px] shadow" aria-label={t("removeImage")}>
                       ×
                     </button>
