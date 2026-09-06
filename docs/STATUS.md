@@ -54,6 +54,18 @@ facet, coverage and source-health lookups beside them are memoized for
 `CACHE_TTL_SECONDS`, and every web-side listing change clears that memo and
 the ISR pages through `invalidateListingCaches()`.
 
+**UX batch (2026-09-07).** The search box suggests municipalities and
+areas with their home counts (combobox, keyboard driven, no-JS fallback).
+Listing pages get a sticky action bar on phones, a share button that copies
+the canonical link, and record themselves in a recently-viewed row shown on
+the home and saved pages. Results paginate with page numbers and show
+compact cards on phones; deadlines read as a day count inside two weeks on
+one line with the checked time. The saved page sorts by deadline, shows
+days left, lets you unsave, groups homes that are gone and copies the list.
+The map highlights the hovered row's marker and vice versa. Landlords get
+inline validation on the listing form and a 14-day views sparkline per
+home. A print stylesheet strips chrome and prints link addresses.
+
 **Second polish pass (2026-09-06, evening).** Filter changes update the
 result list in place with a busy state while the panel stays interactive.
 The listing page loads MapLibre only when the location card scrolls near,

@@ -76,6 +76,13 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
   definition of done.
 - [x] **D6. next/image** for listing photos; uploads resized and converted.
 - [x] **D7. Open Graph metadata** and generated share images.
+- [x] **D13. UX batch (2026-09-07).** Search suggestions as you type, sticky
+  mobile action bar on listings, share button, recently viewed row, numbered
+  pagination, saved page with days left, unsave, gone group and copy list,
+  map and list hover sync, compact result cards on phones, deadlines as a
+  day count on one line with freshness, inline validation on the listing
+  form, per-home sparklines, print stylesheet. Portal empty states already
+  existed. Dark mode left as is: the product is deliberately single-theme.
 - [x] **D12. Statistics chart** shows views, clicks and saves as grouped daily
   bars with a legend, per-bar tooltip and a hidden data table; palette
   validated for colour-vision separation.
