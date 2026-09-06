@@ -20,7 +20,7 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 - [x] **A3. Error boundaries.** `error.tsx` for public, portal and admin route
   groups with a retry action and the copy that already exists under
   `states.errorTitle` / `states.errorBody`.
-- [ ] **A4. Save-search button on the results page.** The component exists
+- [x] **A4. Save-search button on the results page.** The component exists
   (`src/components/search/save-search-button.tsx`) but is not placed. Add it to
   the results toolbar with the current heading as label.
 - [ ] **A5. Terms of use for landlords.** Static page in both languages, linked
@@ -28,7 +28,7 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
   owner or a draft to approve.
 - [ ] **A6. Photo gallery on the listing detail page.** Show all images for
   manual listings (thumbnails, keyboard-navigable), first image for feeds.
-- [ ] **A7. Catalogue the remaining English-only admin strings.** Listing
+- [x] **A7. Catalogue the remaining English-only admin strings.** Listing
   detail table headers, staff invite hint, "Pending" status label in the source
   filter. Run `pnpm i18n:check` after.
 

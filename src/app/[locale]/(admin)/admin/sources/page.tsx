@@ -46,7 +46,7 @@ export default async function AdminSourcesPage({ params, searchParams }: Props) 
             <option value="">{t("allStatuses")}</option>
             {statuses.map((s) => (
               <option key={s} value={s}>
-                {s === "needs_review" ? t("statusReview") : s === "pending" ? "Pending" : t(`status${s[0].toUpperCase()}${s.slice(1)}` as "statusActive")}
+                {s === "needs_review" ? t("statusReview") : s === "pending" ? t("statusPending") : t(`status${s[0].toUpperCase()}${s.slice(1)}` as "statusActive")}
               </option>
             ))}
           </select>

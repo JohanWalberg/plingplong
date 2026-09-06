@@ -59,11 +59,11 @@ export default async function AdminListingPage({ params }: Props) {
                   [tp("fieldSize"), l.sizeSqm ?? "—"],
                   [tp("fieldDeadline"), l.applicationDeadline ?? "—"],
                   [tp("fieldMoveIn"), l.moveInDate ?? "—"],
-                  ["Kökrav", l.queueRequirement],
+                  [t("queue"), l.queueRequirement],
                   [t("colFirstSeen"), formatDateTime(locale, l.firstSeenAt)],
                   [t("colLastChecked"), formatDateTime(locale, l.lastCheckedAt)],
-                  ["Slug", l.slug],
-                  ["Geo", l.lat !== null && l.lon !== null ? `${l.lat?.toFixed(4)}, ${l.lon?.toFixed(4)}` : "—"],
+                  [t("slug"), l.slug],
+                  [t("geo"), l.lat !== null && l.lon !== null ? `${l.lat?.toFixed(4)}, ${l.lon?.toFixed(4)}` : "—"],
                 ] as Array<[string, React.ReactNode]>
               ).map(([k, v]) => (
                 <div key={k}>
@@ -84,10 +84,10 @@ export default async function AdminListingPage({ params }: Props) {
                 <thead>
                   <tr className="border-b border-line">
                     <Th>{t("colLastChecked")}</Th>
-                    <Th>Field</Th>
-                    <Th>Old</Th>
-                    <Th>New</Th>
-                    <Th>Origin</Th>
+                    <Th>{t("colField")}</Th>
+                    <Th>{t("colOld")}</Th>
+                    <Th>{t("colNew")}</Th>
+                    <Th>{t("colOrigin")}</Th>
                   </tr>
                 </thead>
                 <tbody>

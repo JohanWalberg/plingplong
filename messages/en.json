@@ -941,7 +941,8 @@
       "create": "Create source",
       "adapter": "Adapter",
       "adapterHint": "Which parser is used for this source.",
-      "queueDefault": "Default queue requirement"
+      "queueDefault": "Default queue requirement",
+      "statusPending": "Awaiting first fetch"
     },
     "landlords": {
       "title": "Landlords",
@@ -1051,7 +1052,14 @@
       "publicPage": "Public page",
       "markReviewed": "Mark as reviewed",
       "reviewed": "Reviewed by {name} {date}",
-      "engineerOnly": "Raw data is shown to engineers."
+      "engineerOnly": "Raw data is shown to engineers.",
+      "colField": "Field",
+      "colOld": "Before",
+      "colNew": "After",
+      "colOrigin": "Origin",
+      "queue": "Queue requirement",
+      "slug": "Slug",
+      "geo": "Coordinates"
     },
     "duplicates": {
       "title": "Duplicate review",
@@ -1097,7 +1105,8 @@
       "invite": "Invite staff",
       "inviteSent": "The invitation has been sent.",
       "userAgent": "User-Agent for reads",
-      "retention": "Raw data is kept for {days} days."
+      "retention": "Raw data is kept for {days} days.",
+      "inviteHint": "The person must already have an account (sign up via the portal form first)."
     }
   },
   "email": {

@@ -941,7 +941,8 @@
       "create": "Skapa källa",
       "adapter": "Adapter",
       "adapterHint": "Vilken tolkare som används för källan.",
-      "queueDefault": "Standardvärde för kökrav"
+      "queueDefault": "Standardvärde för kökrav",
+      "statusPending": "Väntar på första hämtning"
     },
     "landlords": {
       "title": "Hyresvärdar",
@@ -1051,7 +1052,14 @@
       "publicPage": "Publik sida",
       "markReviewed": "Markera som granskad",
       "reviewed": "Granskad av {name} {date}",
-      "engineerOnly": "Rådata visas för utvecklare."
+      "engineerOnly": "Rådata visas för utvecklare.",
+      "colField": "Fält",
+      "colOld": "Före",
+      "colNew": "Efter",
+      "colOrigin": "Ursprung",
+      "queue": "Kökrav",
+      "slug": "Slug",
+      "geo": "Koordinater"
     },
     "duplicates": {
       "title": "Dubblettgranskning",
@@ -1097,7 +1105,8 @@
       "invite": "Bjud in personal",
       "inviteSent": "Inbjudan är skickad.",
       "userAgent": "User-Agent för avläsningar",
-      "retention": "Rådata sparas i {days} dagar."
+      "retention": "Rådata sparas i {days} dagar.",
+      "inviteHint": "Personen måste redan ha ett konto (registrera via portalens formulär först)."
     }
   },
   "email": {

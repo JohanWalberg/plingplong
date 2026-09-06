@@ -34,7 +34,7 @@ export function StaffForm() {
   }
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
-      <Input label={t("colEmail")} name="email" type="email" required error={error ?? undefined} hint="The person must already have an account (sign up via the portal form first)." />
+      <Input label={t("colEmail")} name="email" type="email" required error={error ?? undefined} hint={t("inviteHint")} />
       <Select label={t("colRole")} name="role" defaultValue="support">
         {ROLES.map((r) => (
           <option key={r} value={r}>

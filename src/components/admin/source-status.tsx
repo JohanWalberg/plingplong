@@ -6,6 +6,6 @@ const tones: Record<SourceStatus, StatusTone> = { active: "success", degraded: "
 
 export async function SourceStatusPill({ status }: { status: SourceStatus }) {
   const t = await getTranslations("admin.sources");
-  const label = status === "needs_review" ? t("statusReview") : status === "pending" ? (await getTranslations("portal.source"))("statusPending") : t(`status${status[0].toUpperCase()}${status.slice(1)}` as "statusActive");
+  const label = status === "needs_review" ? t("statusReview") : status === "pending" ? t("statusPending") : t(`status${status[0].toUpperCase()}${status.slice(1)}` as "statusActive");
   return <StatusPill tone={tones[status]}>{label}</StatusPill>;
 }
