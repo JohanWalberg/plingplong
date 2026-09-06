@@ -111,18 +111,18 @@ export async function listingMetrics(listingId: string, days = 30) {
 export async function landlordMetricsSeries(landlordId: string, days = 30) {
   const from = dayOffset(days - 1);
   const rows = await db
-    .select({ day: listingMetricDaily.day, views: sql<number>`sum(${listingMetricDaily.views})::int`, clicks: sql<number>`sum(${listingMetricDaily.outboundClicks})::int` })
+    .select({ day: listingMetricDaily.day, views: sql<number>`sum(${listingMetricDaily.views})::int`, clicks: sql<number>`sum(${listingMetricDaily.outboundClicks})::int`, saves: sql<number>`sum(${listingMetricDaily.saves})::int` })
     .from(listingMetricDaily)
     .innerJoin(listing, eq(listing.id, listingMetricDaily.listingId))
     .where(and(eq(listing.landlordId, landlordId), gte(listingMetricDaily.day, from)))
     .groupBy(listingMetricDaily.day)
     .orderBy(asc(listingMetricDaily.day));
   const byDay = new Map(rows.map((r) => [r.day, r]));
-  const series: Array<{ day: string; views: number; clicks: number }> = [];
+  const series: Array<{ day: string; views: number; clicks: number; saves: number }> = [];
   for (let i = days - 1; i >= 0; i--) {
     const day = dayOffset(i);
     const r = byDay.get(day);
-    series.push({ day, views: r?.views ?? 0, clicks: r?.clicks ?? 0 });
+    series.push({ day, views: r?.views ?? 0, clicks: r?.clicks ?? 0, saves: r?.saves ?? 0 });
   }
   return series;
 }
@@ -136,6 +136,7 @@ export async function landlordListingTotals(landlordId: string) {
       status: listing.status,
       views: sql<number>`coalesce(sum(${listingMetricDaily.views}),0)::int`,
       clicks: sql<number>`coalesce(sum(${listingMetricDaily.outboundClicks}),0)::int`,
+      saves: sql<number>`coalesce(sum(${listingMetricDaily.saves}),0)::int`,
     })
     .from(listing)
     .leftJoin(listingMetricDaily, and(eq(listingMetricDaily.listingId, listing.id), gte(listingMetricDaily.day, from30)))

@@ -2,7 +2,7 @@
 
 import { useEffect, type AnchorHTMLAttributes, type ReactNode } from "react";
 
-function beacon(listingId: string, kind: "view" | "click") {
+export function beacon(listingId: string, kind: "view" | "click" | "save") {
   const body = JSON.stringify({ listingId, kind });
   try {
     if (navigator.sendBeacon) {

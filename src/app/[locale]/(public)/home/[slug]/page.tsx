@@ -260,7 +260,7 @@ export default async function ListingPage({ params }: Props) {
                         </OutboundLink>
                       </>
                     ) : null}
-                    <SaveButton slug={l.slug} size="md" className="w-full" />
+                    <SaveButton slug={l.slug} listingId={l.id} size="md" className="w-full" />
                   </div>
                 ) : null}
               </Card>

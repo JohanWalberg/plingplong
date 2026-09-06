@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { icons } from "@/components/ui/misc";
 import { readSavedClient, writeSavedClient } from "@/lib/saved";
 import { useToast } from "@/components/ui/toast";
+import { beacon } from "./track";
 
-export function SaveButton({ slug, size = "md", className = "" }: { slug: string; size?: "md" | "lg"; className?: string }) {
+/** Saves live in the browser; a save (not an unsave) is also counted for the landlord's statistics. */
+export function SaveButton({ slug, listingId, size = "md", className = "" }: { slug: string; listingId: string; size?: "md" | "lg"; className?: string }) {
   const t = useTranslations("actions");
   const tl = useTranslations("listing");
   const { toast } = useToast();
@@ -22,6 +24,7 @@ export function SaveButton({ slug, size = "md", className = "" }: { slug: string
     const next = current.includes(slug) ? current.filter((s) => s !== slug) : [slug, ...current];
     writeSavedClient(next);
     setSaved(next.includes(slug));
+    if (!current.includes(slug)) beacon(listingId, "save");
     toast(next.includes(slug) ? tl("saved") : tl("removeSaved"), "info");
     router.refresh();
   }

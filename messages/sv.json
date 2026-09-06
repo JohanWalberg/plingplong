@@ -656,7 +656,7 @@
       "clicks": "Klick till er sida",
       "clicksSub": "{ratio} av visningar",
       "saves": "Sparad av sökande",
-      "savesSub": "Mäts inte än",
+      "savesSub": "senaste 30 dagarna",
       "daysLeft": "Dagar kvar",
       "daysLeftSub": "ansök senast {date}",
       "rolling": "Löpande",
@@ -861,7 +861,7 @@
     },
     "stats": {
       "title": "Statistik",
-      "intro": "Visningar och klick vidare till er sida för alla era bostäder de senaste 30 dagarna.",
+      "intro": "Visningar, klick vidare till er sida och sparningar för alla era bostäder de senaste 30 dagarna.",
       "totalViews": "Visningar 30 dagar",
       "totalClicks": "Klick till er sida",
       "chartLabel": "Visningar och klick per dag de senaste 30 dagarna",
@@ -872,7 +872,9 @@
       "colClicks": "Klick vidare",
       "empty": "Ingen statistik än. Statistik samlas när bostäder är publicerade.",
       "views": "Visningar",
-      "clicks": "Klick"
+      "clicks": "Klick",
+      "totalSaves": "Sparad av sökande",
+      "colSaves": "Sparad"
     }
   },
   "admin": {

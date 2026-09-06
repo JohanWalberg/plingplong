@@ -70,7 +70,7 @@ export default async function ManageHomePage({ params }: Props) {
   const stats = [
     { label: t("views"), value: formatNumber(locale, views), sub: t("viewsSub") },
     { label: t("clicks"), value: formatNumber(locale, clicks), sub: views ? t("clicksSub", { ratio: formatPercent(locale, clicks / views) }) : "" },
-    { label: t("saves"), value: formatNumber(locale, saves), sub: saves ? "" : t("savesSub") },
+    { label: t("saves"), value: formatNumber(locale, saves), sub: t("savesSub") },
     { label: t("daysLeft"), value: daysLeft === null ? t("rolling") : daysLeft < 0 ? "0" : formatNumber(locale, daysLeft), sub: l.applicationDeadline ? t("daysLeftSub", { date: formatDateShort(locale, l.applicationDeadline) }) : "" },
   ];
 

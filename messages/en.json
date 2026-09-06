@@ -656,7 +656,7 @@
       "clicks": "Clicks to your site",
       "clicksSub": "{ratio} of views",
       "saves": "Saved by seekers",
-      "savesSub": "Not measured yet",
+      "savesSub": "last 30 days",
       "daysLeft": "Days remaining",
       "daysLeftSub": "apply by {date}",
       "rolling": "Rolling",
@@ -861,7 +861,7 @@
     },
     "stats": {
       "title": "Statistics",
-      "intro": "Views and click-throughs to your site for all your homes over the last 30 days.",
+      "intro": "Views, click-throughs to your site and saves for all your homes over the last 30 days.",
       "totalViews": "Views, 30 days",
       "totalClicks": "Clicks to your site",
       "chartLabel": "Views and clicks per day for the last 30 days",
@@ -872,7 +872,9 @@
       "colClicks": "Click-throughs",
       "empty": "No statistics yet. Statistics are collected once homes are published.",
       "views": "Views",
-      "clicks": "Clicks"
+      "clicks": "Clicks",
+      "totalSaves": "Saved by seekers",
+      "colSaves": "Saved"
     }
   },
   "admin": {
