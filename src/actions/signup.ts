@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { safeWebsite } from "@/lib/safe-url";
+import { safeHttpUrl, safeWebsite } from "@/lib/safe-url";
 import { eq } from "drizzle-orm";
 import { APIError } from "better-auth";
 import { db, schema } from "@/db";
@@ -49,16 +49,6 @@ export async function submitApplication(_prev: SignupState | null, formData: For
   const existingApp = await db.query.landlordApplication.findFirst({ where: eq(schema.landlordApplication.orgNumber, orgNumber) });
   if (existingApp && existingApp.status !== "rejected") return { ok: false, errors: { orgNumber: "taken" } };
 
-  // Create the user now (inactive until approval: no membership exists yet).
-  let userId: string;
-  try {
-    const res = await auth.api.signUpEmail({ body: { email: d.email, password: d.password, name: d.contactName, locale } });
-    userId = res.user.id;
-  } catch (e) {
-    if (e instanceof APIError && /exist/i.test(e.message)) return { ok: false, errors: { email: "taken" } };
-    throw e;
-  }
-
   // Automated checks, recorded for the reviewer. None of them auto-approve.
   const checks: Array<{ key: string; status: "done" | "warn" | "fail" | "na"; detail?: Record<string, unknown> }> = [
     { key: "org_format", status: "done", detail: { kind: orgNumberKind(orgNumber) } },
@@ -70,6 +60,7 @@ export async function submitApplication(_prev: SignupState | null, formData: For
   else checks.push({ key: "org_registry", status: "fail", detail: { name: registry.result.name, legalForm: registry.result.legalForm, registeredAt: registry.result.registeredAt, status: registry.result.status } });
   const dm = domainMatches(d.email, d.website || null);
   checks.push({ key: "email_domain", status: dm === null ? "na" : dm ? "done" : "fail" });
+  if (d.publishingRoute === "source" && d.sourceUrl && !safeHttpUrl(d.sourceUrl)) return { ok: false, errors: { sourceUrl: "invalid" } };
   if (d.publishingRoute === "source" && d.sourceUrl) {
     const kind = /\.(xml|json|rss)(\?|$)/i.test(d.sourceUrl) || /feed|api/i.test(d.sourceUrl) ? "feed" : "html";
     const test = await testSource(kind, d.sourceUrl);
@@ -79,8 +70,22 @@ export async function submitApplication(_prev: SignupState | null, formData: For
     } else checks.push({ key: "feed", status: "fail", detail: { error: `${test.errorClass}: ${test.message}` } });
   } else checks.push({ key: "feed", status: "na" });
 
-  const [app] = await db
-    .insert(schema.landlordApplication)
+  // The user is created last, after every check and lookup, so a failure
+  // above cannot leave an account with no application behind it.
+  let userId: string;
+  try {
+    const res = await auth.api.signUpEmail({ body: { email: d.email, password: d.password, name: d.contactName, locale } });
+    userId = res.user.id;
+  } catch (e) {
+    if (e instanceof APIError && /exist/i.test(e.message)) return { ok: false, errors: { email: "taken" } };
+    throw e;
+  }
+
+  let app: { id: string };
+  try {
+    app = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(schema.landlordApplication)
     .values({
       orgNumber,
       companyName: d.companyName,
@@ -94,8 +99,14 @@ export async function submitApplication(_prev: SignupState | null, formData: For
       userId,
       locale,
     })
-    .returning({ id: schema.landlordApplication.id });
-  await db.insert(schema.landlordApplicationEvent).values({ applicationId: app.id, kind: "submitted", actorId: userId });
+        .returning({ id: schema.landlordApplication.id });
+      await tx.insert(schema.landlordApplicationEvent).values({ applicationId: row.id, kind: "submitted", actorId: userId });
+      return row;
+    });
+  } catch (e) {
+    await db.delete(schema.user).where(eq(schema.user.id, userId)); // no orphan account
+    throw e;
+  }
 
   const mail = await renderEmail(locale, "applicationReceived", { name: d.contactName, organisation: d.companyName });
   await sendEmail({ to: d.email, ...mail });
