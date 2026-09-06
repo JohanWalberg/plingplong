@@ -78,6 +78,19 @@ export default async function ListingPage({ params }: Props) {
   ];
   if (l.externalId) facts.push([t("externalId"), l.externalId]);
 
+  /** The one primary action, rendered in the sidebar and in the mobile bar. */
+  const applyAction = (size: "md" | "lg", className: string) =>
+    l.applyRoute === "contact" && l.applicationContact ? (
+      <a href={l.applicationContact.includes("@") ? `mailto:${l.applicationContact}` : `tel:${l.applicationContact.replace(/\s+/g, "")}`} className={buttonClasses("primary", size, className)}>
+        {t("contactRoute")}: {l.applicationContact}
+      </a>
+    ) : applyUrl ? (
+      <OutboundLink listingId={l.id} href={applyUrl} className={buttonClasses("primary", size, className)}>
+        {ta("applyExternal")}
+        {icons.external}
+      </OutboundLink>
+    ) : null;
+
   return (
     <>
       <SiteHeader active="search" />
@@ -244,22 +257,8 @@ export default async function ListingPage({ params }: Props) {
                 </div>
                 {!gone ? (
                   <div className="mt-5 flex flex-col gap-2">
-                    {l.applyRoute === "contact" && l.applicationContact ? (
-                      <>
-                        <p className="text-[13px] text-muted">{t("contactRouteNote")}</p>
-                        <a href={l.applicationContact.includes("@") ? `mailto:${l.applicationContact}` : `tel:${l.applicationContact.replace(/\s+/g, "")}`} className={buttonClasses("primary", "lg", "w-full")}>
-                          {t("contactRoute")}: {l.applicationContact}
-                        </a>
-                      </>
-                    ) : applyUrl ? (
-                      <>
-                        <p className="text-[13px] text-muted">{t("leaveNote")}</p>
-                        <OutboundLink listingId={l.id} href={applyUrl} className={buttonClasses("primary", "lg", "w-full")}>
-                          {ta("applyExternal")}
-                          {icons.external}
-                        </OutboundLink>
-                      </>
-                    ) : null}
+                    {l.applyRoute === "contact" && l.applicationContact ? <p className="text-[13px] text-muted">{t("contactRouteNote")}</p> : applyUrl ? <p className="text-[13px] text-muted">{t("leaveNote")}</p> : null}
+                    {applyAction("lg", "w-full")}
                     <SaveButton slug={l.slug} listingId={l.id} size="md" className="w-full" />
                   </div>
                 ) : null}
@@ -296,6 +295,18 @@ export default async function ListingPage({ params }: Props) {
             </aside>
           </div>
         </div>
+        {!gone && (applyUrl || (l.applyRoute === "contact" && l.applicationContact)) ? (
+          <div className="sticky bottom-0 z-30 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur lg:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+            <div className="mx-auto flex max-w-[720px] items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[18px] font-[700] leading-tight tabular text-ink">{rent}</p>
+                {l.applicationDeadline ? <p className="truncate text-meta text-muted">{td(dMsg.key, dMsg.values as never)}</p> : null}
+              </div>
+              <SaveButton slug={l.slug} listingId={l.id} size="md" iconOnly />
+              {applyAction("md", "shrink-0")}
+            </div>
+          </div>
+        ) : null}
       </main>
     </>
   );

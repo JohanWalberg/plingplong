@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/toast";
 import { beacon } from "./track";
 
 /** Saves live in the browser; a save (not an unsave) is also counted for the landlord's statistics. */
-export function SaveButton({ slug, listingId, size = "md", className = "" }: { slug: string; listingId: string; size?: "md" | "lg"; className?: string }) {
+export function SaveButton({ slug, listingId, size = "md", className = "", iconOnly = false }: { slug: string; listingId: string; size?: "md" | "lg"; className?: string; iconOnly?: boolean }) {
   const t = useTranslations("actions");
   const tl = useTranslations("listing");
   const { toast } = useToast();
@@ -30,8 +30,8 @@ export function SaveButton({ slug, listingId, size = "md", className = "" }: { s
   }
 
   return (
-    <Button variant="secondary" size={size} onClick={toggle} aria-pressed={saved} icon={saved ? icons.bookmarkFilled : icons.bookmark} className={className}>
-      {saved ? tl("saved") : t("saveHome")}
+    <Button variant="secondary" size={size} onClick={toggle} aria-pressed={saved} icon={saved ? icons.bookmarkFilled : icons.bookmark} className={className} aria-label={iconOnly ? (saved ? tl("saved") : t("saveHome")) : undefined}>
+      {iconOnly ? null : saved ? tl("saved") : t("saveHome")}
     </Button>
   );
 }
