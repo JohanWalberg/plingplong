@@ -1,6 +1,7 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
+import { rateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { requireLandlord } from "@/lib/access";
@@ -102,6 +103,7 @@ export async function setSourceEnabled(locale: Locale, id: string, enabled: bool
   const me = await requireLandlord(locale, "owner");
   const existing = await db.query.source.findFirst({ where: and(eq(source.id, id), eq(source.landlordId, me.landlordId)) });
   if (!existing) return;
+  if (!rateLimit(`source-toggle:${id}`, 6, 3600).ok) return;
   await db.update(source).set({ status: enabled ? "pending" : "disabled", consecutiveFailures: 0, nextRunAt: enabled ? new Date() : null }).where(eq(source.id, id));
 }
 
@@ -109,6 +111,8 @@ export async function runSourceNow(locale: Locale, id: string) {
   const me = await requireLandlord(locale, "owner");
   const existing = await db.query.source.findFirst({ where: and(eq(source.id, id), eq(source.landlordId, me.landlordId)) });
   if (!existing) return { ok: false as const };
+  // A run also re-arms the failure email: six per hour per source is plenty for a human.
+  if (!rateLimit(`source-run:${id}`, 6, 3600).ok) return { ok: false as const };
   try {
     await enqueueSourceSync(id);
     return { ok: true as const };
