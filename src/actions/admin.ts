@@ -297,3 +297,93 @@ export async function addStaffByEmail(locale: Locale, email: string, role: "supp
   revalidateAdmin();
   return { ok: true };
 }
+
+// ---------------------------------------------------------------------------
+// Listing edit and takedown (staff)
+// ---------------------------------------------------------------------------
+
+const listingEdit = z.object({
+  address: z.string().trim().min(3).max(160),
+  areaName: z.string().trim().max(80).optional().or(z.literal("")),
+  rentMonthly: z.string().trim().optional().or(z.literal("")),
+  rooms: z.string().trim().optional().or(z.literal("")),
+  sizeSqm: z.string().trim().optional().or(z.literal("")),
+  floor: z.string().trim().optional().or(z.literal("")),
+  moveInDate: z.string().trim().optional().or(z.literal("")),
+  applicationDeadline: z.string().trim().optional().or(z.literal("")),
+  queueRequirement: z.enum(["none", "queue", "points", "unknown"]),
+  segment: z.enum(["none", "student", "youth", "senior", "accessible"]),
+  applicationUrl: z.string().trim().max(500).optional().or(z.literal("")),
+  description: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
+const numOrNull = (v: string | undefined) => {
+  if (!v) return null;
+  const n = Number(v.replace(/\s/g, "").replace(",", "."));
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+const dateOrNull = (v: string | undefined) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
+
+/** Staff correction of factual fields. Every change is a revision with origin "admin". */
+export async function adminUpdateListing(locale: Locale, listingId: string, formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
+  const me = await requireStaff(locale, "support");
+  const parsed = listingEdit.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ") };
+  const d = parsed.data;
+  const before = await db.query.listing.findFirst({ where: eq(listing.id, listingId), columns: { location: false } });
+  if (!before) return { ok: false, error: "missing" };
+  const values = {
+    address: d.address,
+    areaName: d.areaName || null,
+    rentMonthly: numOrNull(d.rentMonthly) === null ? null : Math.round(numOrNull(d.rentMonthly)!),
+    rooms: numOrNull(d.rooms),
+    sizeSqm: numOrNull(d.sizeSqm),
+    floor: d.floor ? parseInt(d.floor, 10) || null : null,
+    moveInDate: dateOrNull(d.moveInDate),
+    applicationDeadline: dateOrNull(d.applicationDeadline),
+    queueRequirement: d.queueRequirement,
+    segment: d.segment,
+    applicationUrl: d.applicationUrl || null,
+    description: d.description || null,
+  };
+  const tracked: Array<[keyof typeof values, string]> = [
+    ["address", "address"], ["areaName", "area_name"], ["rentMonthly", "rent_monthly"], ["rooms", "rooms"], ["sizeSqm", "size_sqm"], ["floor", "floor"],
+    ["moveInDate", "move_in_date"], ["applicationDeadline", "application_deadline"], ["queueRequirement", "queue_requirement"], ["segment", "segment"],
+    ["applicationUrl", "application_url"], ["description", "description"],
+  ];
+  const now = new Date();
+  const revisions = tracked
+    .filter(([k]) => String(before[k] ?? "") !== String(values[k] ?? ""))
+    .map(([k, field]) => ({ listingId, field, oldValue: before[k] === null || before[k] === undefined ? null : String(before[k]), newValue: values[k] === null ? null : String(values[k]), origin: "admin", changedBy: me.userId, changedAt: now }));
+  await db.update(listing).set(values).where(eq(listing.id, listingId));
+  if (revisions.length) await db.insert(schema.listingRevision).values(revisions);
+  revalidateAdmin();
+  revalidatePath("/[locale]/(public)", "layout");
+  return { ok: true };
+}
+
+/** Takedown: hide a listing from search with a reason kept in the history. */
+export async function adminRemoveListing(locale: Locale, listingId: string, reason: string) {
+  const me = await requireStaff(locale, "lead");
+  const before = await db.query.listing.findFirst({ where: eq(listing.id, listingId), columns: { status: true } });
+  if (!before || before.status === "removed") return;
+  const now = new Date();
+  await db.update(listing).set({ status: "removed", removedAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
+  await db.insert(schema.listingRevision).values([
+    { listingId, field: "status", oldValue: before.status, newValue: "removed", origin: "admin", changedBy: me.userId, changedAt: now },
+    { listingId, field: "takedown_reason", oldValue: null, newValue: reason, origin: "admin", changedBy: me.userId, changedAt: now },
+  ]);
+  revalidateAdmin();
+  revalidatePath("/[locale]/(public)", "layout");
+}
+
+export async function adminRestoreListing(locale: Locale, listingId: string) {
+  const me = await requireStaff(locale, "lead");
+  const before = await db.query.listing.findFirst({ where: eq(listing.id, listingId), columns: { status: true } });
+  if (!before || before.status !== "removed") return;
+  const now = new Date();
+  await db.update(listing).set({ status: "active", removedAt: null, lastSeenAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
+  await db.insert(schema.listingRevision).values({ listingId, field: "status", oldValue: "removed", newValue: "active", origin: "admin", changedBy: me.userId, changedAt: now });
+  revalidateAdmin();
+  revalidatePath("/[locale]/(public)", "layout");
+}

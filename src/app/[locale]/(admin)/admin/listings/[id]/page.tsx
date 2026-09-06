@@ -5,9 +5,10 @@ import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/lib/locale";
 import { requireStaff, isEngineer } from "@/lib/access";
 import { AdminShell, Table, Td, Th } from "@/components/admin/admin-shell";
-import { ActionButton } from "@/components/admin/action-buttons";
+import { ActionButton, ConfirmActionButton } from "@/components/admin/action-buttons";
+import { ListingEditForm } from "@/components/admin/listing-edit-form";
 import { getListingById } from "@/lib/queries/listings";
-import { markListingReviewed } from "@/actions/admin";
+import { adminRemoveListing, adminRestoreListing, markListingReviewed } from "@/actions/admin";
 import { formatDateTime, formatDateTimeShort, formatSek } from "@/lib/format";
 import { Card } from "@/components/ui/misc";
 import { StatusPill } from "@/components/ui/badge";
@@ -42,6 +43,15 @@ export default async function AdminListingPage({ params }: Props) {
             <ActionButton action={markListingReviewed.bind(null, locale, l.id)} variant="primary">
               {t("markReviewed")}
             </ActionButton>
+          ) : null}
+          {viewer.role === "lead" ? (
+            l.status === "removed" ? (
+              <ActionButton action={adminRestoreListing.bind(null, locale, l.id)}>{t("restore")}</ActionButton>
+            ) : (
+              <ConfirmActionButton actionWithText={adminRemoveListing.bind(null, locale, l.id)} variant="danger" title={t("removeTitle")} body={t("removeBody")} confirmLabel={t("remove")} textareaLabel={t("reason")} textareaRequired>
+                {t("remove")}
+              </ConfirmActionButton>
+            )
           ) : null}
         </>
       }
@@ -112,6 +122,28 @@ export default async function AdminListingPage({ params }: Props) {
         </div>
 
         <aside className="flex flex-col gap-6">
+          <Card className="p-5">
+            <h2 className="text-h3">{t("editTitle")}</h2>
+            <div className="mt-3">
+              <ListingEditForm
+                values={{
+                  id: l.id,
+                  address: l.address,
+                  areaName: l.areaName ?? "",
+                  rentMonthly: l.rentMonthly === null ? "" : String(l.rentMonthly),
+                  rooms: l.rooms === null ? "" : String(l.rooms),
+                  sizeSqm: l.sizeSqm === null ? "" : String(l.sizeSqm),
+                  floor: l.floor === null ? "" : String(l.floor),
+                  moveInDate: l.moveInDate ?? "",
+                  applicationDeadline: l.applicationDeadline ?? "",
+                  queueRequirement: l.queueRequirement,
+                  segment: l.segment,
+                  applicationUrl: l.applicationUrl ?? "",
+                  description: l.description ?? "",
+                }}
+              />
+            </div>
+          </Card>
           <Card className="p-5">
             <h2 className="text-h3">{t("sourcesTitle")}</h2>
             <ul className="mt-3 flex flex-col divide-y divide-hairline text-[14px]">

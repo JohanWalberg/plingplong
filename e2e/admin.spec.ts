@@ -37,3 +37,25 @@ test("duplicate review and source detail render", async ({ page }) => {
   await page.getByRole("link", { name: /bostad.stockholm.se\/lediga-bostader/ }).click();
   await expect(page.getByRole("heading", { name: "Körningar" })).toBeVisible();
 });
+
+test("lead edits a listing, removes it from search and restores it", async ({ page }) => {
+  await signIn(page, "lead@hyrabostad.se", "admin");
+  await page.goto("/sv/admin/bostader?q=Hornsgatan");
+  await page.getByRole("link", { name: "Hornsgatan 152" }).click();
+  await page.getByLabel("Hyra").fill("9990");
+  await page.getByRole("button", { name: "Spara", exact: true }).click();
+  await expect(page.getByText("Uppgifterna är sparade.")).toBeVisible();
+  await expect(page.locator("td", { hasText: "rent_monthly" }).first()).toBeVisible();
+
+  await page.getByRole("button", { name: "Ta bort från sökningen" }).click();
+  await page.getByRole("dialog").getByLabel("Skäl").fill("Testtakedown");
+  await page.getByRole("dialog").getByRole("button", { name: "Ta bort från sökningen" }).click();
+  await expect(page.getByRole("dialog")).toBeHidden();
+  await page.goto("/sv/bostad/hornsgatan-152-stockholm");
+  await expect(page.getByText("Inte längre tillgänglig").first()).toBeVisible();
+
+  await page.goto("/sv/admin/bostader?q=Hornsgatan");
+  await page.getByRole("link", { name: "Hornsgatan 152" }).click();
+  await page.getByRole("button", { name: "Visa igen" }).click();
+  await expect(page.getByRole("button", { name: "Ta bort från sökningen" })).toBeVisible();
+});
