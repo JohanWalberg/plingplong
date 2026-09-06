@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { resolveLocale } from "@/lib/locale";
 import { isOwner, requireLandlord } from "@/lib/access";
 import { PortalShell } from "@/components/portal/portal-shell";
-import { InviteForm, MemberControls, ProfileForm, RevokeButton } from "@/components/portal/account-forms";
+import { CloseAccountForm, InviteForm, MemberControls, ProfileForm, RevokeButton } from "@/components/portal/account-forms";
 import { StatusPill } from "@/components/ui/badge";
 import { Card } from "@/components/ui/misc";
 import { formatDateTimeShort } from "@/lib/format";
@@ -71,6 +71,15 @@ export default async function AccountPage({ params }: Props) {
               <div><dt className="text-meta text-muted">{t("website")}</dt><dd>{landlord.website ?? "—"}</dd></div>
             </dl>
           </Card>
+          {owner ? (
+            <Card className="mt-4 border-error-border p-5">
+              <h2 className="text-h3 text-error-text">{t("closeTitle")}</h2>
+              <p className="mt-2 text-[14px] text-ink-2">{t("closeIntro")}</p>
+              <div className="mt-3">
+                <CloseAccountForm organisation={landlord.name} />
+              </div>
+            </Card>
+          ) : null}
         </aside>
       </div>
     </PortalShell>

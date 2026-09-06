@@ -373,7 +373,8 @@
     "terms5Body": "The contact person's name, email and phone are processed as described on our personal data page. Details in listings are ones you chose to publish.",
     "terms6Title": "Changes",
     "terms6Body": "We may update these terms. Material changes are announced by email to account owners at least 30 days before they take effect.",
-    "termsUpdated": "Last updated {date}"
+    "termsUpdated": "Last updated {date}",
+    "privacyRetention": "Rejected applications are deleted after 90 days and applications never decided after 180 days. An account owner can close the landlord account from the portal; the users are then deleted and the homes unpublished."
   },
   "auth": {
     "portalTitle": "Sign in as a landlord",
@@ -850,7 +851,13 @@
       "saved": "Saved.",
       "roleChanged": "Role changed.",
       "memberRemoved": "User removed.",
-      "inviteInvalid": "Enter a valid email address."
+      "inviteInvalid": "Enter a valid email address.",
+      "closeTitle": "Close the account",
+      "closeIntro": "Every home you published here is unpublished, connected sources are disabled and all users are removed. The landlord stays as a known landlord in coverage. This cannot be undone.",
+      "closeConfirmLabel": "Type the organisation's name to confirm",
+      "closeButton": "Close the account",
+      "closeMismatch": "The name does not match.",
+      "closeDone": "The account has been closed."
     },
     "stats": {
       "title": "Statistics",
@@ -1049,7 +1056,10 @@
       "historyRequested": "More detail requested: {message}",
       "historyRejected": "Rejected: {reason}",
       "historyApproved": "Approved",
-      "selectHint": "Select an application in the list."
+      "selectHint": "Select an application in the list.",
+      "checkOrgActive": "Organisation number active in the company register ({detail})",
+      "checkOrgInactive": "Organisation number not active in the company register ({detail})",
+      "checkOrgSince": "active since {year}"
     },
     "listings": {
       "title": "Listings",

@@ -373,7 +373,8 @@
     "terms5Body": "Kontaktpersonens namn, e-post och telefon behandlas enligt vår sida om personuppgifter. Uppgifter i annonser är sådana ni själva valt att publicera.",
     "terms6Title": "Ändringar",
     "terms6Body": "Vi kan uppdatera villkoren. Väsentliga ändringar meddelas via e-post till kontoansvariga minst 30 dagar innan de börjar gälla.",
-    "termsUpdated": "Senast uppdaterad {date}"
+    "termsUpdated": "Senast uppdaterad {date}",
+    "privacyRetention": "Avslagna ansökningar raderas efter 90 dagar och ansökningar som aldrig avgjorts efter 180 dagar. En kontoansvarig kan avsluta hyresvärdens konto från portalen; då raderas användarna och bostäderna avpubliceras."
   },
   "auth": {
     "portalTitle": "Logga in som hyresvärd",
@@ -850,7 +851,13 @@
       "saved": "Sparat.",
       "roleChanged": "Rollen är ändrad.",
       "memberRemoved": "Användaren är borttagen.",
-      "inviteInvalid": "Ange en giltig e-postadress."
+      "inviteInvalid": "Ange en giltig e-postadress.",
+      "closeTitle": "Avsluta kontot",
+      "closeIntro": "Alla bostäder ni publicerat här avpubliceras, anslutna källor stängs av och alla användare tas bort. Hyresvärden finns kvar som känd hyresvärd i täckningen. Detta kan inte ångras.",
+      "closeConfirmLabel": "Skriv organisationens namn för att bekräfta",
+      "closeButton": "Avsluta kontot",
+      "closeMismatch": "Namnet stämmer inte.",
+      "closeDone": "Kontot är avslutat."
     },
     "stats": {
       "title": "Statistik",
@@ -1049,7 +1056,10 @@
       "historyRequested": "Komplettering begärd: {message}",
       "historyRejected": "Avslagen: {reason}",
       "historyApproved": "Godkänd",
-      "selectHint": "Välj en ansökan i listan."
+      "selectHint": "Välj en ansökan i listan.",
+      "checkOrgActive": "Organisationsnumret är aktivt hos Bolagsverket ({detail})",
+      "checkOrgInactive": "Organisationsnumret är inte aktivt hos Bolagsverket ({detail})",
+      "checkOrgSince": "aktivt sedan {year}"
     },
     "listings": {
       "title": "Bostäder",

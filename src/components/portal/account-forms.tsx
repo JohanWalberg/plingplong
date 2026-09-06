@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { sendInvitation, revokeInvitation } from "@/actions/invite";
 import { changeMemberRole, removeMember, updateProfile } from "@/actions/portal-account";
+import { closeLandlordAccount } from "@/actions/portal-account";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -161,5 +162,58 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
         </Button>
       </form>
     </div>
+  );
+}
+
+
+export function CloseAccountForm({ organisation }: { organisation: string }) {
+  const t = useTranslations("portal.account");
+  const tc = useTranslations("common");
+  const locale = useLocale() as Locale;
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <>
+      <Button variant="danger" onClick={() => setOpen(true)}>
+        {t("closeButton")}
+      </Button>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t("closeTitle")}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setOpen(false)}>
+              {tc("cancel")}
+            </Button>
+            <Button
+              variant="danger"
+              loading={pending}
+              onClick={() =>
+                start(async () => {
+                  const res = await closeLandlordAccount(locale, name);
+                  if (!res.ok) {
+                    setError(t("closeMismatch"));
+                    return;
+                  }
+                  router.push("/portal/sign-in");
+                  router.refresh();
+                })
+              }
+            >
+              {t("closeButton")}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-[14.5px] text-ink-2">{t("closeIntro")}</p>
+        <div className="mt-3">
+          <Input label={t("closeConfirmLabel")} value={name} onChange={(e) => setName(e.target.value)} placeholder={organisation} error={error ?? undefined} autoComplete="off" />
+        </div>
+      </Dialog>
+    </>
   );
 }

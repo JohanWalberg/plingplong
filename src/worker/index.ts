@@ -5,6 +5,7 @@
 import type { Job } from "pg-boss";
 import { QUEUES, createBoss } from "@/lib/jobs";
 import { dueSources, expireDirectListings, pruneRawPayloads, syncSource } from "./sync";
+import { purgeApplications } from "./retention";
 
 async function main() {
   const boss = await createBoss();
@@ -28,7 +29,8 @@ async function main() {
   await boss.work(QUEUES.housekeeping, async () => {
     const expired = await expireDirectListings();
     await pruneRawPayloads();
-    console.log(`[housekeeping] expired ${expired} direct listing(s)`);
+    const purged = await purgeApplications();
+    console.log(`[housekeeping] expired ${expired} direct listing(s), purged ${purged} application(s)`);
   });
 
   await boss.schedule(QUEUES.tick, "* * * * *", undefined, { tz: "Europe/Stockholm" });
