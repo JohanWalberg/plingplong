@@ -88,9 +88,10 @@ priority order.
     `pnpm build`, `pnpm test:e2e`.
 13. **Takedown SLA process.** Staff can now remove a listing with a logged
     reason from the admin listing page; there is still no ticket flow.
-14. **Server-rendered 404 shell.** `notFound()` pages stream Next's bare
-    `__next_error__` html without `lang` or the stylesheet; the browser
-    hydrates the right tree, so axe passes, but the 404 flashes unstyled.
+14. **Entity 404 shell.** Unmatched URLs get the styled global 404. Pages
+    that call `notFound()` for an unknown slug answer 404 but stream Next's
+    bare `__next_error__` shell until hydration (Next 16 behaviour for
+    non-streamed 404s under a `[locale]` root).
 
 ## Conflicts and gaps from the design review, current state
 
@@ -128,9 +129,10 @@ state the fetch cadence publicly (they do today).
 
 ## Running the end-to-end suite
 
-`pnpm test:e2e` needs the dev server on port 3000 and the seed data. The
-last spec closes the seed landlord's account, so run `pnpm db:reset` before
-each full run or the portal sign-ins time out.
+`pnpm test:e2e` resets and reseeds the database first, then runs Playwright
+against the dev server on port 3000. The last spec closes the seed landlord's
+account, which is why the reset is part of the script; `pnpm test:e2e:only`
+skips it for a quick rerun of a single spec.
 
 ## Local testing of crawls
 

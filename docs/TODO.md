@@ -76,11 +76,11 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
   definition of done.
 - [x] **D6. next/image** for listing photos; uploads resized and converted.
 - [x] **D7. Open Graph metadata** and generated share images.
-- [ ] **D8. Server-rendered 404 shell.** Pages that call `notFound()` hydrate
-  correctly (axe passes in the browser) but the streamed HTML is Next's bare
-  `__next_error__` shell without `lang` or the stylesheet, so a 404 flashes
-  unstyled. Removing the root layout did not change it; needs a look at how
-  Next 16 renders not-found under a `[locale]` root.
+- [x] **D8. Unmatched URLs get a styled 404.** `app/global-not-found.tsx`
+  (Next's `globalNotFound` flag) serves a full bilingual document with a 404
+  status. Pages that call `notFound()` for an unknown slug still stream Next's
+  bare `__next_error__` shell until hydration; that is how Next 16 renders
+  non-streamed 404s under a `[locale]` root and is rare in practice.
 
 ## E. Post-MVP (from the brief)
 
