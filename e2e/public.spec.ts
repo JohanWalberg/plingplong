@@ -4,7 +4,7 @@ import { expectAccessible } from "./helpers";
 test("home → search Solna → filter → detail → language switch keeps state", async ({ page }) => {
   await page.goto("/sv");
   await expectAccessible(page, "home");
-  await page.getByRole("searchbox").fill("Solna");
+  await page.getByRole("combobox").first().fill("Solna");
   await page.getByRole("button", { name: "Sök bostäder" }).first().click();
   await page.waitForURL(/\/sv\/bostader\/solna/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/bostäder i Solna/);
@@ -51,4 +51,18 @@ test("municipality and landlord pages", async ({ page }) => {
   await page.waitForURL(/\/sv\/hyresvardar\//);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Signalisten");
   await expectAccessible(page, "landlord");
+});
+
+test("search box suggests places and the keyboard picks one", async ({ page }) => {
+  await page.goto("/sv");
+  const box = page.getByRole("combobox", { name: "Sök efter kommun, stadsdel eller postnummer" });
+  await box.fill("Sol");
+  const option = page.getByRole("option", { name: /Solna/ });
+  await expect(option).toBeVisible();
+  await expectAccessible(page, "home with suggestions open");
+  await box.press("ArrowDown");
+  await expect(option).toHaveAttribute("aria-selected", "true");
+  await box.press("Enter");
+  await page.waitForURL(/\/sv\/bostader\/solna/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Solna");
 });

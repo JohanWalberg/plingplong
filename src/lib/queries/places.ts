@@ -95,3 +95,42 @@ export async function resolvePlace(query: string): Promise<PlaceMatch[]> {
   }
   return out;
 }
+
+export type PlaceSuggestion = { kind: "municipality" | "area"; name: string; detail: string | null; count: number; municipality: typeof municipality.$inferSelect; area?: typeof area.$inferSelect };
+
+/**
+ * Prefix suggestions for the search box: municipalities (either language) and
+ * areas, each with its count of active homes so the list doubles as a hint of
+ * where there is something to find. Cheap enough to run per keystroke.
+ */
+export async function suggestPlaces(query: string, locale: Locale, limit = 8): Promise<PlaceSuggestion[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  const prefix = `${q}%`;
+  // Written with explicit aliases: drizzle drops the table qualifier inside a
+  // correlated subquery, so `${municipality.id}` would resolve to listing.id.
+  const muniCount = sql<number>`(select count(*) from listing l where l.municipality_id = municipality.id and l.status = 'active')::int`;
+  const areaCount = sql<number>`(select count(*) from listing l where l.area_id = area.id and l.status = 'active')::int`;
+  const [munis, areas] = await Promise.all([
+    db
+      .select({ m: municipality, count: muniCount })
+      .from(municipality)
+      .where(or(ilike(municipality.nameSv, prefix), ilike(municipality.nameEn, prefix)))
+      .orderBy(sql`${muniCount} desc`, municipality.nameSv)
+      .limit(limit),
+    db
+      .select({ a: area, m: municipality, count: areaCount })
+      .from(area)
+      .innerJoin(municipality, eq(area.municipalityId, municipality.id))
+      .where(ilike(area.name, prefix))
+      .orderBy(sql`${areaCount} desc`, area.name)
+      .limit(limit),
+  ]);
+  const out: PlaceSuggestion[] = [
+    ...munis.map((r) => ({ kind: "municipality" as const, name: municipalityName(r.m, locale), detail: countyName(r.m, locale), count: r.count, municipality: r.m })),
+    ...areas.map((r) => ({ kind: "area" as const, name: r.a.name, detail: municipalityName(r.m, locale), count: r.count, municipality: r.m, area: r.a })),
+  ];
+  // Places with homes first, regardless of kind; then alphabetical.
+  out.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, locale));
+  return out.slice(0, limit);
+}
