@@ -9,6 +9,7 @@ import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { domainMatches, isValidOrgNumber, normaliseOrgNumber, orgNumberKind } from "@/lib/org-number";
 import { testSource } from "@/lib/source-test";
+import { lookupOrganisation } from "@/lib/registry";
 import type { Locale } from "@/i18n/routing";
 import { headers } from "next/headers";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -60,8 +61,12 @@ export async function submitApplication(_prev: SignupState | null, formData: For
   // Automated checks, recorded for the reviewer. None of them auto-approve.
   const checks: Array<{ key: string; status: "done" | "warn" | "fail" | "na"; detail?: Record<string, unknown> }> = [
     { key: "org_format", status: "done", detail: { kind: orgNumberKind(orgNumber) } },
-    { key: "org_registry", status: "warn" },
   ];
+  const registry = await lookupOrganisation(orgNumber);
+  if (!registry.configured) checks.push({ key: "org_registry", status: "warn" });
+  else if (registry.error || !registry.result) checks.push({ key: "org_registry", status: "warn", detail: { error: registry.error ?? "no result" } });
+  else if (registry.result.status === "active") checks.push({ key: "org_registry", status: "done", detail: { name: registry.result.name, legalForm: registry.result.legalForm, registeredAt: registry.result.registeredAt } });
+  else checks.push({ key: "org_registry", status: "fail", detail: { name: registry.result.name, legalForm: registry.result.legalForm, registeredAt: registry.result.registeredAt, status: registry.result.status } });
   const dm = domainMatches(d.email, d.website || null);
   checks.push({ key: "email_domain", status: dm === null ? "na" : dm ? "done" : "fail" });
   if (d.publishingRoute === "source" && d.sourceUrl) {

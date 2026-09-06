@@ -40,8 +40,13 @@ export default async function ApplicationsPage({ params, searchParams }: Props) 
     switch (c.key) {
       case "org_format":
         return c.status === "fail" ? t("checkOrgFail") : t("checkOrg");
-      case "org_registry":
+      case "org_registry": {
+        const d = c.detail ?? {};
+        const who = [d.legalForm, d.registeredAt ? t("checkOrgSince", { year: String(d.registeredAt).slice(0, 4) }) : null].filter(Boolean).join(" · ");
+        if (c.status === "done") return t("checkOrgActive", { detail: who || String(d.name ?? "") });
+        if (c.status === "fail") return t("checkOrgInactive", { detail: who || String(d.status ?? "") });
         return t("checkOrgRegistry");
+      }
       case "email_domain":
         return c.status === "na" ? t("checkDomainNa") : c.status === "fail" ? t("checkDomainFail") : t("checkDomain");
       case "feed":

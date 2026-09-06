@@ -126,12 +126,12 @@ flowchart LR
         <tr><td>FAQ</td><td class="p">/fragor-och-svar<span>/faq</span></td><td>Five questions.</td></tr>
         <tr><td>Contact</td><td class="p">/kontakt<span>/contact</span></td><td>Email and the landlord pointer.</td></tr>
         <tr><td>About data collection</td><td class="p">/om-insamling<span>/about-collection</span></td><td>What we collect, how we crawl, takedown, retention. Linked from the crawler's User-Agent.</td></tr>
-        <tr><td>Privacy</td><td class="p">/personuppgifter<span>/privacy</span></td><td>No seeker data; landlord contact data and its basis.</td></tr>
+        <tr><td>Privacy</td><td class="p">/personuppgifter<span>/privacy</span></td><td>No seeker data; landlord contact data, its basis, retention periods and account closure.</td></tr>
         <tr><td>Cookies</td><td class="p">/cookies<span>/cookies</span></td><td>Necessary storage only.</td></tr>
         <tr><td>Terms for landlords</td><td class="p">/villkor<span>/terms</span></td><td>Draft terms, linked from sign-up.</td></tr>
         <tr class="grp"><td class="g" colspan="3">Machine endpoints</td></tr>
         <tr><td>Sitemap, robots</td><td class="p">/sitemap.xml · /robots.txt</td><td>Every municipality, landlord and active home in both languages with hreflang; admin and portal disallowed.</td></tr>
-        <tr><td>Metrics</td><td class="p">POST /api/metrics</td><td>Counts detail-page views and outbound clicks per day.</td></tr>
+        <tr><td>Metrics</td><td class="p">POST /api/metrics</td><td>Counts detail-page views and outbound clicks per day; rate limited per IP.</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -159,7 +159,7 @@ flowchart LR
         <tr><td>Connect source</td><td class="p">/portal/kallor/ny<span>/portal/sources/new</span></td><td class="who">owner</td><td>Feed, API or web page; test connection shows the field mapping and what is missing; connect enabled after a good test.</td></tr>
         <tr><td>Source</td><td class="p">/portal/kallor/[id]<span>/portal/sources/[id]</span></td><td class="who">owner</td><td>Settings, enable or disable, runs.</td></tr>
         <tr><td>Statistics</td><td class="p">/portal/statistik<span>/portal/statistics</span></td><td class="who">owner, editor</td><td>Views and clicks across all homes, per-home table. Applications are explicitly not measured.</td></tr>
-        <tr><td>Account</td><td class="p">/portal/konto<span>/portal/account</span></td><td class="who">owner (members), all (profile)</td><td>Organisation, members and roles, invitations, profile, change password.</td></tr>
+        <tr><td>Account</td><td class="p">/portal/konto<span>/portal/account</span></td><td class="who">owner (members), all (profile)</td><td>Organisation, members and roles, invitations, profile, change password; owners can close the account (unpublishes homes, disables sources, deletes users).</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -178,9 +178,9 @@ flowchart LR
         <tr><td>Landlords</td><td class="p">/admin/hyresvardar<span>/admin/landlords</span></td><td class="who">support+</td><td>Search, type, monitored flag, counts.</td></tr>
         <tr><td>Landlord</td><td class="p">/admin/hyresvardar/[id]<span>/admin/landlords/[id]</span></td><td class="who">support+, lead edits</td><td>Details, municipalities for coverage, sources, members.</td></tr>
         <tr><td>New landlord</td><td class="p">/admin/hyresvardar/ny<span>/admin/landlords/new</span></td><td class="who">lead</td><td>Register a known landlord for the coverage figure.</td></tr>
-        <tr><td>Approval queue</td><td class="p">/admin/hyresvardar/ansokningar<span>/admin/landlords/applications</span></td><td class="who">support reads, lead decides</td><td>Awaiting, needs more detail, decided; detail with automated checks and history; approve, request more detail, reject, reopen. Emails on each.</td></tr>
+        <tr><td>Approval queue</td><td class="p">/admin/hyresvardar/ansokningar<span>/admin/landlords/applications</span></td><td class="who">support reads, lead decides</td><td>Awaiting, needs more detail, decided; detail with automated checks (format, registry, email domain, feed) and history; approve, request more detail, reject, reopen. Emails on each.</td></tr>
         <tr><td>Listings</td><td class="p">/admin/bostader<span>/admin/listings</span></td><td class="who">support+</td><td>Search by address, landlord or reference; status filter; pagination.</td></tr>
-        <tr><td>Listing</td><td class="p">/admin/bostader/[id]<span>/admin/listings/[id]</span></td><td class="who">support+, engineer sees raw</td><td>Facts, sources and sightings, revisions, raw payload; mark reviewed.</td></tr>
+        <tr><td>Listing</td><td class="p">/admin/bostader/[id]<span>/admin/listings/[id]</span></td><td class="who">support+, engineer sees raw</td><td>Facts, sources and sightings, revisions, raw payload; edit factual fields (logged), remove from search with a reason or restore (lead), mark reviewed.</td></tr>
         <tr><td>Duplicates</td><td class="p">/admin/dubbletter<span>/admin/duplicates</span></td><td class="who">support decides not-duplicate, lead merges</td><td>Side-by-side pairs with confidence and matching fields highlighted.</td></tr>
         <tr><td>Coverage</td><td class="p">/admin/tackning<span>/admin/coverage</span></td><td class="who">support+</td><td>Known versus monitored per municipality.</td></tr>
         <tr><td>Settings</td><td class="p">/admin/installningar<span>/admin/settings</span></td><td class="who">support+, lead edits</td><td>Staff and roles, crawler User-Agent, retention.</td></tr>

@@ -31,9 +31,14 @@ images, performance page, sources with connection test and mapping table,
 statistics, account with members.
 
 **Admin.** Overview with KPIs and attention list, sources with runs and
-settings, landlords, approval queue with approve/request-detail/reject,
-listings with revisions and raw payload, duplicate review with merge,
-coverage, staff roles.
+settings, landlords, approval queue with approve/request-detail/reject and
+a registry check, listings with revisions, raw payload, staff editing and
+takedown with a logged reason, duplicate review with merge, coverage, staff
+roles.
+
+**Hardening.** Error boundaries on every surface, rate limiting on sign-in,
+sign-up, password reset and metrics, application retention (90/180 days) in
+the nightly housekeeping job, owner-initiated account closure.
 
 ## Pending
 
@@ -44,8 +49,9 @@ priority order.
    layer has a provider slot; nothing is wired. Decision 8 in `DECISIONS.md`.
 2. **Staff SSO** (Google Workspace / Entra) with 2FA at the IdP. Staff sign in
    with email and password today; the eight-hour cap is enforced server-side.
-3. **Company register lookup** (Bolagsverket) in the automated checks. The
-   check is recorded as "verify manually" until an API is chosen.
+3. **Company register credentials.** The Bolagsverket lookup is built behind a
+   provider interface and tested against a mock; it activates when the
+   `BOLAGSVERKET_*` variables are set after registering with Bolagsverket.
 4. **Playwright adapter for JS-rendered landlord sites.** Only the static HTML
    adapter exists. HTML sources connected through the portal wait for staff
    set-up (status pending) as the design describes.
@@ -67,11 +73,8 @@ priority order.
 12. **Deployment.** No Vercel or Fly.io configuration, no CI workflow. The
     checks to run in CI are `pnpm typecheck`, `pnpm i18n:check`, `pnpm test`,
     `pnpm build`, `pnpm test:e2e`.
-13. **Takedown SLA process.** The about-collection page states five working
-    days; there is no ticket flow, only the consent field on each source.
-14. **GDPR retention for landlord applications.** Rejected and old
-    applications are kept indefinitely.
-15. **Rate limiting** on sign-in, sign-up and the metrics endpoint.
+13. **Takedown SLA process.** Staff can now remove a listing with a logged
+    reason from the admin listing page; there is still no ticket flow.
 
 ## Conflicts and gaps from the design review, current state
 

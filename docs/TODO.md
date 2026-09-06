@@ -41,7 +41,7 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
   behind the existing storage interface, selected by env var.
 - [?] **B3. Email delivery.** Resend API key and sender domain; templates are
   ready.
-- [ ] **B4. Rate limiting** on sign-in, sign-up, password reset and the
+- [x] **B4. Rate limiting** on sign-in, sign-up, password reset and the
   metrics endpoint.
 - [ ] **B5. CI workflow.** typecheck, i18n check, unit tests, build, e2e
   against a Postgres service.
@@ -50,13 +50,13 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 
 ## C. Trust and compliance
 
-- [?] **C1. Bolagsverket registry check.** Provider interface with the free
+- [x] **C1. Bolagsverket registry check.** Built and tested against a mock; activates when `BOLAGSVERKET_*` env vars are set. Provider interface with the free
   "värdefulla datamängder" API; needs the credentials from the owner's
   registration. Until then the queue shows "verify manually".
-- [ ] **C2. Staff can edit or hide a listing.** Admin listing detail: edit the
+- [x] **C2. Staff can edit or hide a listing.** Admin listing detail: edit the
   factual fields, mark removed, with a revision row and reason. This is also the
   takedown mechanism.
-- [ ] **C3. Application retention and account deletion.** Purge rejected
+- [x] **C3. Application retention and account deletion.** Purge rejected
   applications after a set period, let owners close the landlord account,
   document both on the privacy page.
 - [ ] **C4. Landlord terms acceptance stored** with timestamp on approval.
