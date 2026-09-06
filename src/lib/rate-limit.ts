@@ -30,8 +30,18 @@ export function rateLimit(key: string, max: number, windowSeconds: number, now =
   return { ok: true, remaining: max - entry.hits.length };
 }
 
+/**
+ * The client address as the first trusted proxy saw it. Proxies append to
+ * X-Forwarded-For, so with N trusted hops the client is the N-th entry from
+ * the right; anything further left was supplied by the client and is ignored.
+ * TRUSTED_PROXY_HOPS defaults to 1 (one load balancer or CDN in front).
+ */
 export function clientIp(headers: Headers): string {
+  const hops = Math.max(1, Number(process.env.TRUSTED_PROXY_HOPS ?? 1) || 1);
   const fwd = headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
+  if (fwd) {
+    const parts = fwd.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length) return parts[Math.max(0, parts.length - hops)];
+  }
   return headers.get("x-real-ip") ?? "local";
 }
