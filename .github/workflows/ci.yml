@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  DATABASE_URL: postgres://hyrabostad:hyrabostad@localhost:5432/hyrabostad
+  BETTER_AUTH_SECRET: ci-only-secret-that-is-at-least-32-characters-long
+  BETTER_AUTH_URL: http://localhost:3000
+  NEXT_PUBLIC_SITE_URL: http://localhost:3000
+  CACHE_TTL_SECONDS: "0"
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      db:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: hyrabostad
+          POSTGRES_PASSWORD: hyrabostad
+          POSTGRES_DB: hyrabostad
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hyrabostad"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm i18n:check
+      - run: pnpm test
+      - run: pnpm db:migrate && pnpm db:seed
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: End-to-end tests against the production build
+        run: |
+          pnpm start &
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/api/health && break; sleep 2; done
+          pnpm test:e2e:only
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: test-results
+          if-no-files-found: ignore
