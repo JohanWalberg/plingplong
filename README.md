@@ -69,4 +69,4 @@ pnpm exec tsx --env-file=.env scripts/sync-once.ts <landlord-slug|source-id>
 The e2e suite mutates data (publishes a home, approves an application). Run
 `pnpm db:reset` afterwards to get back to the seed.
 
-See `docs/STATUS.md` for what is built and what is pending.
+See `docs/STATUS.md` for what is built and `docs/TODO.md` for the ordered list of remaining work.
