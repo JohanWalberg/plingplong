@@ -1,4 +1,5 @@
 import { and, desc, eq, inArray, isNull, lt, lte, or, sql, ne } from "drizzle-orm";
+import { stockholmDate } from "@/lib/format";
 import { db, schema, type Db, type Tx } from "@/db";
 import { listingSlug, slugify } from "@/lib/slug";
 import { sendEmail } from "@/lib/email";
@@ -12,6 +13,8 @@ import { blockKey, decide, scorePair, type DedupSubject } from "./dedup";
 const { source, sourceRun, listing, listingSource, listingRevision, municipality, area, landlord, landlordMunicipality, duplicateCandidate } = schema;
 
 const TRACKED_FIELDS = ["rent_monthly", "rooms", "size_sqm", "application_deadline", "move_in_date", "address", "queue_requirement"] as const;
+
+const MAX_ITEMS_PER_RUN = 5000;
 
 type SyncOutcome = { ok: boolean; found: number; created: number; updated: number; gone: number; anomaly: boolean; error?: string };
 
@@ -83,6 +86,12 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
   const seen = new Set<string>();
   const newListingIds: string[] = [];
 
+  // One feed must not monopolise the single worker; beyond this the source is treated as broken.
+  if (result.listings.length > MAX_ITEMS_PER_RUN) return await recordFailure(src, run.id, new AdapterError("parse_error", `feed has ${result.listings.length} items, limit ${MAX_ITEMS_PER_RUN}`), now);
+
+  // From here on a bad item (out-of-range number, unique clash) must end as a
+  // recorded failure, not an unhandled rejection that leaves the run open.
+  try {
   for (const raw of result.listings) {
     const n = normalise(raw, now, src.url ?? undefined);
     if (seen.has(n.externalId)) continue;
@@ -234,10 +243,15 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
   if (newListingIds.length) await findDuplicates(newListingIds);
 
   return { ok: true, found, created, updated, gone, anomaly };
+  } catch (e) {
+    return await recordFailure(src, run.id, e instanceof AdapterError ? e : new AdapterError("parse_error", `sync failed: ${(e as Error).message}`), now);
+  }
 }
 
 async function recordFailure(src: typeof source.$inferSelect & { landlord: { name: string } }, runId: string, e: unknown, now: Date): Promise<SyncOutcome> {
-  const err = e instanceof AdapterError ? e : new AdapterError("unreachable", (e as Error).message);
+  const raw = e instanceof AdapterError ? e : new AdapterError("unreachable", (e as Error).message);
+  // Remote error text (JSON.parse snippets, HTTP bodies) is untrusted: keep it short before it reaches the UI or an email.
+  const err = new AdapterError(raw.errorClass, raw.message.replace(/\s+/g, " ").slice(0, 300), raw.status);
   const failures = src.consecutiveFailures + 1;
   await db.update(sourceRun).set({ finishedAt: new Date(), ok: false, errorClass: err.errorClass, errorDetail: err.message }).where(eq(sourceRun.id, runId));
   await db
@@ -351,7 +365,7 @@ export async function mergeListings(survivorId: string, loserId: string, actorId
 
 /** Direct listings: seven days after the deadline they expire automatically. */
 export async function expireDirectListings(now: Date = new Date()) {
-  const cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60_000).toISOString().slice(0, 10);
+  const cutoff = stockholmDate(new Date(now.getTime() - 7 * 24 * 60 * 60_000));
   const rows = await db
     .update(listing)
     .set({ status: "expired", unpublishedAt: now, lastCheckedAt: now })

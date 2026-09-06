@@ -14,7 +14,13 @@ async function main() {
   await boss.work<{ sourceId: string; manual?: boolean; force?: boolean }>(QUEUES.sync, async (jobs: Job<{ sourceId: string; manual?: boolean; force?: boolean }>[]) => {
     const [job] = jobs;
     const started = Date.now();
-    const out = await syncSource(job.data.sourceId, { manual: job.data.manual, force: job.data.force });
+    let out;
+    try {
+      out = await syncSource(job.data.sourceId, { manual: job.data.manual, force: job.data.force });
+    } catch (e) {
+      console.error(`[sync] ${job.data.sourceId} crashed`, e);
+      throw e;
+    }
     console.log(`[sync] ${job.data.sourceId} ${out.ok ? "ok" : "FAILED"} found=${out.found} new=${out.created} upd=${out.updated} gone=${out.gone}${out.anomaly ? " ANOMALY" : ""}${out.error ? ` err=${out.error}` : ""} (${Date.now() - started}ms)`);
   });
 
@@ -36,6 +42,15 @@ async function main() {
   await boss.schedule(QUEUES.tick, "* * * * *", undefined, { tz: "Europe/Stockholm" });
   await boss.schedule(QUEUES.housekeeping, "15 3 * * *", undefined, { tz: "Europe/Stockholm" });
   console.log("worker started: queues", Object.values(QUEUES).join(", "));
+
+  // Deploys send SIGTERM: finish the running job instead of leaving a source run open.
+  for (const signal of ["SIGTERM", "SIGINT"] as const) {
+    process.once(signal, async () => {
+      console.log(`[worker] ${signal}: stopping`);
+      await boss.stop({ graceful: true, timeout: 30_000 });
+      process.exit(0);
+    });
+  }
 }
 
 main().catch((e) => {

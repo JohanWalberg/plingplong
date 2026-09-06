@@ -42,9 +42,9 @@ export async function assertPublicUrl(raw: string): Promise<URL> {
     throw new BlockedUrlError(`not a valid URL: ${raw}`);
   }
   if (u.protocol !== "http:" && u.protocol !== "https:") throw new BlockedUrlError(`scheme not allowed: ${u.protocol}`);
-  if (u.port && u.port !== "80" && u.port !== "443") throw new BlockedUrlError(`port not allowed: ${u.port}`);
   if (u.username || u.password) throw new BlockedUrlError("credentials in URL are not allowed");
-  if (allowPrivate()) return u;
+  if (allowPrivate()) return u; // development: local fixture servers on any port
+  if (u.port && u.port !== "80" && u.port !== "443") throw new BlockedUrlError(`port not allowed: ${u.port}`);
   const host = u.hostname.replace(/^\[|\]$/g, "");
   const addresses = isIP(host) ? [host] : (await lookup(host, { all: true }).catch(() => [])).map((a) => a.address);
   if (!addresses.length) throw new BlockedUrlError(`host does not resolve: ${host}`);

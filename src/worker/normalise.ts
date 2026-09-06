@@ -26,15 +26,19 @@ export type NormalisedListing = {
 };
 
 /** "9 340 kr/mån" → 9340; "9.340,00" → 9340; "12450" → 12450; nonsense → null. */
+const MAX_MONEY = 1_000_000;
+const text = (v: string | null | undefined, max = 500) => (v?.trim() ? v.trim().slice(0, max) : null);
+
 export function parseMoney(v: string | number | null | undefined): number | null {
   if (v === null || v === undefined) return null;
-  if (typeof v === "number") return Number.isFinite(v) && v > 0 ? Math.round(v) : null;
+  if (typeof v === "number") return Number.isFinite(v) && v > 0 && v <= MAX_MONEY ? Math.round(v) : null;
   const cleaned = v.replace(/[^\d.,]/g, "");
   if (!cleaned) return null;
   // Remove thousands separators (dots/commas followed by exactly three digits) then decimals.
   const noThousands = cleaned.replace(/[.,](?=\d{3}(\D|$))/g, "");
   const n = parseFloat(noThousands.replace(",", "."));
-  return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+  const out = Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+  return out !== null && out <= MAX_MONEY ? out : null;
 }
 
 /** "2 rok" → 2; "2,5 rum" → 2.5; "3" → 3 */
@@ -57,11 +61,11 @@ export function parseSize(v: string | number | null | undefined): number | null 
   return n > 0 && n < 1000 ? n : null;
 }
 
-export function parseInteger(v: string | number | null | undefined): number | null {
+/** Small integers only (floors, floor counts): anything wild is treated as unknown rather than stored. */
+export function parseInteger(v: string | number | null | undefined, limit = 1000): number | null {
   if (v === null || v === undefined) return null;
-  if (typeof v === "number") return Number.isInteger(v) ? v : Math.round(v);
-  const m = v.match(/-?\d+/);
-  return m ? parseInt(m[0], 10) : null;
+  const n = typeof v === "number" ? (Number.isInteger(v) ? v : Math.round(v)) : (() => { const m = v.match(/-?\d+/); return m ? parseInt(m[0], 10) : NaN; })();
+  return Number.isFinite(n) && Math.abs(n) <= limit ? n : null;
 }
 
 const SV_MONTHS = ["januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"];
@@ -127,11 +131,11 @@ export function excerpt(v: string | null | undefined, max = 600): string | null 
 
 export function normalise(raw: RawListing, now: Date = new Date(), base?: string): NormalisedListing {
   return {
-    externalId: raw.externalId.trim(),
+    externalId: raw.externalId.trim().slice(0, 200),
     sourceUrl: safeHttpUrl(raw.url, base),
-    address: raw.address!.replace(/\s+/g, " ").trim(),
-    areaName: raw.area?.trim() || null,
-    municipalityName: raw.municipality?.trim() || null,
+    address: raw.address!.replace(/\s+/g, " ").trim().slice(0, 300),
+    areaName: text(raw.area, 120),
+    municipalityName: text(raw.municipality, 120),
     postcode: normalisePostcode(raw.postcode),
     rentMonthly: parseMoney(raw.rent),
     rooms: parseRooms(raw.rooms),
