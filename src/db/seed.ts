@@ -499,7 +499,7 @@ async function main() {
           : `https://${primaryLandlord.website ?? "example.se"}/ledigt/${l.externalId ?? slugify(l.addr)}`,
         applicationContact: l.applyContact ?? null,
         description: l.desc,
-        imageUrl: l.img ? `https://images.example-cdn.se/${slugify(l.addr)}.jpg` : null,
+        imageUrl: l.img ? `https://picsum.photos/seed/${slugify(l.addr)}/1200/800` : null,
         externalId: l.sources[0]?.[1] ?? null,
         status,
         publishedDirectly: direct,

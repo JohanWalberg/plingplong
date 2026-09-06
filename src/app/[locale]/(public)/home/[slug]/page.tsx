@@ -9,6 +9,7 @@ import { Badge, BadgeList } from "@/components/ui/badge";
 import { Card, Callout, Kicker, icons } from "@/components/ui/misc";
 import { buttonClasses } from "@/components/ui/button";
 import { Freshness } from "@/components/listing/freshness";
+import { ListingImage } from "@/components/listing/listing-image";
 import { SaveButton } from "@/components/listing/save-button";
 import { OutboundLink, TrackView } from "@/components/listing/track";
 import { ListingCard, getBadgeLabels } from "@/components/listing/listing-card";
@@ -132,8 +133,7 @@ export default async function ListingPage({ params }: Props) {
 
               {l.imageUrl || l.images.length ? (
                 <Card as="section" className="overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={l.imageUrl ?? `/uploads/${l.images[0]!.storageKey}`} alt="" className="max-h-[480px] w-full object-cover" />
+                  <ListingImage src={l.imageUrl ?? `/api/uploads/${l.images[0]!.storageKey}`} address={l.address} noImage={t("noImage")} className="max-h-[480px] min-h-[200px] w-full" />
                 </Card>
               ) : null}
 

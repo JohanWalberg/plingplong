@@ -4,6 +4,7 @@ import type { Locale } from "@/i18n/routing";
 import { Badge, BadgeList } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Freshness } from "./freshness";
+import { ListingImage } from "./listing-image";
 import { composeBadges, deadlineMessage, deadlineState, initials, rentLabel, roomsSizeLabel, type BadgeLabels } from "@/lib/listing-display";
 import type { QueueRequirement, Segment } from "@/db/schema";
 
@@ -48,16 +49,7 @@ export async function getBadgeLabels(): Promise<BadgeLabels> {
 }
 
 function ImageArea({ imageUrl, address, noImage, className }: { imageUrl: string | null; address: string; noImage: string; className: string }) {
-  if (imageUrl) {
-    // Hotlinked from the landlord's own site; we never copy photos.
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={imageUrl} alt="" loading="lazy" className={`${className} object-cover`} />;
-  }
-  return (
-    <div className={`${className} flex items-center justify-center bg-placeholder text-center text-meta text-faint`} aria-label={`${address}: ${noImage}`} role="img">
-      <span className="px-3">{noImage}</span>
-    </div>
-  );
+  return <ListingImage src={imageUrl} address={address} noImage={noImage} className={className} />;
 }
 
 function DeadlinePill({ deadline, locale, t }: { deadline: string | null; locale: Locale; t: Awaited<ReturnType<typeof getTranslations<"deadline">>> }) {
