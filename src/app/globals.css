@@ -236,3 +236,58 @@
     animation: none;
   }
 }
+
+/* Print: the content only. Chrome, controls, maps and sticky bars go; links show where they lead. */
+@media print {
+  header,
+  footer,
+  nav,
+  button,
+  form,
+  .no-print,
+  .maplibregl-map,
+  details > summary,
+  [role="status"],
+  [data-print="hide"] {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a[href^="http"]:not([href*="hyrabostad"])::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #444;
+    word-break: break-all;
+  }
+  article,
+  section,
+  [class*="rounded-md"] {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  .sticky {
+    position: static !important;
+  }
+  /* Photos rendered with next/image fill size to their frame: cap the frame, not the image. */
+  span:has(> img[data-nimg="fill"]) {
+    height: 60mm !important;
+    min-height: 0 !important;
+    max-height: 60mm !important;
+  }
+  .bg-bg,
+  .bg-surface,
+  .bg-canvas,
+  .bg-surface-muted {
+    background: #fff !important;
+  }
+}

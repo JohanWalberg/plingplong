@@ -302,7 +302,7 @@ export default async function ListingPage({ params }: Props) {
           </div>
         </div>
         {!gone && (applyUrl || (l.applyRoute === "contact" && l.applicationContact)) ? (
-          <div className="sticky bottom-0 z-30 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur lg:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+          <div data-print="hide" className="sticky bottom-0 z-30 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur lg:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
             <div className="mx-auto flex max-w-[720px] items-center gap-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[18px] font-[700] leading-tight tabular text-ink">{rent}</p>
