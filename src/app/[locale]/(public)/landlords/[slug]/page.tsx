@@ -30,7 +30,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = await resolveLocale(params);
   const l = await load(slug);
   if (!l) return {};
-  return { title: l.name, alternates: alternatesFor(locale, () => ({ pathname: "/landlords/[slug]", params: { slug } })) };
+  const t = await getTranslations({ locale, namespace: "landlord" });
+  const description = (locale === "sv" ? l.descriptionSv : l.descriptionEn) ?? t("listingsTitle", { name: l.name });
+  return { title: l.name, description, openGraph: { title: l.name, description }, alternates: alternatesFor(locale, () => ({ pathname: "/landlords/[slug]", params: { slug } })) };
 }
 
 export default async function LandlordPage({ params }: Props) {

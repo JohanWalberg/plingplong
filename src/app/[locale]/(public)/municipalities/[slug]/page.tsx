@@ -23,8 +23,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const muni = await findMunicipalityBySlug(slug);
   if (!muni) return {};
   const t = await getTranslations({ locale, namespace: "municipality" });
+  const [stats, landlords] = await Promise.all([municipalityStats(muni.id), landlordCountsFor(muni.id)]);
+  const title = t("title", { place: municipalityName(muni, locale) });
+  const description = `${t("statListings")}: ${stats.listings}. ${t("intro", { count: landlords.length, place: municipalityName(muni, locale) })}`;
   return {
-    title: t("title", { place: municipalityName(muni, locale) }),
+    title,
+    description,
+    openGraph: { title, description },
     alternates: alternatesFor(locale, (l) => ({ pathname: "/municipalities/[slug]", params: { slug: municipalitySlug(muni, l) } })),
   };
 }

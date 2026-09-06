@@ -31,9 +31,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const rent = rentLabel(locale, l.rentMonthly, t("rentUnknown"));
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const href = (loc: Locale) => site + getPathname({ locale: loc, href: { pathname: "/home/[slug]", params: { slug } } });
+  const title = `${l.address}, ${place}`;
+  const description = `${rent} · ${l.rooms !== null ? formatRooms(locale, l.rooms) : t("roomsUnknown")} · ${l.sizeSqm !== null ? formatSize(locale, l.sizeSqm) : t("sizeUnknown")} · ${l.landlord.name}`;
   return {
-    title: `${l.address}, ${place}`,
-    description: `${rent} · ${l.rooms !== null ? formatRooms(locale, l.rooms) : t("roomsUnknown")} · ${l.sizeSqm !== null ? formatSize(locale, l.sizeSqm) : t("sizeUnknown")} · ${l.landlord.name}`,
+    title,
+    description,
+    openGraph: { title, description, url: href(locale) },
     alternates: { canonical: href(locale), languages: { sv: href("sv"), en: href("en"), "x-default": href("sv") } },
     robots: l.status === "active" ? undefined : { index: false },
   };

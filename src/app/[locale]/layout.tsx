@@ -33,6 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: { default: "Hyrabostad", template: "%s · Hyrabostad" },
     description: t("sub"),
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+    openGraph: { siteName: "Hyrabostad", type: "website", locale: locale === "sv" ? "sv_SE" : "en_GB" },
+    twitter: { card: "summary_large_image" },
   };
 }
 
