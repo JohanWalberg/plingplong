@@ -85,6 +85,15 @@ localised not-found page, and unknown listing, municipality and landlord
 slugs answer a real 404 from a per-slug layout that runs before the loading
 boundary.
 
+## Review
+
+A full code and security review from 2026-09-07 is in `REVIEW-2026-09-07.md`:
+7 high, 16 medium, 14 low findings with an order of work. The high findings
+(server-side request forgery in the fetch path, invitation takeover via open
+sign-up, unvalidated URL schemes from feeds, missing security headers,
+publish-before-image-validation, no transactions, unguarded seed) should be
+fixed before any public deploy.
+
 ## Pending
 
 Items the brief or the design call for that are not built yet, in rough
