@@ -1,4 +1,5 @@
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
+import { createAuthMiddleware } from "better-auth/api";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db, schema } from "@/db";
 import { sendEmail } from "./email";
@@ -16,6 +17,14 @@ export const auth = betterAuth({
       verification: schema.verification,
     },
   }),
+  hooks: {
+    // Accounts are created only by the application form and by invitations,
+    // both server-side. The public sign-up endpoint would otherwise let anyone
+    // pre-register a colleague's address and inherit their invitation.
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/sign-up/email" && ctx.request) throw new APIError("FORBIDDEN", { message: "Sign-up is by application or invitation" });
+    }),
+  },
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 10,

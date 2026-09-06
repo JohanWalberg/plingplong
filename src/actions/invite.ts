@@ -6,7 +6,7 @@ import { z } from "zod";
 import { APIError } from "better-auth";
 import { db, schema } from "@/db";
 import { auth } from "@/lib/auth";
-import { requireLandlord } from "@/lib/access";
+import { getViewer, requireLandlord } from "@/lib/access";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { absoluteUrl } from "@/lib/seo";
@@ -67,8 +67,20 @@ export async function acceptInvitation(token: string, locale: Locale, formData: 
 
   let userId: string;
   const existing = await db.query.user.findFirst({ where: eq(schema.user.email, inv.email) });
-  if (existing) userId = existing.id;
-  else {
+  if (existing) {
+    // The token proves the email was invited, not that the caller owns the
+    // existing account: they must be signed in as it, or prove the password.
+    const viewer = await getViewer();
+    if (viewer?.userId !== existing.id) {
+      try {
+        await auth.api.signInEmail({ body: { email: inv.email, password: parsed.data.password } });
+      } catch (e) {
+        if (e instanceof APIError) return { ok: false, error: "invalid" };
+        throw e;
+      }
+    }
+    userId = existing.id;
+  } else {
     try {
       const res = await auth.api.signUpEmail({ body: { email: inv.email, password: parsed.data.password, name: parsed.data.name, locale } });
       userId = res.user.id;
