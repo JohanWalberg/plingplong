@@ -7,7 +7,8 @@ import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
 import { MapView } from "@/components/map/map-view";
 import { icons } from "@/components/ui/misc";
-import { parseSearchParams, toQuery, type RawSearchParams } from "@/lib/search-params";
+import { parseSearchParams } from "@/lib/search-params-parse";
+import { toQuery, type RawSearchParams } from "@/lib/search-params";
 import { searchListingsForMap, type SearchScope } from "@/lib/queries/listings";
 import { findMunicipalityBySlug, municipalityName, municipalitySlug } from "@/lib/queries/places";
 

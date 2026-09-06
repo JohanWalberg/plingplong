@@ -1,4 +1,3 @@
-import { z } from "zod";
 
 export const SORTS = ["new", "rentUp", "rentDown", "sizeDown", "deadline", "checked"] as const;
 export type Sort = (typeof SORTS)[number];
@@ -12,46 +11,25 @@ export const RENT_MAX = 25000; // = no limit
 export const RENT_STEP = 500;
 export const PAGE_SIZE = 20;
 
-const intList = (max: number) =>
-  z
-    .preprocess(
-      (v) => (Array.isArray(v) ? v : typeof v === "string" ? v.split(",") : []),
-      z.array(z.coerce.number().int().min(1).max(max)),
-    )
-    .default([]);
-
-const strList = <T extends readonly [string, ...string[]]>(values: T) =>
-  z
-    .preprocess((v) => (Array.isArray(v) ? v : typeof v === "string" ? v.split(",") : []), z.array(z.enum(values)))
-    .default([]);
-
-export const searchParamsSchema = z.object({
-  maxRent: z.coerce.number().int().min(RENT_MIN).max(RENT_MAX).optional().catch(undefined),
-  rooms: intList(4).catch([]),
-  sizeMin: z.coerce.number().int().min(1).max(999).optional().catch(undefined),
-  sizeMax: z.coerce.number().int().min(1).max(999).optional().catch(undefined),
-  queue: strList(QUEUE_FILTERS).catch([]),
-  landlord: z
-    .preprocess((v) => (Array.isArray(v) ? v : typeof v === "string" ? v.split(",") : []), z.array(z.string().min(1).max(80)))
-    .default([])
-    .catch([]),
-  segment: strList(SEGMENT_FILTERS).catch([]),
-  moveInBefore: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .optional()
-    .catch(undefined),
-  sort: z.enum(SORTS).default("new").catch("new"),
-  page: z.coerce.number().int().min(1).max(500).default(1).catch(1),
-});
-
-export type SearchFilters = z.infer<typeof searchParamsSchema>;
+/**
+ * Parsed search state. The zod schema that produces it lives in
+ * search-params-parse.ts so the filter panel (a client component) can use the
+ * constants and helpers here without shipping zod to the browser.
+ */
+export type SearchFilters = {
+  maxRent?: number;
+  rooms: number[];
+  sizeMin?: number;
+  sizeMax?: number;
+  queue: QueueFilter[];
+  landlord: string[];
+  segment: SegmentFilter[];
+  moveInBefore?: string;
+  sort: Sort;
+  page: number;
+};
 
 export type RawSearchParams = Record<string, string | string[] | undefined>;
-
-export function parseSearchParams(raw: RawSearchParams): SearchFilters {
-  return searchParamsSchema.parse(raw);
-}
 
 /** Serialise filters back to a query object, omitting defaults so URLs stay short. */
 export function toQuery(f: Partial<SearchFilters>): Record<string, string> {

@@ -13,7 +13,7 @@ import { Gallery } from "@/components/listing/gallery";
 import { SaveButton } from "@/components/listing/save-button";
 import { OutboundLink, TrackView } from "@/components/listing/track";
 import { ListingCard, getBadgeLabels } from "@/components/listing/listing-card";
-import { ListingMap } from "@/components/map/listing-map";
+import { LazyListingMap } from "@/components/map/lazy-listing-map";
 import { getListingBySlug, similarListings } from "@/lib/queries/listings";
 import { municipalityName, municipalitySlug } from "@/lib/queries/places";
 import { composeBadges, deadlineMessage, deadlineState, initials, rentLabel } from "@/lib/listing-display";
@@ -186,7 +186,7 @@ export default async function ListingPage({ params }: Props) {
                 </h2>
                 <div className="mt-4 h-[260px] overflow-hidden rounded-md border border-line">
                   {lat !== null && lon !== null ? (
-                    <ListingMap
+                    <LazyListingMap
                       center={[lon, lat]}
                       zoom={14}
                       markers={[{ id: l.id, lon, lat, label: rent, slug: l.slug, address: l.address, active: true }]}
