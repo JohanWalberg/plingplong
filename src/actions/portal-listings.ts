@@ -153,6 +153,9 @@ export async function saveListing(locale: Locale, mode: "draft" | "publish", exi
   const me = await requireLandlord(locale, mode === "publish" ? "owner" : "editor");
   const { errors, values } = parseForm(fd, mode === "publish");
   if (!values || Object.keys(errors).length) return { ok: false, errors };
+  // Photos are checked before anything is written: a bad file must not leave a published listing behind.
+  const files = fd.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
+  if (files.some((f) => !ALLOWED_IMAGE_TYPES.has(f.type) || f.size > MAX_IMAGE_BYTES)) return { ok: false, errors: { images: "invalidImage" } };
   const now = new Date();
   const loc = await resolveLocation(values.municipalityId, values.areaName);
   const muni = await db.query.municipality.findFirst({ where: eq(municipality.id, values.municipalityId), columns: { nameSv: true } });
