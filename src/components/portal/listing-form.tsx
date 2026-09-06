@@ -43,6 +43,22 @@ type Props = {
 
 const EMPTY: ListingFormState | null = null;
 
+const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+const isNumber = (v: string) => v.trim() === "" || Number.isFinite(Number(v.replace(/\s/g, "").replace(",", ".")));
+
+/** Client-side mirror of the server's validate(): only formats and required address fields; publish-only requirements stay in the summary. */
+function inlineErrors(v: ListingFormValues): Record<string, "required" | "invalidNumber" | "invalidUrl" | "invalidDate"> {
+  const e: Record<string, "required" | "invalidNumber" | "invalidUrl" | "invalidDate"> = {};
+  if (!v.address.trim()) e.address = "required";
+  if (!v.municipalityId) e.municipalityId = "required";
+  for (const k of ["rentMonthly", "rooms", "sizeSqm"] as const) if (!isNumber(v[k])) e[k] = "invalidNumber";
+  if (v.floor.trim() && !Number.isInteger(Number(v.floor))) e.floor = "invalidNumber";
+  if (v.moveInDate && !isoDate.test(v.moveInDate)) e.moveInDate = "invalidDate";
+  if (v.applicationDeadline && !isoDate.test(v.applicationDeadline)) e.applicationDeadline = "invalidDate";
+  if (v.applyRoute === "url" && v.applicationUrl && !/^https?:\/\//.test(v.applicationUrl)) e.applicationUrl = "invalidUrl";
+  return e;
+}
+
 export function ListingForm({ existingId, initial, status, municipalities, images, landlordName, canPublish }: Props) {
   const t = useTranslations("portal.add");
   const tc = useTranslations("common");
@@ -77,7 +93,14 @@ export function ListingForm({ existingId, initial, status, municipalities, image
   }, [state, router]);
 
   const set = <K extends keyof ListingFormValues>(k: K, v: ListingFormValues[K]) => setValues((s) => ({ ...s, [k]: v }));
-  const errors = state && !state.ok ? state.errors : {};
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const touch = (k: string) => () => setTouched((t) => (t[k] ? t : { ...t, [k]: true }));
+  const serverErrors = state && !state.ok ? state.errors : {};
+  // Field-level checks on blur, the same rules the server applies, so a typo
+  // is caught where it happens instead of in the summary after submit.
+  const clientErrors = useMemo(() => inlineErrors(values), [values]);
+  const errors: Record<string, string> = { ...serverErrors };
+  for (const [k, v] of Object.entries(clientErrors)) if (touched[k]) errors[k] = v;
   const err = (k: string) => {
     const e = errors[k];
     if (!e) return undefined;
@@ -116,9 +139,9 @@ export function ListingForm({ existingId, initial, status, municipalities, image
           <h2 className="text-h3">{t("sectionAddress")}</h2>
           <p className="mt-1 text-[13.5px] text-muted">{t("sectionAddressNote")}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Input label={t("street")} name="address" value={values.address} onChange={(e) => set("address", e.target.value)} error={err("address")} required wrapperClassName="sm:col-span-2" />
+            <Input label={t("street")} name="address" onBlur={touch("address")} value={values.address} onChange={(e) => set("address", e.target.value)} error={err("address")} required wrapperClassName="sm:col-span-2" />
             <Input label={t("postcode")} name="postcode" value={values.postcode} onChange={(e) => set("postcode", e.target.value)} inputMode="numeric" autoComplete="postal-code" />
-            <Select label={t("municipality")} name="municipalityId" value={values.municipalityId} onChange={(e) => set("municipalityId", e.target.value)} error={err("municipalityId")} required>
+            <Select label={t("municipality")} name="municipalityId" onBlur={touch("municipalityId")} value={values.municipalityId} onChange={(e) => set("municipalityId", e.target.value)} error={err("municipalityId")} required>
               <option value="">{t("municipalityPlaceholder")}</option>
               {municipalities.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -134,10 +157,10 @@ export function ListingForm({ existingId, initial, status, municipalities, image
           <h2 className="text-h3">{t("sectionHome")}</h2>
           <p className="mt-1 text-[13.5px] text-muted">{t("sectionHomeNote")}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Input label={t("rent")} name="rentMonthly" value={values.rentMonthly} onChange={(e) => set("rentMonthly", e.target.value)} suffix={t("rentUnit")} hint={t("rentHint")} error={err("rentMonthly")} inputMode="numeric" required />
-            <Input label={t("rooms")} name="rooms" value={values.rooms} onChange={(e) => set("rooms", e.target.value)} suffix={t("roomsUnit")} error={err("rooms")} inputMode="decimal" required />
-            <Input label={t("size")} name="sizeSqm" value={values.sizeSqm} onChange={(e) => set("sizeSqm", e.target.value)} suffix={t("sizeUnit")} error={err("sizeSqm")} inputMode="decimal" required />
-            <Input label={t("floor")} name="floor" value={values.floor} onChange={(e) => set("floor", e.target.value)} error={err("floor")} inputMode="numeric" optional={tc("optional")} />
+            <Input label={t("rent")} name="rentMonthly" onBlur={touch("rentMonthly")} value={values.rentMonthly} onChange={(e) => set("rentMonthly", e.target.value)} suffix={t("rentUnit")} hint={t("rentHint")} error={err("rentMonthly")} inputMode="numeric" required />
+            <Input label={t("rooms")} name="rooms" onBlur={touch("rooms")} value={values.rooms} onChange={(e) => set("rooms", e.target.value)} suffix={t("roomsUnit")} error={err("rooms")} inputMode="decimal" required />
+            <Input label={t("size")} name="sizeSqm" onBlur={touch("sizeSqm")} value={values.sizeSqm} onChange={(e) => set("sizeSqm", e.target.value)} suffix={t("sizeUnit")} error={err("sizeSqm")} inputMode="decimal" required />
+            <Input label={t("floor")} name="floor" onBlur={touch("floor")} value={values.floor} onChange={(e) => set("floor", e.target.value)} error={err("floor")} inputMode="numeric" optional={tc("optional")} />
           </div>
         </Card>
 
@@ -146,8 +169,8 @@ export function ListingForm({ existingId, initial, status, municipalities, image
           <p className="mt-1 text-[13.5px] text-muted">{t("sectionContractNote")}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Input label={t("contractType")} value={t("contractFirst")} readOnly name="contractType" />
-            <Input label={t("moveIn")} name="moveInDate" type="date" value={values.moveInDate} onChange={(e) => set("moveInDate", e.target.value)} error={err("moveInDate")} optional={tc("optional")} />
-            <Input label={t("deadline")} name="applicationDeadline" type="date" value={values.applicationDeadline} onChange={(e) => set("applicationDeadline", e.target.value)} hint={t("deadlineHint")} error={err("applicationDeadline")} optional={tc("optional")} />
+            <Input label={t("moveIn")} name="moveInDate" type="date" onBlur={touch("moveInDate")} value={values.moveInDate} onChange={(e) => set("moveInDate", e.target.value)} error={err("moveInDate")} optional={tc("optional")} />
+            <Input label={t("deadline")} name="applicationDeadline" type="date" onBlur={touch("applicationDeadline")} value={values.applicationDeadline} onChange={(e) => set("applicationDeadline", e.target.value)} hint={t("deadlineHint")} error={err("applicationDeadline")} optional={tc("optional")} />
             <Select label={t("segment")} name="segment" value={values.segment} onChange={(e) => set("segment", e.target.value as Segment)} hint={t("segmentHint")}>
               {segments.map((s) => (
                 <option key={s} value={s}>
@@ -175,9 +198,9 @@ export function ListingForm({ existingId, initial, status, municipalities, image
             </div>
             <div className="mt-4">
               {values.applyRoute === "url" ? (
-                <Input label={t("applyUrlLabel")} name="applicationUrl" value={values.applicationUrl} onChange={(e) => set("applicationUrl", e.target.value)} error={err("applicationUrl")} inputMode="url" placeholder="https://" className="font-mono text-[14px]" />
+                <Input label={t("applyUrlLabel")} name="applicationUrl" onBlur={touch("applicationUrl")} value={values.applicationUrl} onChange={(e) => set("applicationUrl", e.target.value)} error={err("applicationUrl")} inputMode="url" placeholder="https://" className="font-mono text-[14px]" />
               ) : (
-                <Input label={t("applyContactLabel")} name="applicationContact" value={values.applicationContact} onChange={(e) => set("applicationContact", e.target.value)} error={err("applicationContact")} />
+                <Input label={t("applyContactLabel")} name="applicationContact" onBlur={touch("applicationContact")} value={values.applicationContact} onChange={(e) => set("applicationContact", e.target.value)} error={err("applicationContact")} />
               )}
             </div>
           </Fieldset>
