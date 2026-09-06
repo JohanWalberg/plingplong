@@ -13,6 +13,7 @@ import { Gallery } from "@/components/listing/gallery";
 import { SaveButton } from "@/components/listing/save-button";
 import { ShareButton } from "@/components/listing/share-button";
 import { OutboundLink, TrackView } from "@/components/listing/track";
+import { RecordRecent } from "@/components/listing/recently-viewed";
 import { ListingCard, getBadgeLabels } from "@/components/listing/listing-card";
 import { LazyListingMap } from "@/components/map/lazy-listing-map";
 import { getListingBySlug, similarListings } from "@/lib/queries/listings";
@@ -96,6 +97,7 @@ export default async function ListingPage({ params }: Props) {
     <>
       <SiteHeader active="search" />
       <TrackView listingId={l.id} />
+      <RecordRecent slug={l.slug} address={l.address} place={place} rentMonthly={l.rentMonthly} rooms={l.rooms} sizeSqm={l.sizeSqm} imageUrl={l.imageUrl ?? (l.images[0] ? `/api/uploads/${l.images[0].storageKey}` : null)} landlordName={l.landlord.name} />
       <main id="main" className="bg-bg">
         <div className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6">
           <nav aria-label="" className="text-[13.5px] text-muted">

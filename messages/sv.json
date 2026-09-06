@@ -62,7 +62,9 @@
     "prop3Body": "Vi förmedlar inga bostäder och tar inga avgifter. Ansökan sker alltid på hyresvärdens egen sida.",
     "noMatch": "Vi hittade ingen kommun eller stadsdel som matchar \"{query}\".",
     "suggestions": "Förslag",
-    "suggestionsLabel": "Föreslagna platser"
+    "suggestionsLabel": "Föreslagna platser",
+    "recentTitle": "Senast visade",
+    "recentClear": "Rensa"
   },
   "results": {
     "heading": "{count, plural, =0 {Inga bostäder} one {# bostad} other {# bostäder}} i {place}",

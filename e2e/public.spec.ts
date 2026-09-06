@@ -75,3 +75,16 @@ test("share copies the canonical link", async ({ page, context }) => {
   const copied = await page.evaluate(() => navigator.clipboard.readText());
   expect(copied).toMatch(/\/sv\/bostad\/hornsgatan-152-stockholm$/);
 });
+
+test("recently viewed homes appear on the home page", async ({ page }) => {
+  await page.goto("/sv");
+  await expect(page.getByRole("heading", { name: "Senast visade" })).toHaveCount(0);
+  await page.goto("/sv/bostad/hornsgatan-152-stockholm");
+  await page.waitForFunction(() => localStorage.getItem("hyrabostad:recent")); // written after hydration
+  await page.goto("/sv");
+  const section = page.getByRole("region", { name: "Senast visade" });
+  await expect(section.getByRole("link", { name: "Hornsgatan 152" })).toBeVisible();
+  await expectAccessible(page, "home with recently viewed");
+  await section.getByRole("button", { name: "Rensa" }).click();
+  await expect(page.getByRole("heading", { name: "Senast visade" })).toHaveCount(0);
+});

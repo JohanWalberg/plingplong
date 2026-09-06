@@ -4,6 +4,7 @@ import { resolveLocale } from "@/lib/locale";
 import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
 import { ListingCard } from "@/components/listing/listing-card";
+import { RecentlyViewed } from "@/components/listing/recently-viewed";
 import { latestListings } from "@/lib/queries/listings";
 
 // Rendered at build time and refreshed every five minutes; listing changes from
@@ -58,6 +59,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             ))}
           </ol>
         </section>
+
+        <RecentlyViewed className="mx-auto max-w-[1200px] px-4 pb-12 sm:px-6" />
 
         <section className="mx-auto max-w-[1200px] px-4 pb-16 sm:px-6" aria-labelledby="latest">
           <div className="flex items-baseline justify-between gap-4">

@@ -7,6 +7,7 @@ import { resolveLocale } from "@/lib/locale";
 import { SiteHeader } from "@/components/site/header";
 import { ListingCard } from "@/components/listing/listing-card";
 import { SavedSearches } from "@/components/search/saved-searches";
+import { RecentlyViewed } from "@/components/listing/recently-viewed";
 import { parseSavedCookie, SAVED_COOKIE } from "@/lib/saved";
 import type { SearchResultItem } from "@/lib/queries/listings";
 import { sql } from "drizzle-orm";
@@ -71,6 +72,7 @@ export default async function SavedPage({ params }: Props) {
         ) : (
           <p className="mt-3 text-ink-2">{t("noSavedHomes")}</p>
         )}
+        <RecentlyViewed className="mt-12" />
       </main>
     </>
   );
