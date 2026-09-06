@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { composeBadges, deadlineState, freshnessMessage, initials, type BadgeLabels } from "./listing-display";
+import { composeBadges, deadlineMessage, deadlineState, freshnessMessage, initials, type BadgeLabels } from "./listing-display";
 
 const NOW = new Date("2026-09-04T12:43:00Z"); // 14:43 Stockholm
 const labels: BadgeLabels = {
@@ -81,5 +81,14 @@ describe("initials", () => {
     expect(initials("AB Bostadsstiftelsen Signalisten i Solna")).toBe("BSS");
     expect(initials("Heimstaden Sverige")).toBe("HS");
     expect(initials("Fastighets AB Förvaltaren")).toBe("F");
+  });
+});
+
+describe("deadlineMessage", () => {
+  it("counts days inside two weeks and shows the date beyond", () => {
+    expect(deadlineMessage("sv", "2026-09-06", NOW)).toEqual({ key: "closesIn", values: { count: 2 } });
+    expect(deadlineMessage("sv", "2026-09-18", NOW)).toEqual({ key: "closesIn", values: { count: 14 } });
+    expect(deadlineMessage("sv", "2026-09-19", NOW).key).toBe("by");
+    expect(deadlineMessage("sv", "2026-09-05", NOW).key).toBe("tomorrow");
   });
 });

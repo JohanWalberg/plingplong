@@ -224,7 +224,8 @@
     "tomorrow": "Ansök senast imorgon",
     "by": "Ansök senast {date}",
     "closed": "Ansökningstiden har gått ut",
-    "daysLeft": "{count, plural, =0 {Sista dagen idag} one {# dag kvar} other {# dagar kvar}}"
+    "daysLeft": "{count, plural, =0 {Sista dagen idag} one {# dag kvar} other {# dagar kvar}}",
+    "closesIn": "Stänger om {count, plural, one {# dag} other {# dagar}}"
   },
   "actions": {
     "viewListing": "Visa bostad",

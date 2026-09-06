@@ -128,8 +128,12 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
             </span>
             <span className="truncate">{listing.landlordName}</span>
           </span>
-          <Freshness lastCheckedAt={listing.lastCheckedAt} />
-          <DeadlinePill deadline={listing.applicationDeadline} locale={locale} t={td} />
+          {/* One line: when we checked and when it closes, the two facts people scan together. */}
+          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            <Freshness lastCheckedAt={listing.lastCheckedAt} />
+            <span aria-hidden="true" className="text-faint">·</span>
+            <DeadlinePill deadline={listing.applicationDeadline} locale={locale} t={td} />
+          </span>
           <span className="ml-auto hidden sm:block" aria-hidden="true">
             <span className={`${buttonClasses("secondary", "sm")} relative z-10`}>{ta("viewListing")}</span>
           </span>

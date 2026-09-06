@@ -41,6 +41,8 @@ export function deadlineMessage(locale: Locale, deadline: string | null, now: Da
     case "tomorrow":
       return { key: "tomorrow" as const, values: {} };
     default:
+      // Inside two weeks a count reads faster than a date; beyond that the date is what people plan around.
+      if (s.days <= 14) return { key: "closesIn" as const, values: { count: s.days } };
       return { key: "by" as const, values: { date: formatDateShort(locale, deadline!) } };
   }
 }
