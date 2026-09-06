@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -62,28 +62,19 @@ export function MapView({ items, query, initialBounds, attribution }: Props) {
 
   const current = items.find((i) => i.id === selected) ?? null;
 
+  // Keep the chosen home visible in the list when a marker is tapped.
+  useEffect(() => {
+    if (!selected) return;
+    document.getElementById(`map-item-${selected}`)?.scrollIntoView({ block: "nearest" });
+  }, [selected]);
+
   return (
-    <div className="grid h-[calc(100dvh-140px)] min-h-[520px] grid-cols-1 lg:grid-cols-[360px_1fr]">
-      <ul className="hidden overflow-y-auto border-r border-line bg-surface lg:block" aria-label={tm("listLabel")}>
-        {items.map((i) => (
-          <li key={i.id} className={`border-b border-hairline ${i.id === selected ? "bg-primary-subtle" : ""}`}>
-            <button type="button" onClick={() => choose(i)} className="flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left hover:bg-bg" aria-pressed={i.id === selected}>
-              <span className="flex w-full items-baseline justify-between gap-3">
-                <span className="text-[16px] font-[700] tabular">{rentLabel(locale, i.rentMonthly, t("rentUnknown"))}</span>
-                <span className="text-meta text-muted">{roomsSizeLabel(locale, i.rooms, i.sizeSqm, { roomsUnknown: t("roomsUnknown"), sizeUnknown: t("sizeUnknown") })}</span>
-              </span>
-              <span className="text-[14px] font-[600] text-ink">{i.address}</span>
-              <span className="text-meta text-muted">{i.landlordName}</span>
-            </button>
-          </li>
-        ))}
-        {!items.length ? <li className="px-4 py-6 text-[14px] text-muted">{tm("empty")}</li> : null}
-      </ul>
-      <div className="relative">
+    <div className="flex flex-col lg:grid lg:h-[calc(100dvh-140px)] lg:min-h-[520px] lg:grid-cols-[360px_1fr]">
+      <div className="relative order-1 h-[50dvh] min-h-[300px] lg:order-2 lg:h-auto">
         <ListingMap markers={markers} bounds={initialBounds} ariaLabel={tm("ariaLabel")} onSelect={setSelected} selectedId={selected} onMoveEnd={onMoveEnd} attribution={attribution} focus={focus} />
         <p className="pointer-events-none absolute left-3 top-3 rounded-md bg-surface/90 px-3 py-1.5 text-meta text-muted shadow">{tm("hint")}</p>
         {current ? (
-          <div className="absolute bottom-4 left-4 right-4 max-w-[380px] rounded-md border border-line bg-surface p-4 shadow-lg">
+          <div className="absolute bottom-4 left-4 right-4 hidden max-w-[380px] rounded-md border border-line bg-surface p-4 shadow-lg lg:block">
             <p className="text-[18px] font-[700] tabular">{rentLabel(locale, current.rentMonthly, t("rentUnknown"))}</p>
             <p className="text-meta text-muted">{roomsSizeLabel(locale, current.rooms, current.sizeSqm, { roomsUnknown: t("roomsUnknown"), sizeUnknown: t("sizeUnknown") })}</p>
             <p className="mt-1 text-[15px] font-[650]">{current.address}</p>
@@ -97,6 +88,24 @@ export function MapView({ items, query, initialBounds, attribution }: Props) {
           </div>
         ) : null}
       </div>
+      <ul className="order-2 max-h-[60dvh] overflow-y-auto border-t border-line bg-surface lg:order-1 lg:max-h-none lg:border-r lg:border-t-0" aria-label={tm("listLabel")}>
+        {items.map((i) => (
+          <li key={i.id} id={`map-item-${i.id}`} className={`flex items-center gap-2 border-b border-hairline pr-3 ${i.id === selected ? "bg-primary-subtle" : ""}`}>
+            <button type="button" onClick={() => choose(i)} className="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-4 py-3 text-left hover:bg-bg" aria-pressed={i.id === selected}>
+              <span className="flex w-full items-baseline justify-between gap-3">
+                <span className="text-[16px] font-[700] tabular">{rentLabel(locale, i.rentMonthly, t("rentUnknown"))}</span>
+                <span className="text-meta text-muted">{roomsSizeLabel(locale, i.rooms, i.sizeSqm, { roomsUnknown: t("roomsUnknown"), sizeUnknown: t("sizeUnknown") })}</span>
+              </span>
+              <span className="text-[14px] font-[600] text-ink">{i.address}</span>
+              <span className="text-meta text-muted">{i.landlordName}</span>
+            </button>
+            <Link href={{ pathname: "/home/[slug]", params: { slug: i.slug } }} className={buttonClasses("secondary", "sm", "shrink-0")} aria-label={`${ta("viewListing")}: ${i.address}`}>
+              {ta("viewListing")}
+            </Link>
+          </li>
+        ))}
+        {!items.length ? <li className="px-4 py-6 text-[14px] text-muted">{tm("empty")}</li> : null}
+      </ul>
     </div>
   );
 }
