@@ -81,7 +81,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean } = 
   const newListingIds: string[] = [];
 
   for (const raw of result.listings) {
-    const n = normalise(raw, now);
+    const n = normalise(raw, now, src.url ?? undefined);
     if (seen.has(n.externalId)) continue;
     seen.add(n.externalId);
     const queueRequirement = n.queueRequirement === "unknown" && src.queueDefault ? src.queueDefault : n.queueRequirement;

@@ -1,4 +1,5 @@
 import type { RawListing } from "./adapters/types";
+import { safeHttpUrl } from "@/lib/safe-url";
 
 export type NormalisedListing = {
   externalId: string;
@@ -124,10 +125,10 @@ export function excerpt(v: string | null | undefined, max = 600): string | null 
   return s.length > max ? `${s.slice(0, max - 1).trimEnd()}…` : s;
 }
 
-export function normalise(raw: RawListing, now: Date = new Date()): NormalisedListing {
+export function normalise(raw: RawListing, now: Date = new Date(), base?: string): NormalisedListing {
   return {
     externalId: raw.externalId.trim(),
-    sourceUrl: raw.url?.trim() || null,
+    sourceUrl: safeHttpUrl(raw.url, base),
     address: raw.address!.replace(/\s+/g, " ").trim(),
     areaName: raw.area?.trim() || null,
     municipalityName: raw.municipality?.trim() || null,
@@ -143,7 +144,7 @@ export function normalise(raw: RawListing, now: Date = new Date()): NormalisedLi
     segment: parseSegment(raw.segment),
     contractType: parseContract(raw.contract),
     description: excerpt(raw.description),
-    imageUrl: raw.image?.trim() || null,
+    imageUrl: safeHttpUrl(raw.image, base),
     lat: typeof raw.lat === "number" && Math.abs(raw.lat) <= 90 ? raw.lat : null,
     lon: typeof raw.lon === "number" && Math.abs(raw.lon) <= 180 ? raw.lon : null,
     raw: raw.raw,

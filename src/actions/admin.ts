@@ -1,6 +1,7 @@
 "use server";
 
 import { and, eq, sql } from "drizzle-orm";
+import { safeHttpUrl, safeWebsite } from "@/lib/safe-url";
 import { revalidatePath } from "next/cache";
 import { invalidateListingCaches } from "@/lib/listing-cache";
 import { z } from "zod";
@@ -145,10 +146,10 @@ export async function upsertLandlord(locale: Locale, landlordId: string | null, 
   const values = {
     name: d.name,
     orgNumber: d.orgNumber || null,
-    website: d.website || null,
+    website: safeWebsite(d.website),
     type: d.type,
     queueType: d.queueType,
-    queueInfoUrl: d.queueInfoUrl || null,
+    queueInfoUrl: safeHttpUrl(d.queueInfoUrl),
     isKnown: d.isKnown === "on",
   };
   let id = landlordId;
@@ -344,7 +345,7 @@ export async function adminUpdateListing(locale: Locale, listingId: string, form
     applicationDeadline: dateOrNull(d.applicationDeadline),
     queueRequirement: d.queueRequirement,
     segment: d.segment,
-    applicationUrl: d.applicationUrl || null,
+    applicationUrl: safeHttpUrl(d.applicationUrl),
     description: d.description || null,
   };
   const tracked: Array<[keyof typeof values, string]> = [

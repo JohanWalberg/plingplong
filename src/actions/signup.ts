@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { safeWebsite } from "@/lib/safe-url";
 import { eq } from "drizzle-orm";
 import { APIError } from "better-auth";
 import { db, schema } from "@/db";
@@ -83,7 +84,7 @@ export async function submitApplication(_prev: SignupState | null, formData: For
     .values({
       orgNumber,
       companyName: d.companyName,
-      website: d.website || null,
+      website: safeWebsite(d.website),
       contactName: d.contactName,
       contactEmail: d.email,
       contactPhone: d.phone || null,
