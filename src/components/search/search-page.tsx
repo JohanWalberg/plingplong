@@ -4,6 +4,7 @@ import type { Locale } from "@/i18n/routing";
 import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
 import { ActiveChips, FilterPanel, MobileFilters, SortSelect } from "@/components/search/filter-panel";
+import { SaveSearchButton } from "@/components/search/save-search-button";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Callout, icons } from "@/components/ui/misc";
 import { buttonClasses } from "@/components/ui/button";
@@ -95,6 +96,7 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
                 <div className="lg:hidden">
                   <MobileFilters filters={filters} landlords={landlords} total={result.total} />
                 </div>
+                <SaveSearchButton label={heading} />
                 <div className="hidden sm:block">
                   <SortSelect filters={filters} />
                 </div>
