@@ -28,3 +28,6 @@ project_design/
 
 # Copied from node_modules at install time
 public/vendor/
+
+# TypeScript incremental state
+tsconfig.tsbuildinfo
