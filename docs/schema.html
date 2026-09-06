@@ -1,0 +1,185 @@
+<title>Hyrabostad Data Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=Instrument+Serif&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    --bg: #faf8f5; --surface: #ffffff; --ink: #1a1815; --ink-2: #4a453d; --muted: #6b655d;
+    --line: #e2ddd5; --hair: #f0ece5; --clay: #a34a2a; --clay-bg: #f7efea;
+    --geo: #2b5470; --geo-bg: #f1f5f7; --ll: #1f6b4a; --ll-bg: #edf5f0; --lst: #a34a2a; --lst-bg: #f7efea;
+    --auth: #6b4e00; --auth-bg: #fbf4e6; --ops: #3a352e; --ops-bg: #f2ede6;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "Public Sans", system-ui, -apple-system, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1f1c18; --surface: #2a2621; --ink: #ede8e0; --ink-2: #cfc8bc; --muted: #a39c90;
+      --line: #3f3a33; --hair: #332e28; --clay: #e8b79e; --clay-bg: #3a2a22;
+      --geo: #9cc0d8; --geo-bg: #23313b; --ll: #8fd1ad; --ll-bg: #1f3329; --lst: #e8b79e; --lst-bg: #3a2a22;
+      --auth: #e6c778; --auth-bg: #3a3220; --ops: #d6cfc4; --ops-bg: #332e28;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1f1c18; --surface: #2a2621; --ink: #ede8e0; --ink-2: #cfc8bc; --muted: #a39c90;
+    --line: #3f3a33; --hair: #332e28; --clay: #e8b79e; --clay-bg: #3a2a22;
+    --geo: #9cc0d8; --geo-bg: #23313b; --ll: #8fd1ad; --ll-bg: #1f3329; --lst: #e8b79e; --lst-bg: #3a2a22;
+    --auth: #e6c778; --auth-bg: #3a3220; --ops: #d6cfc4; --ops-bg: #332e28;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55; }
+  main { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 44px; line-height: 1.05; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+  .lede { max-width: 66ch; color: var(--ink-2); margin: 12px 0 0; font-size: 16px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 20px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+  .facts b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  h2 { font-size: 20px; font-weight: 700; margin: 48px 0 6px; letter-spacing: -.01em; }
+  h2 small { font-weight: 400; color: var(--muted); font-size: 14px; margin-left: 10px; }
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow-x: auto; margin-top: 12px; }
+  .diagram pre { margin: 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; font-size: 12.5px; }
+  .legend li { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 100px; border: 1px solid var(--line); background: var(--surface); }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .domain { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 22px; }
+  .domain > p { max-width: 70ch; color: var(--ink-2); margin: 0 0 14px; }
+  .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .tbl { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; border-top: 3px solid var(--c); }
+  .tbl h3 { margin: 0; font-family: var(--mono); font-size: 14px; font-weight: 600; }
+  .tbl p { margin: 4px 0 8px; font-size: 13px; color: var(--ink-2); }
+  .tbl ul { margin: 0; padding: 0; list-style: none; font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 3px 8px; }
+  .tbl ul li.key { color: var(--ink); font-weight: 600; }
+  .tbl ul li.fk::before { content: "→ "; color: var(--c); }
+  .rule { background: var(--surface); border-left: 4px solid var(--clay); padding: 12px 16px; margin: 20px 0 0; font-size: 14px; max-width: 72ch; }
+  .rule b { font-family: var(--mono); font-weight: 600; }
+  @media (max-width: 600px) { h1 { font-size: 34px; } }
+</style>
+
+<main>
+  <h1>Hyrabostad data model</h1>
+  <p class="lede">PostgreSQL 16 with PostGIS, managed by Drizzle. One listing is one home; a <em>sighting</em> of that home in a source is a separate row, which is what makes freshness, removal and "listed by several sources" work.</p>
+  <ul class="facts">
+    <li><b>22</b> tables</li>
+    <li><b>14</b> enums</li>
+    <li>Geometry in <b>SRID 4326</b> (WGS 84), GiST-indexed</li>
+    <li>Schema at <b>src/db/schema.ts</b></li>
+  </ul>
+
+  <h2>Relationships <small>crow's-foot notation, all 22 tables</small></h2>
+  <div class="diagram">
+<pre class="mermaid">
+erDiagram
+  municipality ||--o{ area : "contains"
+  municipality ||--o{ listing : "located in"
+  area |o--o{ listing : "in district"
+  municipality ||--o{ landlord_municipality : ""
+  landlord ||--o{ landlord_municipality : "operates in"
+  landlord ||--o{ source : "publishes via"
+  landlord ||--o{ listing : "offers"
+  source ||--o{ source_run : "crawl"
+  source ||--o{ listing_source : "sighting"
+  listing ||--o{ listing_source : "seen in"
+  listing ||--o{ listing_revision : "field changed"
+  listing ||--o{ listing_image : "upload"
+  listing ||--o{ listing_metric_daily : "views, clicks"
+  listing ||--o{ duplicate_candidate : "A"
+  listing ||--o{ duplicate_candidate : "B"
+  landlord_application ||--o{ landlord_application_event : "history"
+  landlord_application }o--o| landlord : "approved into"
+  landlord ||--o{ landlord_member : "workspace"
+  user ||--o{ landlord_member : "belongs to"
+  landlord ||--o{ landlord_invitation : "invited"
+  user |o--o| staff_user : "is staff"
+  user ||--o{ session : ""
+  user ||--o{ account : "password"
+
+  municipality { text id PK  text code  text name_sv  text name_en  geometry centroid }
+  area { text id PK  text municipality_id FK  text name  text slug  geometry centroid }
+  landlord { text id PK  text org_number  text name  text slug  enum type  enum queue_type  bool is_known  bool is_monitored }
+  landlord_municipality { text landlord_id PK  text municipality_id PK }
+  source { text id PK  text landlord_id FK  enum kind  text adapter  text url  jsonb config  enum status  enum consent  int fetch_interval_minutes }
+  source_run { text id PK  text source_id FK  bool ok  int listings_found  int listings_new  int listings_gone  bool anomaly }
+  listing { text id PK  text slug  text landlord_id FK  text municipality_id FK  text area_id FK  text address  geometry location  int rent_monthly  real rooms  real size_sqm  enum status  bool published_directly  timestamptz last_seen_at  timestamptz last_checked_at  timestamptz removed_at }
+  listing_source { text listing_id PK  text source_id PK  text external_id  text source_url  bool present_at_last_check  jsonb raw_payload }
+  listing_revision { text id PK  text listing_id FK  text field  text old_value  text new_value  text origin }
+  listing_image { text id PK  text listing_id FK  text storage_key  int position }
+  listing_metric_daily { text listing_id PK  date day PK  int views  int outbound_clicks  int saves }
+  duplicate_candidate { text id PK  text listing_a_id FK  text listing_b_id FK  numeric score  jsonb features  enum decision }
+  landlord_application { text id PK  text org_number  text company_name  text contact_email  enum publishing_route  jsonb automated_checks  enum status  text user_id  text landlord_id FK }
+  landlord_application_event { text id PK  text application_id FK  text kind  text message  text actor_id }
+  landlord_member { text user_id PK  text landlord_id PK  enum role }
+  landlord_invitation { text id PK  text landlord_id FK  text email  enum role  text token_hash  timestamptz expires_at }
+  staff_user { text user_id PK  enum role }
+  user { text id PK  text name  text email  bool email_verified  text locale }
+  session { text id PK  text user_id FK  text token  timestamptz expires_at }
+  account { text id PK  text user_id FK  text issuer  text provider_id  text password }
+  verification { text id PK  text identifier  text value  timestamptz expires_at }
+</pre>
+  </div>
+  <ul class="legend">
+    <li><i style="background:var(--geo)"></i> Geography</li>
+    <li><i style="background:var(--ll)"></i> Landlords and sources</li>
+    <li><i style="background:var(--lst)"></i> Listings</li>
+    <li><i style="background:var(--auth)"></i> Accounts and onboarding</li>
+    <li><i style="background:var(--ops)"></i> Auth tables (Better Auth)</li>
+  </ul>
+
+  <section class="domain">
+    <h2 style="margin-top:0">Geography <small>where a home is</small></h2>
+    <p>Real municipalities with SCB codes, slugs in both languages and a centroid. Areas are districts inside a municipality. Polygons are nullable columns waiting for Lantmäteriet data.</p>
+    <div class="tables" style="--c:var(--geo)">
+      <div class="tbl"><h3>municipality</h3><p>One row per kommun. Slugs differ per language so a language switch resolves the same entity.</p><ul><li class="key">code</li><li>name_sv</li><li>name_en</li><li>slug_sv</li><li>slug_en</li><li>county</li><li>centroid</li><li>geom</li></ul></div>
+      <div class="tbl"><h3>area</h3><p>District such as Södermalm or Arenastaden; unique per municipality.</p><ul><li class="fk">municipality_id</li><li>name</li><li>slug</li><li>centroid</li><li>geom</li></ul></div>
+    </div>
+  </section>
+
+  <section class="domain">
+    <h2 style="margin-top:0">Landlords and sources <small>who publishes, and how we read it</small></h2>
+    <p>A landlord is any organisation we know of, monitored or not; that difference is what the coverage figure counts. A source is one way of reading a landlord: a feed, an API, a page, or the portal itself.</p>
+    <div class="tables" style="--c:var(--ll)">
+      <div class="tbl"><h3>landlord</h3><p>Known organisations. <code>is_known</code> and <code>is_monitored</code> drive "14 of 18 monitored".</p><ul><li class="key">org_number</li><li class="key">slug</li><li>name</li><li>type: municipal | private | agency | foundation</li><li>queue_type</li><li>queue_info_url</li><li>website</li><li>approved_at</li></ul></div>
+      <div class="tbl"><h3>landlord_municipality</h3><p>Where a landlord operates. Join table behind the coverage table.</p><ul><li class="fk">landlord_id</li><li class="fk">municipality_id</li></ul></div>
+      <div class="tbl"><h3>source</h3><p>One crawl target. Health fields are product data, shown in admin.</p><ul><li class="fk">landlord_id</li><li>kind: feed | api | html | manual</li><li>adapter</li><li>url</li><li>config (field mapping, selectors, key)</li><li>status: pending | active | degraded | failed | disabled | needs_review</li><li>consent</li><li>queue_default</li><li>fetch_interval_minutes</li><li>next_run_at</li><li>consecutive_failures</li><li>tech_contact_email</li></ul></div>
+      <div class="tbl"><h3>source_run</h3><p>One row per crawl: found, new, gone, error class, and whether the anomaly guard fired.</p><ul><li class="fk">source_id</li><li>started_at</li><li>finished_at</li><li>ok</li><li>listings_found</li><li>listings_new</li><li>listings_gone</li><li>anomaly</li><li>error_class</li><li>error_detail</li></ul></div>
+    </div>
+  </section>
+
+  <section class="domain">
+    <h2 style="margin-top:0">Listings <small>the home, its sightings, and its history</small></h2>
+    <p>The canonical home lives in <code>listing</code>. Each source that shows it gets a <code>listing_source</code> row with the source's own id and the raw payload. Every tracked change becomes a revision, which powers the portal timeline.</p>
+    <div class="tables" style="--c:var(--lst)">
+      <div class="tbl"><h3>listing</h3><p>Canonical fields. Nullable rent, rooms and size: we never guess.</p><ul><li class="key">slug</li><li class="fk">landlord_id</li><li class="fk">municipality_id</li><li class="fk">area_id</li><li>address</li><li>postcode</li><li>location (point)</li><li>rent_monthly</li><li>rooms</li><li>size_sqm</li><li>floor</li><li>contract_type</li><li>move_in_date</li><li>application_deadline</li><li>queue_requirement</li><li>segment</li><li>apply_route</li><li>application_url</li><li>application_contact</li><li>image_url (hotlinked)</li><li>status: draft | active | unpublished | expired | removed | unknown</li><li>published_directly</li><li>first_seen_at</li><li>last_seen_at</li><li>last_checked_at</li><li>removed_at</li><li>merged_into_id</li></ul></div>
+      <div class="tbl"><h3>listing_source</h3><p>A sighting. Many-to-many, so one home can be listed by Signalisten and Bostadsförmedlingen at once.</p><ul><li class="fk">listing_id</li><li class="fk">source_id</li><li class="key">external_id</li><li>source_url</li><li>present_at_last_check</li><li>last_seen_at</li><li>last_checked_at</li><li>raw_payload (90-day retention)</li></ul></div>
+      <div class="tbl"><h3>listing_revision</h3><p>Field-level history: "rent changed from 9 240 to 9 340".</p><ul><li class="fk">listing_id</li><li>field</li><li>old_value</li><li>new_value</li><li>origin: crawl | portal | admin | system</li><li>changed_by</li><li>changed_at</li></ul></div>
+      <div class="tbl"><h3>listing_image</h3><p>Uploads for manually published homes only; feed photos are never copied.</p><ul><li class="fk">listing_id</li><li>storage_key</li><li>position</li></ul></div>
+      <div class="tbl"><h3>listing_metric_daily</h3><p>Honest analytics: page views and outbound clicks per day. Applications are invisible to us.</p><ul><li class="fk">listing_id</li><li class="key">day</li><li>views</li><li>outbound_clicks</li><li>saves</li></ul></div>
+      <div class="tbl"><h3>duplicate_candidate</h3><p>Scored pairs for staff review; merges point the loser at the survivor.</p><ul><li class="fk">listing_a_id</li><li class="fk">listing_b_id</li><li>score</li><li>features</li><li>decision: pending | merged | not_duplicate | ignored</li><li>decided_by</li></ul></div>
+    </div>
+    <div class="rule"><b>last_checked_at</b> is when we last read the source successfully, whether or not the home changed. <b>last_seen_at</b> is the last run where it was present. Absent on a successful run → <b>removed</b>, row kept forever. Failed run → nothing removed, source marked degraded.</div>
+  </section>
+
+  <section class="domain">
+    <h2 style="margin-top:0">Accounts and onboarding <small>who may sign in, and to what</small></h2>
+    <p>A landlord application is the review-queue row. Approval creates or attaches a landlord and gives the applicant an owner membership. Staff are ordinary users with a staff role. Every portal query is scoped by the member's landlord id.</p>
+    <div class="tables" style="--c:var(--auth)">
+      <div class="tbl"><h3>landlord_application</h3><p>Sign-up form plus automated checks as JSON, one status per stage.</p><ul><li>org_number</li><li>company_name</li><li>website</li><li>contact_name</li><li>contact_email</li><li>publishing_route: source | manual</li><li>source_url</li><li>automated_checks</li><li>status: pending | needs_info | approved | rejected</li><li>user_id</li><li class="fk">landlord_id</li><li>reviewed_by</li><li>decision_note</li></ul></div>
+      <div class="tbl"><h3>landlord_application_event</h3><p>Audit trail: submitted, needs_info with message, approved, rejected, reopened.</p><ul><li class="fk">application_id</li><li>kind</li><li>message</li><li>actor_id</li></ul></div>
+      <div class="tbl"><h3>landlord_member</h3><p>Workspace membership. Owner publishes and invites; editor drafts.</p><ul><li class="fk">user_id</li><li class="fk">landlord_id</li><li>role: owner | editor</li></ul></div>
+      <div class="tbl"><h3>landlord_invitation</h3><p>Hashed single-use token, 24-hour expiry.</p><ul><li class="fk">landlord_id</li><li>email</li><li>role</li><li>token_hash</li><li>invited_by</li><li>expires_at</li><li>accepted_at</li></ul></div>
+      <div class="tbl"><h3>staff_user</h3><p>Marks a user as staff. Sessions capped at eight hours by the guard.</p><ul><li class="fk">user_id</li><li>role: support | lead | engineer</li></ul></div>
+    </div>
+  </section>
+
+  <section class="domain">
+    <h2 style="margin-top:0">Auth tables <small>owned by Better Auth</small></h2>
+    <p>Standard shape required by the auth library. Passwords live hashed in <code>account</code>; a BankID or SSO provider would add rows there later without schema changes.</p>
+    <div class="tables" style="--c:var(--ops)">
+      <div class="tbl"><h3>user</h3><ul><li>name</li><li class="key">email</li><li>email_verified</li><li>locale</li></ul></div>
+      <div class="tbl"><h3>session</h3><ul><li class="fk">user_id</li><li class="key">token</li><li>expires_at</li><li>ip_address</li><li>user_agent</li></ul></div>
+      <div class="tbl"><h3>account</h3><ul><li class="fk">user_id</li><li>issuer</li><li>provider_id</li><li>account_id</li><li>password (hash)</li></ul></div>
+      <div class="tbl"><h3>verification</h3><ul><li>identifier</li><li>value</li><li>expires_at</li></ul></div>
+    </div>
+  </section>
+
+  <section class="domain">
+    <h2 style="margin-top:0">Not in the database <small>on purpose</small></h2>
+    <p>Saved homes and saved searches stay in the seeker's browser (a cookie and localStorage), so seekers have no accounts and no personal data here. Crawl jobs live in a separate <code>pgboss</code> schema in the same database.</p>
+  </section>
+</main>
