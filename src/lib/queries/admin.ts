@@ -1,4 +1,5 @@
 import { and, desc, eq, gte, ilike, inArray, lt, or, sql } from "drizzle-orm";
+import { escapeLike } from "@/lib/like";
 import { db, schema } from "@/db";
 
 const { source, sourceRun, landlord, listing, landlordApplication, duplicateCandidate, listingSource, municipality } = schema;
@@ -30,7 +31,7 @@ export type SourceRow = Awaited<ReturnType<typeof listSources>>[number];
 
 export async function listSources(filter: { q?: string; status?: string } = {}) {
   const where = [sql`${source.kind} <> 'manual'`];
-  if (filter.q) where.push(or(ilike(source.url, `%${filter.q}%`), ilike(landlord.name, `%${filter.q}%`))!);
+  if (filter.q) where.push(or(ilike(source.url, `%${escapeLike(filter.q)}%`), ilike(landlord.name, `%${escapeLike(filter.q)}%`))!);
   if (filter.status) where.push(eq(source.status, filter.status as "active"));
   return db
     .select({
@@ -128,7 +129,7 @@ export async function listLandlords(q?: string) {
       sources: sql<number>`(select count(*) from ${source} s where s.landlord_id = ${landlord.id})::int`,
     })
     .from(landlord)
-    .where(q ? or(ilike(landlord.name, `%${q}%`), ilike(landlord.orgNumber, `%${q}%`)) : undefined)
+    .where(q ? or(ilike(landlord.name, `%${escapeLike(q)}%`), ilike(landlord.orgNumber, `%${escapeLike(q)}%`)) : undefined)
     .orderBy(desc(landlord.isMonitored), landlord.name);
 }
 
@@ -156,7 +157,7 @@ export async function applicationCounts() {
 
 export async function listListingsAdmin(filter: { q?: string; status?: string; page: number }, pageSize = 50) {
   const where = [];
-  if (filter.q) where.push(or(ilike(listing.address, `%${filter.q}%`), ilike(landlord.name, `%${filter.q}%`), ilike(listing.externalId, `%${filter.q}%`))!);
+  if (filter.q) where.push(or(ilike(listing.address, `%${escapeLike(filter.q)}%`), ilike(landlord.name, `%${escapeLike(filter.q)}%`), ilike(listing.externalId, `%${escapeLike(filter.q)}%`))!);
   if (filter.status) where.push(eq(listing.status, filter.status as "active"));
   const w = where.length ? and(...where) : undefined;
   const [rows, [{ count }]] = await Promise.all([

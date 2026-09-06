@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { escapeLike } from "@/lib/like";
 import { and, eq, ilike, or, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { Locale } from "@/i18n/routing";
@@ -73,7 +74,7 @@ export async function resolvePlace(query: string): Promise<PlaceMatch[]> {
   }
 
   const exactMuni = await db.query.municipality.findMany({
-    where: or(eq(municipality.slugSv, slug), eq(municipality.slugEn, slug), ilike(municipality.nameSv, q), ilike(municipality.nameEn, q)),
+    where: or(eq(municipality.slugSv, slug), eq(municipality.slugEn, slug), ilike(municipality.nameSv, escapeLike(q)), ilike(municipality.nameEn, escapeLike(q))),
     limit: 3,
   });
   const out: PlaceMatch[] = exactMuni.map((m) => ({ kind: "municipality", municipality: m }));
@@ -82,13 +83,13 @@ export async function resolvePlace(query: string): Promise<PlaceMatch[]> {
     .select({ a: area, m: municipality })
     .from(area)
     .innerJoin(municipality, eq(area.municipalityId, municipality.id))
-    .where(or(eq(area.slug, slug), ilike(area.name, q), ilike(area.name, `${q}%`)))
+    .where(or(eq(area.slug, slug), ilike(area.name, escapeLike(q)), ilike(area.name, `${escapeLike(q)}%`)))
     .limit(5);
   for (const r of areas) out.push({ kind: "area", municipality: r.m, area: r.a });
 
   if (!out.length) {
     const fuzzy = await db.query.municipality.findMany({
-      where: or(ilike(municipality.nameSv, `${q}%`), ilike(municipality.nameEn, `${q}%`)),
+      where: or(ilike(municipality.nameSv, `${escapeLike(q)}%`), ilike(municipality.nameEn, `${escapeLike(q)}%`)),
       limit: 5,
     });
     out.push(...fuzzy.map((m) => ({ kind: "municipality" as const, municipality: m })));
@@ -106,7 +107,7 @@ export type PlaceSuggestion = { kind: "municipality" | "area"; name: string; det
 export async function suggestPlaces(query: string, locale: Locale, limit = 8): Promise<PlaceSuggestion[]> {
   const q = query.trim();
   if (q.length < 2) return [];
-  const prefix = `${q}%`;
+  const prefix = `${escapeLike(q)}%`;
   // Written with explicit aliases: drizzle drops the table qualifier inside a
   // correlated subquery, so `${municipality.id}` would resolve to listing.id.
   const muniCount = sql<number>`(select count(*) from listing l where l.municipality_id = municipality.id and l.status = 'active')::int`;

@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, gte, ilike, inArray, lt, sql } from "drizzle-orm";
+import { escapeLike } from "@/lib/like";
 import { db, schema } from "@/db";
 import { stockholmDate } from "@/lib/format";
 
@@ -52,7 +53,7 @@ export async function landlordStatusCounts(landlordId: string) {
 export async function landlordListings(landlordId: string, status: PortalStatus, q?: string) {
   const from30 = dayOffset(29);
   const where = [eq(listing.landlordId, landlordId), eq(listing.status, status)];
-  if (q) where.push(ilike(listing.address, `%${q}%`));
+  if (q) where.push(ilike(listing.address, `%${escapeLike(q)}%`));
   return db
     .select({
       id: listing.id,
