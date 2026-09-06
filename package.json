@@ -16,7 +16,6 @@
     "db:up": "docker compose up -d db",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file=.env src/db/migrate.ts",
-    "db:push": "drizzle-kit push",
     "db:seed": "tsx --env-file=.env src/db/seed.ts",
     "db:reset": "tsx --env-file=.env src/db/reset.ts && pnpm db:migrate && pnpm db:seed",
     "worker": "tsx --env-file=.env src/worker/index.ts",

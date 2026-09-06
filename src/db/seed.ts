@@ -10,6 +10,9 @@ import { db, schema } from "./index";
 import { auth } from "@/lib/auth";
 import { listingSlug, slugify } from "@/lib/slug";
 
+// The seed truncates every table and creates users with a known password: never in production.
+if (process.env.NODE_ENV === "production" && process.env.ALLOW_SEED !== "1") throw new Error("refusing to seed a production database (set ALLOW_SEED=1 to override)");
+
 const {
   municipality,
   area,
