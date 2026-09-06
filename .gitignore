@@ -19,7 +19,7 @@ storage/
 .vscode/
 
 # Test artefacts
-coverage/
+/coverage/
 playwright-report/
 test-results/
 
