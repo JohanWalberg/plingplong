@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
   // Unmatched URLs get app/global-not-found.tsx as a full document. A [locale]
   // root layout cannot compose a styled 404 through not-found.tsx (Next renders
   // a bare error shell for non-streamed 404s).
-  experimental: { globalNotFound: true },
+  // Listing photos: up to 12 images of 8 MB each go through one server action.
+  experimental: { globalNotFound: true, serverActions: { bodySizeLimit: "100mb" } },
   images: {
     // Uploads (/api/uploads/*) go through the optimizer. Fetched listings hotlink
     // the landlord's own image URL from any host, so ListingImage marks those

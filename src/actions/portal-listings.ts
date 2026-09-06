@@ -2,6 +2,7 @@
 
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import sharp from "sharp";
 import { db, schema } from "@/db";
 import { requireLandlord } from "@/lib/access";
 import { redirect } from "@/i18n/navigation";
@@ -117,17 +118,44 @@ async function uniqueSlug(base: string, excludeId?: string) {
   return `${base}-${Date.now()}`;
 }
 
-async function saveImages(listingId: string, fd: FormData): Promise<"invalidImage" | null> {
+const MAX_IMAGES_PER_LISTING = 12;
+type PreparedImage = { data: Buffer; contentType: "image/jpeg" | "image/png" | "image/webp" };
+
+/**
+ * Decodes every uploaded file with sharp before anything is written: the
+ * browser's MIME type is not trusted, non-images are refused, EXIF (including
+ * GPS from a landlord's phone) is dropped, and orientation is applied.
+ */
+async function prepareImages(fd: FormData): Promise<{ ok: true; images: PreparedImage[] } | { ok: false }> {
   const files = fd.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
-  const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(listingImage).where(eq(listingImage.listingId, listingId));
-  let position = n;
+  if (files.length > MAX_IMAGES_PER_LISTING) return { ok: false };
+  const images: PreparedImage[] = [];
   for (const f of files) {
-    if (!ALLOWED_IMAGE_TYPES.has(f.type) || f.size > MAX_IMAGE_BYTES) return "invalidImage";
-    const key = imageKey(listingId, f.type);
-    await storage.put(key, Buffer.from(await f.arrayBuffer()), f.type);
+    if (!ALLOWED_IMAGE_TYPES.has(f.type) || f.size > MAX_IMAGE_BYTES) return { ok: false };
+    try {
+      const input = sharp(Buffer.from(await f.arrayBuffer()), { limitInputPixels: 40_000_000 });
+      const meta = await input.metadata();
+      const format = meta.format === "jpeg" || meta.format === "png" || meta.format === "webp" ? meta.format : null;
+      if (!format || !meta.width || !meta.height) return { ok: false };
+      const data = await input.rotate().toFormat(format, format === "jpeg" ? { quality: 88 } : undefined).toBuffer();
+      images.push({ data, contentType: `image/${format}` });
+    } catch {
+      return { ok: false };
+    }
+  }
+  return { ok: true, images };
+}
+
+async function saveImages(listingId: string, images: PreparedImage[], fd: FormData): Promise<"invalidImage" | null> {
+  const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(listingImage).where(eq(listingImage.listingId, listingId));
+  const remove = fd.getAll("removeImages").map(String).filter(Boolean);
+  if (n - remove.length + images.length > MAX_IMAGES_PER_LISTING) return "invalidImage";
+  let position = n;
+  for (const img of images) {
+    const key = imageKey(listingId, img.contentType);
+    await storage.put(key, img.data, img.contentType);
     await db.insert(listingImage).values({ listingId, storageKey: key, position: position++ });
   }
-  const remove = fd.getAll("removeImages").map(String).filter(Boolean);
   for (const id of remove) {
     const img = await db.query.listingImage.findFirst({ where: and(eq(listingImage.id, id), eq(listingImage.listingId, listingId)) });
     if (img) {
@@ -153,9 +181,9 @@ export async function saveListing(locale: Locale, mode: "draft" | "publish", exi
   const me = await requireLandlord(locale, mode === "publish" ? "owner" : "editor");
   const { errors, values } = parseForm(fd, mode === "publish");
   if (!values || Object.keys(errors).length) return { ok: false, errors };
-  // Photos are checked before anything is written: a bad file must not leave a published listing behind.
-  const files = fd.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
-  if (files.some((f) => !ALLOWED_IMAGE_TYPES.has(f.type) || f.size > MAX_IMAGE_BYTES)) return { ok: false, errors: { images: "invalidImage" } };
+  // Photos are decoded before anything is written: a bad file must not leave a published listing behind.
+  const prepared = await prepareImages(fd);
+  if (!prepared.ok) return { ok: false, errors: { images: "invalidImage" } };
   const now = new Date();
   const loc = await resolveLocation(values.municipalityId, values.areaName);
   const muni = await db.query.municipality.findFirst({ where: eq(municipality.id, values.municipalityId), columns: { nameSv: true } });
@@ -209,7 +237,7 @@ export async function saveListing(locale: Locale, mode: "draft" | "publish", exi
     id = row.id;
     await db.insert(listingRevision).values({ listingId: id, field: "status", oldValue: null, newValue: mode === "publish" ? "active" : "draft", origin: "portal", changedBy: me.userId, changedAt: now });
   }
-  const imgErr = await saveImages(id!, fd);
+  const imgErr = await saveImages(id!, prepared.images, fd);
   invalidateListingCaches();
   if (imgErr) return { ok: false, errors: { images: imgErr } };
   return { ok: true, id: id!, published: mode === "publish" };
