@@ -102,25 +102,26 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
   }
 
   return (
-    <article className="group relative grid grid-cols-1 overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)] sm:grid-cols-[212px_1fr]">
-      <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[150px] w-full sm:h-full sm:min-h-[158px]" sizes="(min-width: 640px) 212px, 100vw" />
-      <div className="flex flex-col gap-3 p-4">
+    <article className="group relative grid grid-cols-[108px_1fr] overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)] sm:grid-cols-[212px_1fr]">
+      {/* Phones get a thumbnail column so two or three homes fit on a screen; wider screens keep the full image. */}
+      <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-full min-h-[136px] w-full sm:min-h-[158px]" sizes="(min-width: 640px) 212px, 108px" />
+      <div className="flex min-w-0 flex-col gap-2 p-3 sm:gap-3 sm:p-4">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
           <div className="min-w-0">
-            <h3 className="text-h2 leading-snug">
+            <h3 className="text-[16px] font-[700] leading-snug sm:text-h2">
               <Link href={href} className="text-ink after:absolute after:inset-0 hover:text-ink hover:no-underline">
                 {listing.address}
               </Link>
             </h3>
-            <p className="text-[14px] text-muted">{place}</p>
+            <p className="text-[13px] text-muted sm:text-[14px]">{place}</p>
           </div>
-          <div className="text-right">
-            <p className="text-price font-[700] tabular text-ink">{rent}</p>
-            <p className="mt-1 text-meta text-muted">{roomsSize}</p>
+          <div className="sm:text-right">
+            <p className="text-[18px] font-[700] tabular text-ink sm:text-price">{rent}</p>
+            <p className="text-meta text-muted sm:mt-1">{roomsSize}</p>
           </div>
         </div>
-        <BadgeList badges={badges} />
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-meta text-muted">
+        <BadgeList badges={badges} className="hidden sm:flex" />
+        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5 text-meta text-muted sm:gap-x-4 sm:gap-y-2 sm:pt-1">
           <span className="flex min-w-0 items-center gap-2">
             <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] bg-surface-muted text-[10px] font-[700] text-ink-2">
               {initials(listing.landlordName)}
@@ -129,8 +130,8 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
           </span>
           <Freshness lastCheckedAt={listing.lastCheckedAt} />
           <DeadlinePill deadline={listing.applicationDeadline} locale={locale} t={td} />
-          <span className={`${buttonClasses("secondary", "sm")} relative z-10 ml-auto`} aria-hidden="true">
-            {ta("viewListing")}
+          <span className="ml-auto hidden sm:block" aria-hidden="true">
+            <span className={`${buttonClasses("secondary", "sm")} relative z-10`}>{ta("viewListing")}</span>
           </span>
         </div>
       </div>
