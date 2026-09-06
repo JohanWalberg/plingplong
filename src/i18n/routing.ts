@@ -63,6 +63,8 @@ export const pathnames = {
 } as const;
 
 export const routing = defineRouting({
+  // Secure in production; Chrome accepts Secure cookies on http://localhost in development.
+  localeCookie: { secure: process.env.NODE_ENV === "production" },
   locales,
   defaultLocale: "sv",
   localePrefix: "always",

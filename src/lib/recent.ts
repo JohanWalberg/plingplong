@@ -22,7 +22,22 @@ export function readRecent(): RecentHome[] {
   try {
     const raw = localStorage.getItem(RECENT_KEY);
     const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr.filter((r) => r && typeof r.slug === "string") : [];
+    if (!Array.isArray(arr)) return [];
+    // Storage is writable by any same-origin script: keep only well-formed rows with image URLs we would render.
+    const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+    return arr
+      .filter((r) => r && typeof r.slug === "string" && /^[a-z0-9-]+$/.test(r.slug) && typeof r.address === "string")
+      .map((r) => ({
+        slug: r.slug,
+        address: String(r.address),
+        place: typeof r.place === "string" ? r.place : "",
+        rentMonthly: num(r.rentMonthly),
+        rooms: num(r.rooms),
+        sizeSqm: num(r.sizeSqm),
+        imageUrl: typeof r.imageUrl === "string" && (r.imageUrl.startsWith("/api/uploads/") || r.imageUrl.startsWith("https://")) ? r.imageUrl : null,
+        landlordName: typeof r.landlordName === "string" ? r.landlordName : "",
+        viewedAt: typeof r.viewedAt === "string" ? r.viewedAt : "",
+      }));
   } catch {
     return [];
   }

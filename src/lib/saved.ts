@@ -24,7 +24,7 @@ export function readSavedClient(): string[] {
 
 export function writeSavedClient(slugs: string[]) {
   const value = encodeURIComponent(JSON.stringify(slugs.slice(0, MAX_SAVED)));
-  document.cookie = `${SAVED_COOKIE}=${value}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+  document.cookie = `${SAVED_COOKIE}=${value}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
   try {
     localStorage.setItem(SAVED_COOKIE, JSON.stringify(slugs));
   } catch {
@@ -38,7 +38,10 @@ export function readSavedSearches(): SavedSearch[] {
   try {
     const raw = localStorage.getItem(SAVED_SEARCHES_KEY);
     const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
+    // Storage is writable by any same-origin script: only accept the shape we wrote, with an in-site href.
+    return Array.isArray(arr)
+      ? arr.filter((x): x is SavedSearch => x && typeof x.label === "string" && typeof x.href === "string" && x.href.startsWith("/") && !x.href.startsWith("//") && typeof x.savedAt === "string")
+      : [];
   } catch {
     return [];
   }
