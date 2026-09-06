@@ -18,12 +18,22 @@ type Props = {
   onSelect?: (id: string | null) => void;
   onMoveEnd?: (bounds: [number, number, number, number]) => void;
   selectedId?: string | null;
+  /** Highlighted from the list on hover; mirrors onHover from the markers. */
+  hoveredId?: string | null;
+  onHover?: (id: string | null) => void;
   attribution?: string;
   /** When set, the map eases to this point (used when a list item is chosen). */
   focus?: { lon: number; lat: number; zoom?: number; key: number } | null;
   /** Never start further out than this, even if the results are spread wide. */
   minInitialZoom?: number;
 };
+
+function markerClass(active: boolean, hovered: boolean) {
+  const base = "rounded-md border px-2 py-1 text-[12.5px] font-[700] tabular shadow-md transition-transform";
+  if (active) return `${base} z-10 border-primary bg-primary text-white${hovered ? " scale-110" : ""}`;
+  if (hovered) return `${base} z-10 scale-110 border-ink bg-ink text-white`;
+  return `${base} border-line-strong bg-surface text-ink hover:border-ink`;
+}
 
 // OpenFreeMap: free OSM-based vector tiles, no key. Swap for Protomaps/MapTiler via NEXT_PUBLIC_MAP_STYLE_URL.
 const DEFAULT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
@@ -33,15 +43,18 @@ const DEFAULT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
  * The style URL comes from NEXT_PUBLIC_MAP_STYLE_URL (self-hosted or metered
  * tiles); the MapLibre demo style is the zero-config fallback.
  */
-export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, interactive = true, onSelect, onMoveEnd, selectedId, attribution, focus, minInitialZoom = 13 }: Props) {
+export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, interactive = true, onSelect, onMoveEnd, selectedId, hoveredId = null, onHover, attribution, focus, minInitialZoom = 13 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
   const markerEls = useRef<maplibregl.Marker[]>([]);
   const [ready, setReady] = useState(false);
   const onSelectRef = useRef(onSelect);
   const onMoveEndRef = useRef(onMoveEnd);
+  const onHoverRef = useRef(onHover);
+  const elsById = useRef(new Map<string, HTMLButtonElement>());
   onSelectRef.current = onSelect;
   onMoveEndRef.current = onMoveEnd;
+  onHoverRef.current = onHover;
 
   useEffect(() => {
     if (!container.current || mapRef.current) return;
@@ -83,6 +96,7 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
       if (process.env.NODE_ENV !== "production") (window as unknown as { __hbMarkers?: MapMarker[] }).__hbMarkers = markers;
       for (const m of markerEls.current) m.remove();
       markerEls.current = [];
+      elsById.current.clear();
       const index = new Supercluster<{ marker: MapMarker }>({ radius: 48, maxZoom: 16 });
       index.load(markers.map((m) => ({ type: "Feature", geometry: { type: "Point", coordinates: [m.lon, m.lat] }, properties: { marker: m } })));
       const b = map.getBounds();
@@ -103,14 +117,19 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
           });
         } else {
           const m = (c.properties as { marker: MapMarker }).marker;
-          const active = m.active || m.id === selectedId;
-          el.className = `rounded-md border px-2 py-1 text-[12.5px] font-[700] tabular shadow-md ${active ? "z-10 border-primary bg-primary text-white" : "border-line-strong bg-surface text-ink hover:border-ink"}`;
+          el.className = markerClass(m.active || m.id === selectedId, m.id === hoveredId);
           el.textContent = m.label;
           el.setAttribute("aria-label", `${m.address}: ${m.label}`);
+          el.dataset.markerId = m.id;
           el.addEventListener("click", (e) => {
             e.stopPropagation();
             onSelectRef.current?.(m.id);
           });
+          el.addEventListener("mouseenter", () => onHoverRef.current?.(m.id));
+          el.addEventListener("mouseleave", () => onHoverRef.current?.(null));
+          el.addEventListener("focus", () => onHoverRef.current?.(m.id));
+          el.addEventListener("blur", () => onHoverRef.current?.(null));
+          elsById.current.set(m.id, el);
         }
         const marker = new maplibregl.Marker({ element: el }).setLngLat([lon, lat]).addTo(map);
         markerEls.current.push(marker);
@@ -122,6 +141,12 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
       map.off("moveend", render);
     };
   }, [markers, ready, selectedId]);
+
+  // Hover retints in place: rebuilding the markers on every hover would flicker.
+  useEffect(() => {
+    const selected = new Set(markers.filter((m) => m.active || m.id === selectedId).map((m) => m.id));
+    for (const [id, el] of elsById.current) el.className = markerClass(selected.has(id), id === hoveredId);
+  }, [hoveredId, selectedId, markers]);
 
   // Bounds are fitted once at creation. After that the user owns the viewport:
   // refitting on every prop change would fight their zoom and pan.
