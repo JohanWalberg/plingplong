@@ -66,7 +66,7 @@ export default async function MunicipalityPage({ params }: Props) {
       <main id="main">
         <section className="border-b border-line bg-bg">
           <div className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6">
-            <nav aria-label="" className="text-[13.5px] text-muted">
+            <nav aria-label={(await getTranslations("common"))("navBreadcrumb")} className="text-[13.5px] text-muted">
               <Link href="/municipalities" className="text-muted hover:text-ink">
                 {t("crumbRoot")}
               </Link>

@@ -32,7 +32,9 @@
     "notFoundTitle": "This page does not exist.",
     "notFoundBody": "The address may be misspelled or the page may have been removed.",
     "toHome": "Go to the homepage",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "navMain": "Main navigation",
+    "navBreadcrumb": "You are here"
   },
   "navigation": {
     "home": "Home",

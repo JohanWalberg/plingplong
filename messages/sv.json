@@ -32,7 +32,9 @@
     "notFoundTitle": "Sidan finns inte.",
     "notFoundBody": "Adressen kan vara felstavad eller så har sidan tagits bort.",
     "toHome": "Till startsidan",
-    "signOut": "Logga ut"
+    "signOut": "Logga ut",
+    "navMain": "Huvudmeny",
+    "navBreadcrumb": "Du är här"
   },
   "navigation": {
     "home": "Start",

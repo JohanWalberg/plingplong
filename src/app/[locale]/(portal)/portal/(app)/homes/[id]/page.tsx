@@ -76,7 +76,7 @@ export default async function ManageHomePage({ params }: Props) {
 
   return (
     <PortalShell viewer={me} active="homes">
-      <nav aria-label="" className="text-[13.5px] text-muted">
+      <nav aria-label={(await getTranslations("common"))("navBreadcrumb")} className="text-[13.5px] text-muted">
         <Link href="/portal/homes" className="text-muted hover:text-ink">{t("crumb")}</Link>
         <span aria-hidden="true"> / </span>
         <span className="text-ink">{l.address}</span>

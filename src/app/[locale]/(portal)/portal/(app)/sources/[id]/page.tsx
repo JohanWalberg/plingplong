@@ -27,7 +27,7 @@ export default async function SourceDetailPage({ params }: Props) {
   const cfg = s.config as { fields?: Record<string, string>; apiKey?: string };
   return (
     <PortalShell viewer={me} active="sources">
-      <nav aria-label="" className="text-[13.5px] text-muted"><Link href="/portal/sources" className="text-muted hover:text-ink">{t("backToList")}</Link></nav>
+      <nav aria-label={(await getTranslations("common"))("navBreadcrumb")} className="text-[13.5px] text-muted"><Link href="/portal/sources" className="text-muted hover:text-ink">{t("backToList")}</Link></nav>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h1 className="break-all font-mono text-[20px] font-[650]">{s.url}</h1>

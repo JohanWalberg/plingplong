@@ -49,7 +49,7 @@ export async function AdminShell({ viewer, active, title, actions, children }: {
           <span className="text-[14px] font-[700]">{tc("brand")}</span>
           <span className="text-[12px] text-dark-muted">{tc("admin")}</span>
         </p>
-        <nav className="flex flex-1 flex-col" aria-label="">
+        <nav className="flex flex-1 flex-col" aria-label={tc("navMain")}>
           {NAV.map((n) => (
             <Link
               key={n.key}
@@ -74,7 +74,7 @@ export async function AdminShell({ viewer, active, title, actions, children }: {
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex min-h-[60px] flex-wrap items-center gap-3 border-b border-line bg-surface px-4 sm:px-6">
-          <nav className="flex gap-1 overflow-x-auto md:hidden" aria-label="">
+          <nav className="flex gap-1 overflow-x-auto md:hidden" aria-label={tc("navMain")}>
             {NAV.map((n) => (
               <Link key={n.key} href={n.href} aria-current={active === n.key ? "page" : undefined} className={`flex min-h-touch shrink-0 items-center px-2 text-[13px] font-[600] ${active === n.key ? "text-ink underline" : "text-ink-2"}`}>
                 {t(n.key)}

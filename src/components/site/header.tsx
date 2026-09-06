@@ -27,7 +27,7 @@ export async function SiteHeader({ active, children }: { active?: NavKey; childr
           <span className="text-[17px] font-[700] tracking-tight">{tc("brand")}</span>
         </Link>
         {children ? <div className="hidden min-w-0 flex-1 md:block">{children}</div> : <div className="flex-1" />}
-        <nav aria-label="" className="hidden items-center gap-1 md:flex">
+        <nav aria-label={tc("navMain")} className="hidden items-center gap-1 md:flex">
           {NAV.map((n) => (
             <Link
               key={n.key}
@@ -47,7 +47,7 @@ export async function SiteHeader({ active, children }: { active?: NavKey; childr
         <LanguageSwitcher />
       </div>
       {children ? <div className="border-t border-hairline px-4 py-2 md:hidden">{children}</div> : null}
-      <nav aria-label="" className="flex gap-1 overflow-x-auto border-t border-hairline px-2 md:hidden">
+      <nav aria-label={tc("navMain")} className="flex gap-1 overflow-x-auto border-t border-hairline px-2 md:hidden">
         {NAV.map((n) => (
           <Link
             key={n.key}

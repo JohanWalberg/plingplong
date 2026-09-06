@@ -44,7 +44,7 @@ export function Badge({ tone, icon, children, className = "" }: { tone: BadgeTon
 export function BadgeList({ badges, className = "" }: { badges: BadgeModel[]; className?: string }) {
   if (!badges.length) return null;
   return (
-    <ul className={`flex flex-wrap gap-1.5 ${className}`} aria-label="">
+    <ul className={`flex flex-wrap gap-1.5 ${className}`}>
       {badges.map((b) => (
         <li key={b.key} className="list-none">
           <Badge tone={b.tone} icon={b.icon}>

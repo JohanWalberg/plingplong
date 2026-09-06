@@ -32,7 +32,7 @@ export async function PortalShell({ viewer, active, children }: { viewer: Landlo
             <span className="text-[17px] font-[700] tracking-tight">{tc("brand")}</span>
             {viewer ? <span className="hidden text-[13px] text-muted sm:inline">· {viewer.landlordName}</span> : null}
           </Link>
-          <nav className="ml-4 hidden items-center gap-1 md:flex" aria-label="">
+          <nav className="ml-4 hidden items-center gap-1 md:flex" aria-label={tc("navMain")}>
             {TABS.map((tab) => (
               <Link
                 key={tab.key}
@@ -52,7 +52,7 @@ export async function PortalShell({ viewer, active, children }: { viewer: Landlo
             <LanguageSwitcher />
           </div>
         </div>
-        <nav className="flex gap-1 overflow-x-auto border-t border-hairline px-2 md:hidden" aria-label="">
+        <nav className="flex gap-1 overflow-x-auto border-t border-hairline px-2 md:hidden" aria-label={tc("navMain")}>
           {TABS.map((tab) => (
             <Link key={tab.key} href={tab.href} aria-current={active === tab.key ? "page" : undefined} className={`flex min-h-touch shrink-0 items-center border-b-2 px-3 text-[14px] font-[600] hover:no-underline ${active === tab.key ? "border-primary text-ink" : "border-transparent text-ink-2"}`}>
               {t(tab.key)}
@@ -82,7 +82,7 @@ export async function PortalPublicShell({ children, wide = false }: { children: 
             <span className="text-[17px] font-[700] tracking-tight">{tc("brand")}</span>
             <span className="text-[13px] text-muted">{tc("forLandlords")}</span>
           </Link>
-          <nav className="ml-auto hidden items-center gap-4 text-[14px] font-[600] md:flex" aria-label="">
+          <nav className="ml-auto hidden items-center gap-4 text-[14px] font-[600] md:flex" aria-label={tc("navMain")}>
             <Link href="/how-it-works" className="text-ink-2 hover:text-ink">
               {t("navHow")}
             </Link>

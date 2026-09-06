@@ -100,7 +100,7 @@ export default async function ListingPage({ params }: Props) {
       <RecordRecent slug={l.slug} address={l.address} place={place} rentMonthly={l.rentMonthly} rooms={l.rooms} sizeSqm={l.sizeSqm} imageUrl={l.imageUrl ?? (l.images[0] ? `/api/uploads/${l.images[0].storageKey}` : null)} landlordName={l.landlord.name} />
       <main id="main" className="bg-bg">
         <div className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6">
-          <nav aria-label="" className="text-[13.5px] text-muted">
+          <nav aria-label={(await getTranslations("common"))("navBreadcrumb")} className="text-[13.5px] text-muted">
             <ol className="flex flex-wrap items-center gap-1.5">
               <li>
                 <Link href="/" className="text-muted hover:text-ink">

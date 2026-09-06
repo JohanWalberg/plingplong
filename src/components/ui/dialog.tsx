@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode, useId } from "react";
 import { useTranslations } from "next-intl";
 
 type DialogProps = {
@@ -20,6 +20,7 @@ type DialogProps = {
  * "sheet" variant slides up as a bottom sheet with a scrollable body.
  */
 export function Dialog({ open, onClose, title, children, variant = "dialog", footer, className = "" }: DialogProps) {
+  const titleId = useId();
   const ref = useRef<HTMLDialogElement>(null);
   const t = useTranslations("common");
 
@@ -49,7 +50,7 @@ export function Dialog({ open, onClose, title, children, variant = "dialog", foo
   return (
     <dialog
       ref={ref}
-      aria-labelledby="dialog-title"
+      aria-labelledby={titleId}
       className={`m-0 max-h-none max-w-none border-0 bg-transparent p-0 backdrop:bg-[#5b564e]/70 ${
         sheet
           ? "fixed inset-x-0 bottom-0 top-auto h-[94dvh] w-full sm:inset-0 sm:m-auto sm:h-auto sm:max-h-[90dvh] sm:w-[560px]"
@@ -62,7 +63,7 @@ export function Dialog({ open, onClose, title, children, variant = "dialog", foo
         }`}
       >
         <header className="flex min-h-14 items-center justify-between gap-3 border-b border-line px-5 py-3">
-          <h2 id="dialog-title" className="text-h3">
+          <h2 id={titleId} className="text-h3">
             {title}
           </h2>
           <button

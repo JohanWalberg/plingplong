@@ -19,7 +19,7 @@ export default async function CreateAccountPage({ params }: Props) {
   const steps = [t("step1"), t("step2"), t("step3")];
   return (
     <PortalPublicShell wide>
-      <ol className="flex flex-wrap gap-4 text-[13.5px]" aria-label="">
+      <ol className="flex flex-wrap gap-4 text-[13.5px]">
         {steps.map((s, i) => (
           <li key={s} className={`flex items-center gap-2 ${i === 0 ? "font-[650] text-ink" : "text-muted"}`}>
             <span className={`flex h-6 w-6 items-center justify-center rounded-full border text-[12px] ${i === 0 ? "border-ink bg-ink text-white" : "border-line-strong"}`} aria-hidden="true">

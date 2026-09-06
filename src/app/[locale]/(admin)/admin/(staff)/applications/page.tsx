@@ -63,12 +63,11 @@ export default async function ApplicationsPage({ params, searchParams }: Props) 
       <p className="text-[14px] text-ink-2">{t("sub", { count: counts.pending })}</p>
       <div className="mt-4 grid gap-6 xl:grid-cols-[1fr_440px]">
         <section>
-          <div role="tablist" className="flex gap-1">
+          <div className="flex gap-1">
             {(["pending", "needs_info", "decided"] as const).map((k) => (
               <Link
                 key={k}
-                role="tab"
-                aria-selected={tab === k}
+                aria-current={tab === k ? "page" : undefined}
                 href={{ pathname: "/admin/applications", query: { tab: k } }}
                 className={`flex min-h-10 items-center gap-2 rounded-md px-3 text-[13.5px] font-[650] hover:no-underline ${tab === k ? "bg-ink text-white hover:text-white" : "text-ink-2 hover:bg-surface"}`}
               >
