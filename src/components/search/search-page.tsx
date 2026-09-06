@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
 import { ActiveChips, FilterPanel, MobileFilters, SortSelect } from "@/components/search/filter-panel";
 import { SaveSearchButton } from "@/components/search/save-search-button";
+import { ResultsRegion, SearchTransitionProvider } from "@/components/search/search-transition";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Callout, icons } from "@/components/ui/misc";
 import { buttonClasses } from "@/components/ui/button";
@@ -74,6 +75,7 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
       <SiteHeader active="search">
         <SearchBox locale={locale} defaultValue={q ?? placeName ?? ""} size="md" showButton={false} />
       </SiteHeader>
+      <SearchTransitionProvider>
       <main id="main" className="mx-auto grid max-w-[1200px] grid-cols-1 gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[272px_1fr]">
         <aside className="hidden lg:block" aria-label={(await getTranslations("filters"))("title")}>
           <div className="sticky top-4">
@@ -128,24 +130,27 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
             </Callout>
           ) : null}
 
-          {result.items.length ? (
-            <ul className="flex flex-col gap-3">
-              {result.items.map((l) => (
-                <li key={l.id} className="list-none">
-                  <ListingCard listing={l} />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyState locale={locale} filters={filters} muni={muni} area={area} />
-          )}
+          <ResultsRegion>
+            {result.items.length ? (
+              <ul className="flex flex-col gap-3">
+                {result.items.map((l) => (
+                  <li key={l.id} className="list-none">
+                    <ListingCard listing={l} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState locale={locale} filters={filters} muni={muni} area={area} />
+            )}
 
-          {result.pages > 1 ? <Pagination locale={locale} filters={filters} page={result.page} pages={result.pages} muni={muni} area={area} /> : null}
+            {result.pages > 1 ? <Pagination locale={locale} filters={filters} page={result.page} pages={result.pages} muni={muni} area={area} /> : null}
+          </ResultsRegion>
           <p className="sr-only" aria-live="polite">
             {tc("resultsCount", { count: result.total })}
           </p>
         </div>
       </main>
+      </SearchTransitionProvider>
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -10,6 +10,7 @@ import { Checkbox, Fieldset, Select } from "@/components/ui/form";
 import { Dialog } from "@/components/ui/dialog";
 import { FilterChip, icons } from "@/components/ui/misc";
 import { formatNumber, formatSek } from "@/lib/format";
+import { useSearchTransition } from "./search-transition";
 import {
   activeFilterCount,
   QUEUE_FILTERS,
@@ -35,7 +36,7 @@ function useFilterNavigation(filters: SearchFilters) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
-  const [pending, startTransition] = useTransition();
+  const { pending, start: startTransition } = useSearchTransition();
 
   function apply(next: Partial<SearchFilters>, resetPage = true) {
     const merged = { ...filters, ...next, page: resetPage ? 1 : (next.page ?? filters.page) };

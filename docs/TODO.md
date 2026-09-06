@@ -76,6 +76,9 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
   definition of done.
 - [x] **D6. next/image** for listing photos; uploads resized and converted.
 - [x] **D7. Open Graph metadata** and generated share images.
+- [x] **D10. Filter changes update in place.** One shared transition: the
+  list dims with a progress bar and aria-busy while the sidebar, chips and
+  sort stay interactive.
 - [x] **D9. Static rendering.** Home, indexes, coverage and all municipality
   and landlord pages prerendered with five-minute ISR; content pages static.
 - [x] **D8. Unmatched URLs get a styled 404.** `app/global-not-found.tsx`
