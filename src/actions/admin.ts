@@ -41,6 +41,7 @@ export async function runAllSyncs(locale: Locale) {
 }
 
 export async function setSourceStatus(locale: Locale, sourceId: string, status: "active" | "disabled") {
+  z.enum(["active", "disabled"]).parse(status);
   await requireStaff(locale, "lead");
   await db.update(source).set({ status, consecutiveFailures: 0, nextRunAt: status === "active" ? new Date() : null }).where(eq(source.id, sourceId));
   revalidateAdmin();
@@ -235,6 +236,7 @@ export async function approveApplication(locale: Locale, applicationId: string) 
 }
 
 export async function requestMoreInfo(locale: Locale, applicationId: string, message: string) {
+  message = z.string().trim().min(1).max(2000).parse(message);
   const me = await requireStaff(locale, "lead");
   const app = await db.query.landlordApplication.findFirst({ where: eq(landlordApplication.id, applicationId) });
   if (!app) return;
@@ -246,6 +248,7 @@ export async function requestMoreInfo(locale: Locale, applicationId: string, mes
 }
 
 export async function rejectApplication(locale: Locale, applicationId: string, reason: string) {
+  reason = z.string().trim().min(1).max(2000).parse(reason);
   const me = await requireStaff(locale, "lead");
   const app = await db.query.landlordApplication.findFirst({ where: eq(landlordApplication.id, applicationId) });
   if (!app) return;
@@ -268,6 +271,7 @@ export async function reopenApplication(locale: Locale, applicationId: string) {
 // ---------------------------------------------------------------------------
 
 export async function decideDuplicate(locale: Locale, candidateId: string, decision: "merged" | "not_duplicate" | "ignored") {
+  z.enum(["merged", "not_duplicate", "ignored"]).parse(decision);
   const me = await requireStaff(locale, decision === "merged" ? "lead" : "support");
   // The conditional update is the lock: whoever flips "pending" first (staff or the worker's auto-merge) wins, and the merge rides in the same transaction.
   const done = await db.transaction(async (tx) => {
@@ -297,6 +301,7 @@ export async function markListingReviewed(locale: Locale, listingId: string) {
 // ---------------------------------------------------------------------------
 
 export async function setStaffRole(locale: Locale, userId: string, role: "support" | "lead" | "engineer") {
+  z.enum(["support", "lead", "engineer"]).parse(role);
   const me = await requireStaff(locale, "lead");
   if (userId === me.userId) return;
   await db.insert(staffUser).values({ userId, role }).onConflictDoUpdate({ target: staffUser.userId, set: { role } });
@@ -378,6 +383,7 @@ export async function adminUpdateListing(locale: Locale, listingId: string, form
 
 /** Takedown: hide a listing from search with a reason kept in the history. */
 export async function adminRemoveListing(locale: Locale, listingId: string, reason: string) {
+  reason = z.string().trim().min(1).max(2000).parse(reason);
   const me = await requireStaff(locale, "lead");
   const before = await db.query.listing.findFirst({ where: eq(listing.id, listingId), columns: { status: true } });
   if (!before || before.status === "removed") return;

@@ -267,6 +267,7 @@ export async function republishListing(locale: Locale, id: string) {
 }
 
 export async function extendDeadline(locale: Locale, id: string, date: string) {
+  z.string().date().parse(date);
   const { me, l } = await ownedDirect(locale, id);
   if (!isoDate.test(date)) return { ok: false as const };
   const now = new Date();

@@ -23,6 +23,7 @@ async function ownerCount(landlordId: string) {
 }
 
 export async function changeMemberRole(locale: Locale, userId: string, role: "owner" | "editor") {
+  z.enum(["owner", "editor"]).parse(role);
   const me = await requireLandlord(locale, "owner");
   const target = await db.query.landlordMember.findFirst({ where: and(eq(landlordMember.userId, userId), eq(landlordMember.landlordId, me.landlordId)) });
   if (!target) return { ok: false as const, error: "invalid" as const };
