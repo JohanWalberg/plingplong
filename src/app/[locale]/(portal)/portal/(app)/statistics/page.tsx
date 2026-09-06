@@ -8,7 +8,8 @@ import { BarChart, SERIES_COLORS } from "@/components/portal/bar-chart";
 import { StatusPill } from "@/components/ui/badge";
 import { Card } from "@/components/ui/misc";
 import { formatNumber } from "@/lib/format";
-import { landlordListingTotals, landlordMetricsSeries } from "@/lib/queries/portal";
+import { landlordListingDailyViews, landlordListingTotals, landlordMetricsSeries } from "@/lib/queries/portal";
+import { Sparkline } from "@/components/portal/sparkline";
 
 type Props = { params: Promise<{ locale: string }> };
 export const metadata: Metadata = { robots: { index: false } };
@@ -16,7 +17,7 @@ export const metadata: Metadata = { robots: { index: false } };
 export default async function StatisticsPage({ params }: Props) {
   const locale = await resolveLocale(params);
   const me = await requireLandlord(locale);
-  const [t, td, tp, series, rows] = await Promise.all([getTranslations("portal.stats"), getTranslations("portal.dash"), getTranslations("portal.perf"), landlordMetricsSeries(me.landlordId, 30), landlordListingTotals(me.landlordId)]);
+  const [t, td, tp, series, rows, daily] = await Promise.all([getTranslations("portal.stats"), getTranslations("portal.dash"), getTranslations("portal.perf"), landlordMetricsSeries(me.landlordId, 30), landlordListingTotals(me.landlordId), landlordListingDailyViews(me.landlordId, 14)]);
   const views = series.reduce((a, b) => a + b.views, 0);
   const clicks = series.reduce((a, b) => a + b.clicks, 0);
   const saves = series.reduce((a, b) => a + b.saves, 0);
@@ -49,12 +50,13 @@ export default async function StatisticsPage({ params }: Props) {
         <h2 className="border-b border-line px-5 py-3 text-h3">{t("perListing")}</h2>
         {rows.length ? (
           <table className="w-full text-[14px]">
-            <thead><tr className="text-left text-meta uppercase tracking-wide text-muted"><th className="px-4 py-2 font-[650]">{t("colListing")}</th><th className="px-4 py-2 font-[650]">{t("colStatus")}</th><th className="px-4 py-2 text-right font-[650]">{t("colViews")}</th><th className="px-4 py-2 text-right font-[650]">{t("colClicks")}</th><th className="px-4 py-2 text-right font-[650]">{t("colSaves")}</th></tr></thead>
+            <thead><tr className="text-left text-meta uppercase tracking-wide text-muted"><th className="px-4 py-2 font-[650]">{t("colListing")}</th><th className="px-4 py-2 font-[650]">{t("colStatus")}</th><th className="px-4 py-2 font-[650]">{t("colTrend")}</th><th className="px-4 py-2 text-right font-[650]">{t("colViews")}</th><th className="px-4 py-2 text-right font-[650]">{t("colClicks")}</th><th className="px-4 py-2 text-right font-[650]">{t("colSaves")}</th></tr></thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} className="border-t border-hairline">
                   <td className="px-4 py-2.5"><Link href={{ pathname: "/portal/homes/[id]", params: { id: r.id } }} className="font-[600]">{r.address}</Link></td>
                   <td className="px-4 py-2.5"><StatusPill tone={r.status === "active" ? "success" : "quiet"}>{label(r.status)}</StatusPill></td>
+                  <td className="px-4 py-2.5"><Sparkline values={daily.series(r.id)} label={t("trendLabel", { address: r.address })} color={SERIES_COLORS.views} /></td>
                   <td className="px-4 py-2.5 text-right tabular">{r.views}</td>
                   <td className="px-4 py-2.5 text-right tabular">{r.clicks}</td>
                   <td className="px-4 py-2.5 text-right tabular">{r.saves}</td>

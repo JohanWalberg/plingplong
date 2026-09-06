@@ -885,7 +885,9 @@
       "clicks": "Klick",
       "totalSaves": "Sparad av sökande",
       "colSaves": "Sparad",
-      "saves": "Sparade"
+      "saves": "Sparade",
+      "colTrend": "Visningar 14 dagar",
+      "trendLabel": "Visningar per dag för {address}, senaste 14 dagarna"
     }
   },
   "admin": {

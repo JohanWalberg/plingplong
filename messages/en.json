@@ -885,7 +885,9 @@
       "clicks": "Clicks",
       "totalSaves": "Saved by seekers",
       "colSaves": "Saved",
-      "saves": "Saves"
+      "saves": "Saves",
+      "colTrend": "Views, 14 days",
+      "trendLabel": "Views per day for {address}, last 14 days"
     }
   },
   "admin": {

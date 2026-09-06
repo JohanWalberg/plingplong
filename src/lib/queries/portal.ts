@@ -191,3 +191,20 @@ export async function landlordAccount(landlordId: string) {
 }
 
 export { listingImage, listingRevision };
+
+/** Daily views per listing for the last `days` days, for the sparklines in the statistics table. */
+export async function landlordListingDailyViews(landlordId: string, days = 14) {
+  const from = dayOffset(days - 1);
+  const rows = await db
+    .select({ listingId: listingMetricDaily.listingId, day: listingMetricDaily.day, views: listingMetricDaily.views })
+    .from(listingMetricDaily)
+    .innerJoin(listing, eq(listing.id, listingMetricDaily.listingId))
+    .where(and(eq(listing.landlordId, landlordId), gte(listingMetricDaily.day, from)));
+  const dayList = Array.from({ length: days }, (_, i) => dayOffset(days - 1 - i));
+  const byListing = new Map<string, Map<string, number>>();
+  for (const r of rows) {
+    if (!byListing.has(r.listingId)) byListing.set(r.listingId, new Map());
+    byListing.get(r.listingId)!.set(r.day, r.views);
+  }
+  return { days: dayList, series: (id: string) => dayList.map((d) => byListing.get(id)?.get(d) ?? 0) };
+}
