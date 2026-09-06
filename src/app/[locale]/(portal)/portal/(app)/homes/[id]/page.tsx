@@ -6,7 +6,7 @@ import { resolveLocale } from "@/lib/locale";
 import { isOwner, requireLandlord } from "@/lib/access";
 import { PortalShell } from "@/components/portal/portal-shell";
 import { ListingActions } from "@/components/portal/listing-actions";
-import { BarChart } from "@/components/portal/bar-chart";
+import { BarChart, SERIES_COLORS } from "@/components/portal/bar-chart";
 import { Freshness } from "@/components/listing/freshness";
 import { StatusPill, type StatusTone } from "@/components/ui/badge";
 import { Card, Callout, Kicker, icons } from "@/components/ui/misc";
@@ -113,7 +113,7 @@ export default async function ManageHomePage({ params }: Props) {
           <Card className="p-6">
             <h2 className="text-h3">{t("viewsTitle")}</h2>
             <div className="mt-3">
-              <BarChart series={series.slice(-14).map((s) => ({ day: s.day, value: s.views }))} locale={locale} label={t("chartLabel")} tableCaption={t("chartTable")} valueLabel={t("colViews")} dayLabel={t("colDay")} />
+              <BarChart rows={series.slice(-14).map((s) => ({ day: s.day, values: { views: s.views } }))} series={[{ key: "views", label: t("colViews"), color: SERIES_COLORS.views }]} locale={locale} label={t("chartLabel")} tableCaption={t("chartTable")} dayLabel={t("colDay")} />
             </div>
           </Card>
 

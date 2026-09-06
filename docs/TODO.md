@@ -76,6 +76,9 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
   definition of done.
 - [x] **D6. next/image** for listing photos; uploads resized and converted.
 - [x] **D7. Open Graph metadata** and generated share images.
+- [x] **D12. Statistics chart** shows views, clicks and saves as grouped daily
+  bars with a legend, per-bar tooltip and a hidden data table; palette
+  validated for colour-vision separation.
 - [x] **D11. Lighter bundles.** MapLibre loads on the listing page only when
   the location card nears the viewport; zod stays server-side (the filter
   panel imports a zod-free search-params module).

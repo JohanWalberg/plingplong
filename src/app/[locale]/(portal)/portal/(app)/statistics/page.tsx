@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/lib/locale";
 import { requireLandlord } from "@/lib/access";
 import { PortalShell } from "@/components/portal/portal-shell";
-import { BarChart } from "@/components/portal/bar-chart";
+import { BarChart, SERIES_COLORS } from "@/components/portal/bar-chart";
 import { StatusPill } from "@/components/ui/badge";
 import { Card } from "@/components/ui/misc";
 import { formatNumber } from "@/lib/format";
@@ -31,7 +31,18 @@ export default async function StatisticsPage({ params }: Props) {
         <Card className="p-4"><dt className="text-meta text-muted">{t("totalSaves")}</dt><dd className="mt-1 text-[26px] font-[700] tabular">{formatNumber(locale, saves)}</dd></Card>
       </dl>
       <Card className="mt-4 p-6">
-        <BarChart series={series.map((s) => ({ day: s.day, value: s.views, secondary: s.clicks }))} locale={locale} label={t("chartLabel")} tableCaption={t("chartLabel")} valueLabel={t("views")} secondaryLabel={t("clicks")} dayLabel={tp("colDay")} />
+        <BarChart
+          rows={series.map((s) => ({ day: s.day, values: { views: s.views, clicks: s.clicks, saves: s.saves } }))}
+          series={[
+            { key: "views", label: t("views"), color: SERIES_COLORS.views },
+            { key: "clicks", label: t("clicks"), color: SERIES_COLORS.clicks },
+            { key: "saves", label: t("saves"), color: SERIES_COLORS.saves },
+          ]}
+          locale={locale}
+          label={t("chartLabel")}
+          tableCaption={t("chartLabel")}
+          dayLabel={tp("colDay")}
+        />
         <p className="mt-2 text-meta text-muted">{tp("metricNote")}</p>
       </Card>
       <Card className="mt-6 overflow-hidden">

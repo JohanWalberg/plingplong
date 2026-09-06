@@ -864,7 +864,7 @@
       "intro": "Views, click-throughs to your site and saves for all your homes over the last 30 days.",
       "totalViews": "Views, 30 days",
       "totalClicks": "Clicks to your site",
-      "chartLabel": "Views and clicks per day for the last 30 days",
+      "chartLabel": "Views, clicks and saves per day for the last 30 days",
       "perListing": "Per home",
       "colListing": "Home",
       "colStatus": "Status",
@@ -874,7 +874,8 @@
       "views": "Views",
       "clicks": "Clicks",
       "totalSaves": "Saved by seekers",
-      "colSaves": "Saved"
+      "colSaves": "Saved",
+      "saves": "Saves"
     }
   },
   "admin": {

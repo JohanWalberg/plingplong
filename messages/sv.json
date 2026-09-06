@@ -864,7 +864,7 @@
       "intro": "Visningar, klick vidare till er sida och sparningar för alla era bostäder de senaste 30 dagarna.",
       "totalViews": "Visningar 30 dagar",
       "totalClicks": "Klick till er sida",
-      "chartLabel": "Visningar och klick per dag de senaste 30 dagarna",
+      "chartLabel": "Visningar, klick och sparade per dag de senaste 30 dagarna",
       "perListing": "Per bostad",
       "colListing": "Bostad",
       "colStatus": "Status",
@@ -874,7 +874,8 @@
       "views": "Visningar",
       "clicks": "Klick",
       "totalSaves": "Sparad av sökande",
-      "colSaves": "Sparad"
+      "colSaves": "Sparad",
+      "saves": "Sparade"
     }
   },
   "admin": {

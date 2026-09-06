@@ -54,6 +54,12 @@ facet, coverage and source-health lookups beside them are memoized for
 `CACHE_TTL_SECONDS`, and every web-side listing change clears that memo and
 the ISR pages through `invalidateListingCaches()`.
 
+**Second polish pass (2026-09-06, evening).** Filter changes update the
+result list in place with a busy state while the panel stays interactive.
+The listing page loads MapLibre only when the location card scrolls near,
+and zod no longer ships to the browser. The portal statistics chart shows
+views, clicks and saves as grouped bars with a legend and a data table.
+
 **UI polish (2026-09-06).** Skeleton loading states on every data-backed
 route, with the signed-in portal and admin pages in `(app)` and `(staff)`
 route groups so sign-in pages keep their own look. Listing photos through
