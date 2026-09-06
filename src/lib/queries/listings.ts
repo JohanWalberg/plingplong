@@ -215,7 +215,8 @@ export async function similarListings(locale: Locale, ref: { id: string; municip
  */
 export const getListingBySlug = cache(async (slug: string) => {
   return db.query.listing.findFirst({
-    where: eq(listing.slug, slug),
+    // Drafts are never public: not on the page, the share image or the saved list.
+    where: and(eq(listing.slug, slug), ne(listing.status, "draft")),
     columns: { location: false },
     extras: {
       lat: sql<number | null>`ST_Y(${listing.location})`.as("lat"),
