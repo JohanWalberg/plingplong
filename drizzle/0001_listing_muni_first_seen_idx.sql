@@ -1,0 +1,1 @@
+CREATE INDEX "listing_muni_status_first_seen_idx" ON "listing" USING btree ("municipality_id","status","first_seen_at");

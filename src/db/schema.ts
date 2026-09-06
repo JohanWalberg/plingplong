@@ -260,6 +260,7 @@ export const listing = pgTable(
     index("listing_muni_status_rent_idx").on(t.municipalityId, t.status, t.rentMonthly),
     index("listing_status_last_seen_idx").on(t.status, t.lastSeenAt),
     index("listing_status_first_seen_idx").on(t.status, t.firstSeenAt),
+    index("listing_muni_status_first_seen_idx").on(t.municipalityId, t.status, t.firstSeenAt),
     index("listing_landlord_idx").on(t.landlordId),
     index("listing_location_gix").using("gist", t.location),
   ],

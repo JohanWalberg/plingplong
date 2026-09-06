@@ -7,6 +7,7 @@ import { requireLandlord } from "@/lib/access";
 import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { listingSlug } from "@/lib/slug";
+import { invalidateListingCaches } from "@/lib/listing-cache";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, imageKey, storage } from "@/lib/storage";
 
 const { listing, listingImage, listingRevision, municipality, area } = schema;
@@ -206,6 +207,7 @@ export async function saveListing(locale: Locale, mode: "draft" | "publish", exi
     await db.insert(listingRevision).values({ listingId: id, field: "status", oldValue: null, newValue: mode === "publish" ? "active" : "draft", origin: "portal", changedBy: me.userId, changedAt: now });
   }
   const imgErr = await saveImages(id!, fd);
+  invalidateListingCaches();
   if (imgErr) return { ok: false, errors: { images: imgErr } };
   return { ok: true, id: id!, published: mode === "publish" };
 }
@@ -221,6 +223,7 @@ export async function unpublishListing(locale: Locale, id: string) {
   const { me, l } = await ownedDirect(locale, id);
   const now = new Date();
   await db.update(listing).set({ status: "unpublished", unpublishedAt: now, lastCheckedAt: now }).where(eq(listing.id, id));
+  invalidateListingCaches();
   await db.insert(listingRevision).values({ listingId: id, field: "status", oldValue: l.status, newValue: "unpublished", origin: "portal", changedBy: me.userId, changedAt: now });
 }
 
@@ -228,6 +231,7 @@ export async function republishListing(locale: Locale, id: string) {
   const { me, l } = await ownedDirect(locale, id);
   const now = new Date();
   await db.update(listing).set({ status: "active", publishedAt: now, unpublishedAt: null, lastSeenAt: now, lastCheckedAt: now }).where(eq(listing.id, id));
+  invalidateListingCaches();
   await db.insert(listingRevision).values({ listingId: id, field: "status", oldValue: l.status, newValue: "active", origin: "portal", changedBy: me.userId, changedAt: now });
 }
 
@@ -236,6 +240,7 @@ export async function extendDeadline(locale: Locale, id: string, date: string) {
   if (!isoDate.test(date)) return { ok: false as const };
   const now = new Date();
   await db.update(listing).set({ applicationDeadline: date, ...(l.status === "expired" ? { status: "active", publishedAt: now, unpublishedAt: null } : {}), lastCheckedAt: now }).where(eq(listing.id, id));
+  invalidateListingCaches();
   await db.insert(listingRevision).values({ listingId: id, field: "application_deadline", oldValue: l.applicationDeadline, newValue: date, origin: "portal", changedBy: me.userId, changedAt: now });
   return { ok: true as const };
 }
@@ -246,5 +251,6 @@ export async function deleteDraft(locale: Locale, id: string) {
   const imgs = await db.query.listingImage.findMany({ where: eq(listingImage.listingId, id) });
   for (const i of imgs) await storage.delete(i.storageKey);
   await db.delete(listing).where(eq(listing.id, id));
+  invalidateListingCaches();
   redirect({ href: "/portal/homes", locale });
 }

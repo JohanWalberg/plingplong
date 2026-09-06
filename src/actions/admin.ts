@@ -2,6 +2,7 @@
 
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { invalidateListingCaches } from "@/lib/listing-cache";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { requireStaff } from "@/lib/access";
@@ -268,7 +269,7 @@ export async function decideDuplicate(locale: Locale, candidateId: string, decis
   if (decision === "merged") await mergeListings(c.listingAId, c.listingBId, me.userId);
   await db.update(duplicateCandidate).set({ decision, decidedBy: me.userId, decidedAt: new Date() }).where(eq(duplicateCandidate.id, candidateId));
   revalidateAdmin();
-  revalidatePath("/[locale]/(public)", "layout");
+  invalidateListingCaches();
 }
 
 export async function markListingReviewed(locale: Locale, listingId: string) {
@@ -358,7 +359,7 @@ export async function adminUpdateListing(locale: Locale, listingId: string, form
   await db.update(listing).set(values).where(eq(listing.id, listingId));
   if (revisions.length) await db.insert(schema.listingRevision).values(revisions);
   revalidateAdmin();
-  revalidatePath("/[locale]/(public)", "layout");
+  invalidateListingCaches();
   return { ok: true };
 }
 
@@ -374,7 +375,7 @@ export async function adminRemoveListing(locale: Locale, listingId: string, reas
     { listingId, field: "takedown_reason", oldValue: null, newValue: reason, origin: "admin", changedBy: me.userId, changedAt: now },
   ]);
   revalidateAdmin();
-  revalidatePath("/[locale]/(public)", "layout");
+  invalidateListingCaches();
 }
 
 export async function adminRestoreListing(locale: Locale, listingId: string) {
@@ -385,5 +386,5 @@ export async function adminRestoreListing(locale: Locale, listingId: string) {
   await db.update(listing).set({ status: "active", removedAt: null, lastSeenAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
   await db.insert(schema.listingRevision).values({ listingId, field: "status", oldValue: "removed", newValue: "active", origin: "admin", changedBy: me.userId, changedAt: now });
   revalidateAdmin();
-  revalidatePath("/[locale]/(public)", "layout");
+  invalidateListingCaches();
 }

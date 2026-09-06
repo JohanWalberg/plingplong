@@ -1,6 +1,7 @@
 "use server";
 
 import { and, eq, inArray, sql } from "drizzle-orm";
+import { invalidateListingCaches } from "@/lib/listing-cache";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { requireLandlord } from "@/lib/access";
@@ -53,6 +54,7 @@ export async function closeLandlordAccount(locale: Locale, confirmName: string):
   const direct = await db.select({ id: listing.id, status: listing.status }).from(listing).where(and(eq(listing.landlordId, me.landlordId), eq(listing.publishedDirectly, true), eq(listing.status, "active")));
   if (direct.length) {
     await db.update(listing).set({ status: "unpublished", unpublishedAt: now, lastCheckedAt: now }).where(inArray(listing.id, direct.map((d) => d.id)));
+    invalidateListingCaches();
     await db.insert(listingRevision).values(direct.map((d) => ({ listingId: d.id, field: "status", oldValue: d.status, newValue: "unpublished", origin: "portal", changedBy: me.userId, changedAt: now })));
   }
   await db.update(source).set({ status: "disabled", consent: "objected", nextRunAt: null }).where(eq(source.landlordId, me.landlordId));
