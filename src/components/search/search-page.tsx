@@ -10,6 +10,7 @@ import { ListingCard } from "@/components/listing/listing-card";
 import { Callout, icons } from "@/components/ui/misc";
 import { buttonClasses } from "@/components/ui/button";
 import { formatSek } from "@/lib/format";
+import { pageWindow } from "@/lib/pagination";
 import { parseSearchParams } from "@/lib/search-params-parse";
 import { RENT_MAX, toQuery, type RawSearchParams, type SearchFilters } from "@/lib/search-params";
 import { coverageFor, failingSourcesFor, landlordFacet, searchListings, type SearchScope } from "@/lib/queries/listings";
@@ -254,17 +255,37 @@ async function Pagination({ locale, filters, page, pages, muni, area }: { locale
       : { pathname: "/homes" as const };
   const href = (p: number) => ({ ...base, query: toQuery({ ...filters, page: p }) }) as never;
   return (
-    <nav aria-label={t("page", { page, total: pages })} className="flex items-center justify-between gap-3 border-t border-line pt-4">
+    <nav aria-label={t("page", { page, total: pages })} className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
       {page > 1 ? (
-        <Link href={href(page - 1)} className={buttonClasses("secondary", "md")}>
+        <Link href={href(page - 1)} rel="prev" className={buttonClasses("secondary", "md")}>
           {t("previousPage")}
         </Link>
       ) : (
         <span />
       )}
-      <span className="text-[13.5px] text-muted tabular">{t("page", { page, total: pages })}</span>
+      <ol className="order-last flex w-full flex-wrap items-center justify-center gap-1 sm:order-none sm:w-auto">
+        {pageWindow(page, pages).map((p, i) =>
+          p === null ? (
+            <li key={`gap-${i}`} aria-hidden="true" className="px-1 text-muted">
+              …
+            </li>
+          ) : (
+            <li key={p} className="list-none">
+              {p === page ? (
+                <span aria-current="page" className="flex h-10 min-w-10 items-center justify-center rounded-md bg-ink px-2 text-[14px] font-[700] tabular text-white">
+                  {p}
+                </span>
+              ) : (
+                <Link href={href(p)} aria-label={t("page", { page: p, total: pages })} className="flex h-10 min-w-10 items-center justify-center rounded-md px-2 text-[14px] font-[650] tabular text-ink-2 hover:bg-bg hover:no-underline">
+                  {p}
+                </Link>
+              )}
+            </li>
+          ),
+        )}
+      </ol>
       {page < pages ? (
-        <Link href={href(page + 1)} className={buttonClasses("secondary", "md")}>
+        <Link href={href(page + 1)} rel="next" className={buttonClasses("secondary", "md")}>
           {t("nextPage")}
         </Link>
       ) : (

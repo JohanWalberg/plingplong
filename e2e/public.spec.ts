@@ -88,3 +88,12 @@ test("recently viewed homes appear on the home page", async ({ page }) => {
   await section.getByRole("button", { name: "Rensa" }).click();
   await expect(page.getByRole("heading", { name: "Senast visade" })).toHaveCount(0);
 });
+
+test("results paginate with page numbers", async ({ page }) => {
+  await page.goto("/sv/bostader");
+  const nav = page.getByRole("navigation", { name: /Sida 1 av/ });
+  await expect(nav.locator("[aria-current='page']")).toHaveText("1");
+  await nav.getByRole("link", { name: "Sida 2 av 2" }).click();
+  await page.waitForURL(/page=2/);
+  await expect(page.getByRole("navigation", { name: /Sida 2 av/ }).locator("[aria-current='page']")).toHaveText("2");
+});
