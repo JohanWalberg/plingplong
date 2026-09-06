@@ -178,7 +178,9 @@ skips it for a quick rerun of a single spec.
 
 ## Local testing of crawls
 
-Point seeded sources at the fixture server to exercise the worker end to end:
+Point seeded sources at the fixture server to exercise the worker end to end.
+Outbound fetches refuse private addresses, so set `ALLOW_PRIVATE_FETCH=1` in
+`.env` for this (it is ignored in production):
 
 ```bash
 node scripts/dev-feed-server.mjs 4010 &
