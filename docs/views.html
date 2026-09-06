@@ -1,0 +1,192 @@
+<title>Hyrabostad Views</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=Instrument+Serif&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    --bg: #faf8f5; --surface: #ffffff; --ink: #1a1815; --ink-2: #4a453d; --muted: #6b655d;
+    --line: #e2ddd5; --hair: #f0ece5; --clay: #a34a2a;
+    --pub: #1f6b4a; --pub-bg: #edf5f0; --por: #2b5470; --por-bg: #f1f5f7; --adm: #8c2019; --adm-bg: #fbedeb;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "Public Sans", system-ui, -apple-system, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1f1c18; --surface: #2a2621; --ink: #ede8e0; --ink-2: #cfc8bc; --muted: #a39c90;
+      --line: #3f3a33; --hair: #332e28; --clay: #e8b79e;
+      --pub: #8fd1ad; --pub-bg: #1f3329; --por: #9cc0d8; --por-bg: #23313b; --adm: #f0a89e; --adm-bg: #3a2522;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1f1c18; --surface: #2a2621; --ink: #ede8e0; --ink-2: #cfc8bc; --muted: #a39c90;
+    --line: #3f3a33; --hair: #332e28; --clay: #e8b79e;
+    --pub: #8fd1ad; --pub-bg: #1f3329; --por: #9cc0d8; --por-bg: #23313b; --adm: #f0a89e; --adm-bg: #3a2522;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55; }
+  main { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 44px; line-height: 1.05; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+  .lede { max-width: 66ch; color: var(--ink-2); margin: 12px 0 0; font-size: 16px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 20px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+  .facts b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  h2 { font-size: 20px; font-weight: 700; margin: 48px 0 6px; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
+  h2 small { font-weight: 400; color: var(--muted); font-size: 14px; }
+  .pill { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 100px; background: var(--c-bg); color: var(--c); }
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow-x: auto; margin-top: 12px; }
+  .diagram pre { margin: 0; }
+  section > p { max-width: 70ch; color: var(--ink-2); margin: 0 0 12px; }
+  .wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 13.5px; }
+  th { text-align: left; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--hair); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td.p { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+  td.p span { display: block; color: var(--muted); }
+  td.who { white-space: nowrap; color: var(--muted); }
+  td.who b { color: var(--c); font-weight: 600; }
+  .grp td.g { font-weight: 700; background: var(--hair); color: var(--ink-2); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+  .note { background: var(--surface); border-left: 4px solid var(--clay); padding: 12px 16px; margin: 16px 0 0; font-size: 14px; max-width: 72ch; }
+  @media (max-width: 600px) { h1 { font-size: 34px; } }
+</style>
+
+<main>
+  <h1>Hyrabostad views</h1>
+  <p class="lede">Three surfaces on one domain, every page in Swedish and English with translated paths. Seekers never sign in; landlords reach the portal through the footer; admin is linked from nowhere.</p>
+  <ul class="facts">
+    <li><b>22</b> public pages</li>
+    <li><b>17</b> portal pages</li>
+    <li><b>13</b> admin pages</li>
+    <li>Routes in <b>src/i18n/routing.ts</b></li>
+  </ul>
+
+  <h2>How the surfaces connect</h2>
+  <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  subgraph PUB["Public · no sign-in"]
+    home["Home /sv"] --> res["Results /bostader/solna"]
+    res --> det["Listing /bostad/…"]
+    res --> map["Map /karta"]
+    home --> muni["Municipality /kommuner/solna"]
+    muni --> res
+    det --> ll["Landlord /hyresvardar/…"]
+    det -.->|"Ansök hos hyresvärden"| ext(("Landlord's own site"))
+    foot["Footer: För hyresvärdar"]
+  end
+  subgraph POR["Portal · email + password"]
+    land["For landlords /for-hyresvarder"] --> signup["Create account"]
+    land --> login["Sign in /portal/logga-in"]
+    login --> dash["My homes /portal/bostader"]
+    dash --> new["New home"] --> pub["Published"]
+    dash --> perf["Manage & stats"]
+    dash --> src["Sources"] --> srcnew["Connect source"]
+    dash --> acc["Account & members"]
+    login --> pend["Pending approval"]
+  end
+  subgraph ADM["Admin · staff only"]
+    alogin["Sign in /admin/logga-in"] --> over["Overview /admin"]
+    over --> asrc["Sources"] --> asrcd["Source detail & runs"]
+    over --> queue["Approval queue"]
+    over --> alist["Listings"]
+    over --> dup["Duplicates"]
+    over --> all["Landlords"]
+    over --> cov["Coverage"]
+    over --> set["Settings"]
+  end
+  foot --> land
+  signup ==>|"creates application"| queue
+  queue ==>|"approve"| dash
+  srcnew ==>|"pending source"| asrc
+  pub ==>|"visible within minutes"| res
+</pre>
+  </div>
+
+  <section style="--c:var(--pub);--c-bg:var(--pub-bg)">
+    <h2><span class="pill">Public</span> <small>route group <code>(public)</code>, indexed, ISR where noted</small></h2>
+    <p>The search surface and the SEO landing pages. No account wall anywhere; saved homes and searches live in the browser.</p>
+    <div class="wrap"><table>
+      <thead><tr><th>Page</th><th>Path sv / en</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td class="g" colspan="3">Search</td></tr>
+        <tr><td>Home</td><td class="p">/sv<span>/en</span></td><td>Search box as the one primary action, popular places, three value props, three latest homes.</td></tr>
+        <tr><td>Results</td><td class="p">/bostader<span>/homes</span></td><td>All active homes with filters in the URL, sort, pagination, save search.</td></tr>
+        <tr><td>Results in a place</td><td class="p">/bostader/solna<span>/homes/solna</span></td><td>Same, scoped to a municipality; coverage line, partial-coverage banner, empty state with three recovery actions.</td></tr>
+        <tr><td>Results in an area</td><td class="p">/bostader/solna/arenastaden<span>/homes/solna/arenastaden</span></td><td>Scoped to a district.</td></tr>
+        <tr><td>No such place</td><td class="p">/bostader?q=…<span>/homes?q=…</span></td><td>Free text that matches nothing shows suggestions instead of a dead end.</td></tr>
+        <tr><td>Map</td><td class="p">/karta<span>/map</span></td><td>List beside a MapLibre map; rent on markers, clustering, panning writes bounds to the URL, list click flies to the home.</td></tr>
+        <tr><td>Listing</td><td class="p">/bostad/gustav-iiis-boulevard-46-solna<span>/home/…</span></td><td>Facts, badges, queue explanation, gallery, map, source panel with per-source freshness, hand-off button, save. Removed homes keep the page with last-seen and similar homes.</td></tr>
+        <tr class="grp"><td class="g" colspan="3">Landing pages</td></tr>
+        <tr><td>Municipalities</td><td class="p">/kommuner<span>/municipalities</span></td><td>Every municipality grouped by county with active counts.</td></tr>
+        <tr><td>Municipality</td><td class="p">/kommuner/solna<span>/municipalities/solna</span></td><td>Stats, popular areas, three homes, coverage card, landlords. ISR 5 min.</td></tr>
+        <tr><td>Landlords</td><td class="p">/hyresvardar<span>/landlords</span></td><td>Known landlords, monitored or not.</td></tr>
+        <tr><td>Landlord</td><td class="p">/hyresvardar/ab-stockholmshem<span>/landlords/…</span></td><td>Profile, how to apply, municipalities, source cadence and last check. ISR 5 min.</td></tr>
+        <tr><td>Coverage</td><td class="p">/tackning<span>/coverage</span></td><td>Monitored of known landlords per municipality, never market share.</td></tr>
+        <tr><td>Saved</td><td class="p">/sparade<span>/saved</span></td><td>Saved searches and saved homes from this browser.</td></tr>
+        <tr class="grp"><td class="g" colspan="3">About and legal</td></tr>
+        <tr><td>How it works</td><td class="p">/sa-fungerar-det<span>/how-it-works</span></td><td>Three steps.</td></tr>
+        <tr><td>FAQ</td><td class="p">/fragor-och-svar<span>/faq</span></td><td>Five questions.</td></tr>
+        <tr><td>Contact</td><td class="p">/kontakt<span>/contact</span></td><td>Email and the landlord pointer.</td></tr>
+        <tr><td>About data collection</td><td class="p">/om-insamling<span>/about-collection</span></td><td>What we collect, how we crawl, takedown, retention. Linked from the crawler's User-Agent.</td></tr>
+        <tr><td>Privacy</td><td class="p">/personuppgifter<span>/privacy</span></td><td>No seeker data; landlord contact data and its basis.</td></tr>
+        <tr><td>Cookies</td><td class="p">/cookies<span>/cookies</span></td><td>Necessary storage only.</td></tr>
+        <tr><td>Terms for landlords</td><td class="p">/villkor<span>/terms</span></td><td>Draft terms, linked from sign-up.</td></tr>
+        <tr class="grp"><td class="g" colspan="3">Machine endpoints</td></tr>
+        <tr><td>Sitemap, robots</td><td class="p">/sitemap.xml · /robots.txt</td><td>Every municipality, landlord and active home in both languages with hreflang; admin and portal disallowed.</td></tr>
+        <tr><td>Metrics</td><td class="p">POST /api/metrics</td><td>Counts detail-page views and outbound clicks per day.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section style="--c:var(--por);--c-bg:var(--por-bg)">
+    <h2><span class="pill">Portal</span> <small>route group <code>(portal)</code>, noindex, own header</small></h2>
+    <p>Everything a signed-in user sees is scoped to their landlord. <b>Owner</b> can publish, unpublish, connect sources and invite; <b>editor</b> can create and edit drafts.</p>
+    <div class="wrap"><table>
+      <thead><tr><th>Page</th><th>Path sv / en</th><th>Who</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td class="g" colspan="4">Before sign-in</td></tr>
+        <tr><td>For landlords</td><td class="p">/for-hyresvarder<span>/for-landlords</span></td><td class="who">anyone</td><td>Landing: two publishing routes, three promises. The only public link into the portal, from the footer.</td></tr>
+        <tr><td>Create account</td><td class="p">/for-hyresvarder/skapa-konto<span>/for-landlords/create-account</span></td><td class="who">anyone</td><td>Application form with organisation number, contact, route, optional feed, terms. Runs automated checks and creates the queue row.</td></tr>
+        <tr><td>Sign in</td><td class="p">/portal/logga-in<span>/portal/sign-in</span></td><td class="who">anyone</td><td>Email and password; BankID placeholder.</td></tr>
+        <tr><td>Forgot / reset password</td><td class="p">/portal/glomt-losenord · /portal/nytt-losenord<span>/portal/forgot-password · /portal/reset-password</span></td><td class="who">anyone</td><td>Emailed link, one-hour validity.</td></tr>
+        <tr><td>Invitation</td><td class="p">/portal/inbjudan/[token]<span>/portal/invite/[token]</span></td><td class="who">invited</td><td>Colleague sets name and password, becomes a member, is signed in.</td></tr>
+        <tr><td>Pending</td><td class="p">/portal/vantar<span>/portal/pending</span></td><td class="who">applicant</td><td>Application status: awaiting review, needs more detail, or rejected.</td></tr>
+        <tr class="grp"><td class="g" colspan="4">Signed in</td></tr>
+        <tr><td>My homes</td><td class="p">/portal/bostader<span>/portal/homes</span></td><td class="who">owner, <b>editor</b></td><td>KPIs, status tabs that filter, address search, table with views and clicks, Manage.</td></tr>
+        <tr><td>New home</td><td class="p">/portal/bostader/ny<span>/portal/homes/new</span></td><td class="who">owner, editor (draft)</td><td>Form with live card preview, checklist, images; Publish stays enabled and validates on submit.</td></tr>
+        <tr><td>Published</td><td class="p">/portal/bostader/[id]/publicerad<span>/portal/homes/[id]/published</span></td><td class="who">owner</td><td>Receipt with the public card and what happens next.</td></tr>
+        <tr><td>Manage &amp; performance</td><td class="p">/portal/bostader/[id]<span>/portal/homes/[id]</span></td><td class="who">owner, editor (read)</td><td>Views, clicks, days left, 14-day chart, activity timeline; edit, extend, unpublish, republish, delete draft. Fetched homes are read-only.</td></tr>
+        <tr><td>Edit home</td><td class="p">/portal/bostader/[id]/redigera<span>/portal/homes/[id]/edit</span></td><td class="who">owner, editor</td><td>Same form, direct listings only.</td></tr>
+        <tr><td>Sources</td><td class="p">/portal/kallor<span>/portal/sources</span></td><td class="who">owner</td><td>Connected sources with status, last run, count, run now.</td></tr>
+        <tr><td>Connect source</td><td class="p">/portal/kallor/ny<span>/portal/sources/new</span></td><td class="who">owner</td><td>Feed, API or web page; test connection shows the field mapping and what is missing; connect enabled after a good test.</td></tr>
+        <tr><td>Source</td><td class="p">/portal/kallor/[id]<span>/portal/sources/[id]</span></td><td class="who">owner</td><td>Settings, enable or disable, runs.</td></tr>
+        <tr><td>Statistics</td><td class="p">/portal/statistik<span>/portal/statistics</span></td><td class="who">owner, editor</td><td>Views and clicks across all homes, per-home table. Applications are explicitly not measured.</td></tr>
+        <tr><td>Account</td><td class="p">/portal/konto<span>/portal/account</span></td><td class="who">owner (members), all (profile)</td><td>Organisation, members and roles, invitations, profile, change password.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section style="--c:var(--adm);--c-bg:var(--adm-bg)">
+    <h2><span class="pill">Admin</span> <small>route group <code>(admin)</code>, noindex, sessions capped at 8 h</small></h2>
+    <p>Dark sidebar with badge counts. <b>Support</b> reads and runs syncs, <b>lead</b> approves landlords, merges duplicates and disables sources, <b>engineer</b> sees raw payloads.</p>
+    <div class="wrap"><table>
+      <thead><tr><th>Page</th><th>Path sv / en</th><th>Who</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>Sign in</td><td class="p">/admin/logga-in<span>/admin/sign-in</span></td><td class="who">staff</td><td>Email and password; SSO placeholder; role descriptions.</td></tr>
+        <tr><td>Overview</td><td class="p">/admin<span>/admin</span></td><td class="who">support+</td><td>Eight KPIs, source table with run sync, attention list: failed sources, anomalies, duplicates, missing rent, pending applications. Run all syncs.</td></tr>
+        <tr><td>Sources</td><td class="p">/admin/kallor<span>/admin/sources</span></td><td class="who">support+</td><td>Filter by text and status; status pills with glyphs; errors in 24 h.</td></tr>
+        <tr><td>Source</td><td class="p">/admin/kallor/[id]<span>/admin/sources/[id]</span></td><td class="who">support+, lead edits</td><td>Health, runs, listings from the source, settings; mark reviewed after an anomaly; enable or disable.</td></tr>
+        <tr><td>New source</td><td class="p">/admin/kallor/ny<span>/admin/sources/new</span></td><td class="who">lead</td><td>Create a source for any landlord, including HTML with a list selector.</td></tr>
+        <tr><td>Landlords</td><td class="p">/admin/hyresvardar<span>/admin/landlords</span></td><td class="who">support+</td><td>Search, type, monitored flag, counts.</td></tr>
+        <tr><td>Landlord</td><td class="p">/admin/hyresvardar/[id]<span>/admin/landlords/[id]</span></td><td class="who">support+, lead edits</td><td>Details, municipalities for coverage, sources, members.</td></tr>
+        <tr><td>New landlord</td><td class="p">/admin/hyresvardar/ny<span>/admin/landlords/new</span></td><td class="who">lead</td><td>Register a known landlord for the coverage figure.</td></tr>
+        <tr><td>Approval queue</td><td class="p">/admin/hyresvardar/ansokningar<span>/admin/landlords/applications</span></td><td class="who">support reads, lead decides</td><td>Awaiting, needs more detail, decided; detail with automated checks and history; approve, request more detail, reject, reopen. Emails on each.</td></tr>
+        <tr><td>Listings</td><td class="p">/admin/bostader<span>/admin/listings</span></td><td class="who">support+</td><td>Search by address, landlord or reference; status filter; pagination.</td></tr>
+        <tr><td>Listing</td><td class="p">/admin/bostader/[id]<span>/admin/listings/[id]</span></td><td class="who">support+, engineer sees raw</td><td>Facts, sources and sightings, revisions, raw payload; mark reviewed.</td></tr>
+        <tr><td>Duplicates</td><td class="p">/admin/dubbletter<span>/admin/duplicates</span></td><td class="who">support decides not-duplicate, lead merges</td><td>Side-by-side pairs with confidence and matching fields highlighted.</td></tr>
+        <tr><td>Coverage</td><td class="p">/admin/tackning<span>/admin/coverage</span></td><td class="who">support+</td><td>Known versus monitored per municipality.</td></tr>
+        <tr><td>Settings</td><td class="p">/admin/installningar<span>/admin/settings</span></td><td class="who">support+, lead edits</td><td>Staff and roles, crawler User-Agent, retention.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <div class="note">Every page has a 404 and an error boundary with retry. Loading states are skeletons on the search surfaces. Language switching keeps the entity and the query string, so a filtered Solna search in Swedish becomes the same search in English.</div>
+</main>
