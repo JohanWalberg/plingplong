@@ -16,8 +16,8 @@ const TABS: Array<{ key: Tab; href: StaticPathname }> = [
   { key: "account", href: "/portal/account" },
 ];
 
-/** Portal chrome for signed-in landlords: own header with tabs, no public nav. */
-export async function PortalShell({ viewer, active, children }: { viewer: LandlordViewer; active?: Tab; children: ReactNode }) {
+/** Portal chrome for signed-in landlords: own header with tabs, no public nav. A null viewer renders the chrome without account details (loading states). */
+export async function PortalShell({ viewer, active, children }: { viewer: LandlordViewer | null; active?: Tab; children: ReactNode }) {
   const t = await getTranslations("portal.nav");
   const tc = await getTranslations("common");
   return (
@@ -30,7 +30,7 @@ export async function PortalShell({ viewer, active, children }: { viewer: Landlo
           <Link href="/portal/homes" className="flex items-center gap-2.5 text-ink hover:text-ink hover:no-underline">
             <LogoMark />
             <span className="text-[17px] font-[700] tracking-tight">{tc("brand")}</span>
-            <span className="hidden text-[13px] text-muted sm:inline">· {viewer.landlordName}</span>
+            {viewer ? <span className="hidden text-[13px] text-muted sm:inline">· {viewer.landlordName}</span> : null}
           </Link>
           <nav className="ml-4 hidden items-center gap-1 md:flex" aria-label="">
             {TABS.map((tab) => (
@@ -48,7 +48,7 @@ export async function PortalShell({ viewer, active, children }: { viewer: Landlo
             <Link href="/portal/homes/new" className={buttonClasses("primary", "sm")}>
               {t("newHome")}
             </Link>
-            <SignOutButton className="hidden text-ink-2 sm:block" />
+            {viewer ? <SignOutButton className="hidden text-ink-2 sm:block" /> : null}
             <LanguageSwitcher />
           </div>
         </div>

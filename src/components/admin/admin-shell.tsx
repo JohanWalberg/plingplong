@@ -31,12 +31,13 @@ async function badges() {
   return { sources: s.n, queue: a.n, duplicates: d.n } as Partial<Record<AdminNav, number>>;
 }
 
-export async function AdminShell({ viewer, active, title, actions, children }: { viewer: StaffViewer; active: AdminNav; title: string; actions?: ReactNode; children: ReactNode }) {
+/** Admin chrome. A null viewer renders the sidebar without badges or account details (loading states). */
+export async function AdminShell({ viewer, active, title, actions, children }: { viewer: StaffViewer | null; active: AdminNav; title: ReactNode; actions?: ReactNode; children: ReactNode }) {
   const t = await getTranslations("admin.nav");
   const tc = await getTranslations("common");
   const ta = await getTranslations("auth");
-  const counts = await badges();
-  const roleLabel = viewer.role === "lead" ? ta("roleLead") : viewer.role === "engineer" ? ta("roleEngineer") : ta("roleSupport");
+  const counts = viewer ? await badges() : {};
+  const roleLabel = !viewer ? "" : viewer.role === "lead" ? ta("roleLead") : viewer.role === "engineer" ? ta("roleEngineer") : ta("roleSupport");
   return (
     <div className="flex min-h-dvh bg-canvas">
       <a href="#main" className="sr-only-focusable fixed left-3 top-3 z-[200] rounded-md bg-ink px-3 py-2 text-white">
@@ -63,11 +64,13 @@ export async function AdminShell({ viewer, active, title, actions, children }: {
             </Link>
           ))}
         </nav>
-        <div className="border-t border-dark-3 px-4 py-3 text-[12.5px] text-dark-muted">
-          <p className="truncate font-[600] text-dark-text">{viewer.name}</p>
-          <p>{roleLabel}</p>
-          <SignOutButton className="mt-1 text-dark-accent" />
-        </div>
+        {viewer ? (
+          <div className="border-t border-dark-3 px-4 py-3 text-[12.5px] text-dark-muted">
+            <p className="truncate font-[600] text-dark-text">{viewer.name}</p>
+            <p>{roleLabel}</p>
+            <SignOutButton className="mt-1 text-dark-accent" />
+          </div>
+        ) : null}
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex min-h-[60px] flex-wrap items-center gap-3 border-b border-line bg-surface px-4 sm:px-6">
