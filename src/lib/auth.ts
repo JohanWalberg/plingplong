@@ -32,7 +32,7 @@ export const auth = betterAuth({
     },
   },
   rateLimit: {
-    enabled: true,
+    enabled: process.env.NODE_ENV === "production" || process.env.RATE_LIMIT === "on",
     window: 60,
     max: 30,
     customRules: {
