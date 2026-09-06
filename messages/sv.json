@@ -201,7 +201,11 @@
     "galleryPhoto": "Bild {n} av {count}",
     "galleryCaption": "Bild {n} av {count}",
     "linkCopied": "Länken är kopierad.",
-    "shareFailed": "Länken kunde inte kopieras. Kopiera adressen från webbläsaren i stället."
+    "shareFailed": "Länken kunde inte kopieras. Kopiera adressen från webbläsaren i stället.",
+    "savedGone": "Inte längre tillgängliga",
+    "savedGoneBody": "De här bostäderna har hyrts ut, dragits tillbaka eller stängt sedan du sparade dem.",
+    "copyList": "Kopiera listan",
+    "listCopied": "Listan är kopierad."
   },
   "freshness": {
     "justNow": "Kontrollerad nyss",

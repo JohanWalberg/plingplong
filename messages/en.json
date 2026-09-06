@@ -201,7 +201,11 @@
     "galleryPhoto": "Photo {n} of {count}",
     "galleryCaption": "Photo {n} of {count}",
     "linkCopied": "Link copied.",
-    "shareFailed": "Could not copy the link. Copy the address from the browser instead."
+    "shareFailed": "Could not copy the link. Copy the address from the browser instead.",
+    "savedGone": "No longer available",
+    "savedGoneBody": "These homes were let, withdrawn or closed since you saved them.",
+    "copyList": "Copy list",
+    "listCopied": "The list is copied."
   },
   "freshness": {
     "justNow": "Checked just now",
