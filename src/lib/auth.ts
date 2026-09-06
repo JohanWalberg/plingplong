@@ -20,6 +20,8 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 10,
     autoSignIn: false,
+    // A reset is what people do after a suspected compromise: drop every other session.
+    revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url }) => {
       const locale = (user as { locale?: string }).locale === "en" ? "en" : "sv";
       const mail = await renderEmail(locale, "reset", { url });
