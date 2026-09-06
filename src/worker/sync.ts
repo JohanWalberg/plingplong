@@ -1,5 +1,5 @@
 import { and, desc, eq, inArray, isNull, lt, lte, or, sql, ne } from "drizzle-orm";
-import { db, schema } from "@/db";
+import { db, schema, type Db, type Tx } from "@/db";
 import { listingSlug, slugify } from "@/lib/slug";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
@@ -332,16 +332,21 @@ async function loadSubjects(ids: string[]): Promise<DedupSubject[]> {
 }
 
 /** Merge `loserId` into `survivorId`: move sources, mark the loser removed and pointing at the survivor. */
-export async function mergeListings(survivorId: string, loserId: string, actorId: string | null) {
-  const now = new Date();
-  const loserSources = await db.query.listingSource.findMany({ where: eq(listingSource.listingId, loserId) });
-  for (const ls of loserSources) {
-    await db.insert(listingSource).values({ ...ls, listingId: survivorId }).onConflictDoNothing();
-  }
-  await db.delete(listingSource).where(eq(listingSource.listingId, loserId));
-  await db.update(listing).set({ status: "removed", removedAt: now, mergedIntoId: survivorId, lastCheckedAt: now }).where(eq(listing.id, loserId));
-  await db.insert(listingRevision).values({ listingId: loserId, field: "status", oldValue: "active", newValue: "removed", origin: actorId ? "admin" : "system", changedBy: actorId, changedAt: now });
-  await db.update(duplicateCandidate).set({ decision: "merged", decidedAt: now, decidedBy: actorId }).where(sql`(${duplicateCandidate.listingAId} = ${loserId} or ${duplicateCandidate.listingBId} = ${loserId}) and ${duplicateCandidate.decision} = 'pending'`);
+export async function mergeListings(survivorId: string, loserId: string, actorId: string | null, exec: Db | Tx = db) {
+  const run = async (tx: Db | Tx) => {
+    const now = new Date();
+    const loserSources = await tx.query.listingSource.findMany({ where: eq(listingSource.listingId, loserId) });
+    for (const ls of loserSources) {
+      await tx.insert(listingSource).values({ ...ls, listingId: survivorId }).onConflictDoNothing();
+    }
+    await tx.delete(listingSource).where(eq(listingSource.listingId, loserId));
+    await tx.update(listing).set({ status: "removed", removedAt: now, mergedIntoId: survivorId, lastCheckedAt: now }).where(eq(listing.id, loserId));
+    await tx.insert(listingRevision).values({ listingId: loserId, field: "status", oldValue: "active", newValue: "removed", origin: actorId ? "admin" : "system", changedBy: actorId, changedAt: now });
+    await tx.update(duplicateCandidate).set({ decision: "merged", decidedAt: now, decidedBy: actorId }).where(sql`(${duplicateCandidate.listingAId} = ${loserId} or ${duplicateCandidate.listingBId} = ${loserId}) and ${duplicateCandidate.decision} = 'pending'`);
+  };
+  // Standalone callers get their own transaction; callers already inside one pass it in.
+  if (exec === db) await db.transaction((tx) => run(tx));
+  else await run(exec);
 }
 
 /** Direct listings: seven days after the deadline they expire automatically. */

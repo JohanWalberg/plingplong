@@ -178,53 +178,57 @@ export async function approveApplication(locale: Locale, applicationId: string) 
   if (!app || app.status === "approved") return;
   const now = new Date();
 
-  let landlordId = app.landlordId;
-  if (!landlordId) {
-    const existing = await db.query.landlord.findFirst({ where: eq(landlord.orgNumber, app.orgNumber) });
-    if (existing) {
-      landlordId = existing.id;
-      await db.update(landlord).set({ approvedAt: now, website: existing.website ?? app.website }).where(eq(landlord.id, landlordId));
-    } else {
-      let slug = slugify(app.companyName);
-      const clash = await db.query.landlord.findFirst({ where: eq(landlord.slug, slug) });
-      if (clash) slug = `${slug}-${app.orgNumber.replace(/\D/g, "").slice(-4)}`;
-      const [row] = await db
-        .insert(landlord)
-        .values({ name: app.companyName, slug, orgNumber: app.orgNumber, website: app.website, type: app.orgNumber.startsWith("7696") ? "private" : "private", queueType: "unknown", approvedAt: now, isKnown: true, isMonitored: app.publishingRoute === "manual" })
-        .returning({ id: landlord.id });
-      landlordId = row.id;
+  let sourceIdToSync: string | null = null;
+  await db.transaction(async (tx) => {
+    let landlordId = app.landlordId;
+    if (!landlordId) {
+      const existing = await tx.query.landlord.findFirst({ where: eq(landlord.orgNumber, app.orgNumber) });
+      if (existing) {
+        landlordId = existing.id;
+        await tx.update(landlord).set({ approvedAt: now, website: existing.website ?? app.website }).where(eq(landlord.id, landlordId));
+      } else {
+        let slug = slugify(app.companyName);
+        const clash = await tx.query.landlord.findFirst({ where: eq(landlord.slug, slug) });
+        if (clash) slug = `${slug}-${app.orgNumber.replace(/\D/g, "").slice(-4)}`;
+        const [row] = await tx
+          .insert(landlord)
+          .values({ name: app.companyName, slug, orgNumber: app.orgNumber, website: app.website, type: app.orgNumber.startsWith("7696") ? "private" : "private", queueType: "unknown", approvedAt: now, isKnown: true, isMonitored: app.publishingRoute === "manual" })
+          .returning({ id: landlord.id });
+        landlordId = row.id;
+      }
     }
-  }
 
-  if (app.userId) {
-    await db.insert(landlordMember).values({ userId: app.userId, landlordId, role: "owner" }).onConflictDoNothing();
-    await db.update(user).set({ emailVerified: true }).where(eq(user.id, app.userId));
-  }
+    if (app.userId) {
+      await tx.insert(landlordMember).values({ userId: app.userId, landlordId, role: "owner" }).onConflictDoNothing();
+      await tx.update(user).set({ emailVerified: true }).where(eq(user.id, app.userId));
+    }
 
-  if (app.publishingRoute === "source" && app.sourceUrl) {
-    const feedCheck = app.automatedChecks.find((c) => c.key === "feed");
-    const kind = /\.(xml|json|rss)(\?|$)/i.test(app.sourceUrl) || /feed|api/i.test(app.sourceUrl) ? "feed" : "html";
-    const mapping = (feedCheck?.detail as { mapping?: Record<string, string> } | undefined)?.mapping ?? {};
-    const [src] = await db
-      .insert(source)
-      .values({
-        landlordId,
-        kind,
-        adapter: adapterForKind(kind, /json/i.test(app.sourceUrl) ? "json" : "xml"),
-        url: app.sourceUrl,
-        config: { fields: mapping },
-        status: "pending",
-        consent: "consented",
-        techContactEmail: app.contactEmail,
-        nextRunAt: now,
-      })
-      .returning({ id: source.id });
-    await db.update(landlord).set({ isMonitored: true }).where(eq(landlord.id, landlordId));
-    await enqueueSourceSync(src.id, true);
-  }
+    if (app.publishingRoute === "source" && app.sourceUrl) {
+      const feedCheck = app.automatedChecks.find((c) => c.key === "feed");
+      const kind = /\.(xml|json|rss)(\?|$)/i.test(app.sourceUrl) || /feed|api/i.test(app.sourceUrl) ? "feed" : "html";
+      const mapping = (feedCheck?.detail as { mapping?: Record<string, string> } | undefined)?.mapping ?? {};
+      const [src] = await tx
+        .insert(source)
+        .values({
+          landlordId,
+          kind,
+          adapter: adapterForKind(kind, /json/i.test(app.sourceUrl) ? "json" : "xml"),
+          url: app.sourceUrl,
+          config: { fields: mapping },
+          status: "pending",
+          consent: "consented",
+          techContactEmail: app.contactEmail,
+          nextRunAt: now,
+        })
+        .returning({ id: source.id });
+      await tx.update(landlord).set({ isMonitored: true }).where(eq(landlord.id, landlordId));
+      await enqueueSourceSync(src.id, true);
+    }
 
-  await db.update(landlordApplication).set({ status: "approved", landlordId, reviewedBy: me.userId, reviewedAt: now }).where(eq(landlordApplication.id, applicationId));
-  await db.insert(landlordApplicationEvent).values({ applicationId, kind: "approved", actorId: me.userId });
+    await tx.update(landlordApplication).set({ status: "approved", landlordId, reviewedBy: me.userId, reviewedAt: now }).where(eq(landlordApplication.id, applicationId));
+    await tx.insert(landlordApplicationEvent).values({ applicationId, kind: "approved", actorId: me.userId });
+  });
+  if (sourceIdToSync) await enqueueSourceSync(sourceIdToSync, true, true);
   const mail = await renderEmail(app.locale as Locale, "approved", { name: app.contactName, organisation: app.companyName, url: absoluteUrl(app.locale as Locale, "/portal/sign-in") });
   await sendEmail({ to: app.contactEmail, ...mail });
   revalidateAdmin();
@@ -265,10 +269,18 @@ export async function reopenApplication(locale: Locale, applicationId: string) {
 
 export async function decideDuplicate(locale: Locale, candidateId: string, decision: "merged" | "not_duplicate" | "ignored") {
   const me = await requireStaff(locale, decision === "merged" ? "lead" : "support");
-  const c = await db.query.duplicateCandidate.findFirst({ where: eq(duplicateCandidate.id, candidateId) });
-  if (!c || c.decision !== "pending") return;
-  if (decision === "merged") await mergeListings(c.listingAId, c.listingBId, me.userId);
-  await db.update(duplicateCandidate).set({ decision, decidedBy: me.userId, decidedAt: new Date() }).where(eq(duplicateCandidate.id, candidateId));
+  // The conditional update is the lock: whoever flips "pending" first (staff or the worker's auto-merge) wins, and the merge rides in the same transaction.
+  const done = await db.transaction(async (tx) => {
+    const [c] = await tx
+      .update(duplicateCandidate)
+      .set({ decision, decidedBy: me.userId, decidedAt: new Date() })
+      .where(and(eq(duplicateCandidate.id, candidateId), eq(duplicateCandidate.decision, "pending")))
+      .returning({ a: duplicateCandidate.listingAId, b: duplicateCandidate.listingBId });
+    if (!c) return false;
+    if (decision === "merged") await mergeListings(c.a, c.b, me.userId, tx);
+    return true;
+  });
+  if (!done) return;
   revalidateAdmin();
   invalidateListingCaches();
 }

@@ -12,4 +12,6 @@ if (process.env.NODE_ENV !== "production") globalForDb.__hyrabostadSql = client;
 
 export const db = drizzle(client, { schema, casing: "snake_case" });
 export type Db = typeof db;
+/** The executor inside db.transaction(); helpers accept either so they compose. */
+export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 export { schema };

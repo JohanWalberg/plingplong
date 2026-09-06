@@ -51,21 +51,23 @@ export async function closeLandlordAccount(locale: Locale, confirmName: string):
   if (confirmName.trim().toLowerCase() !== me.landlordName.trim().toLowerCase()) return { ok: false, error: "confirm" };
   const now = new Date();
   const { listing, listingRevision, source, landlordMember, landlordInvitation, landlord, staffUser, user } = schema;
-  const direct = await db.select({ id: listing.id, status: listing.status }).from(listing).where(and(eq(listing.landlordId, me.landlordId), eq(listing.publishedDirectly, true), eq(listing.status, "active")));
-  if (direct.length) {
-    await db.update(listing).set({ status: "unpublished", unpublishedAt: now, lastCheckedAt: now }).where(inArray(listing.id, direct.map((d) => d.id)));
-    invalidateListingCaches();
-    await db.insert(listingRevision).values(direct.map((d) => ({ listingId: d.id, field: "status", oldValue: d.status, newValue: "unpublished", origin: "portal", changedBy: me.userId, changedAt: now })));
-  }
-  await db.update(source).set({ status: "disabled", consent: "objected", nextRunAt: null }).where(eq(source.landlordId, me.landlordId));
-  const members = await db.select({ userId: landlordMember.userId }).from(landlordMember).where(eq(landlordMember.landlordId, me.landlordId));
-  await db.delete(landlordInvitation).where(eq(landlordInvitation.landlordId, me.landlordId));
-  await db.delete(landlordMember).where(eq(landlordMember.landlordId, me.landlordId));
-  await db.update(landlord).set({ approvedAt: null, isMonitored: false }).where(eq(landlord.id, me.landlordId));
-  for (const m of members) {
-    const elsewhere = await db.query.landlordMember.findFirst({ where: eq(landlordMember.userId, m.userId) });
-    const staff = await db.query.staffUser.findFirst({ where: eq(staffUser.userId, m.userId) });
-    if (!elsewhere && !staff) await db.delete(user).where(eq(user.id, m.userId));
-  }
+  await db.transaction(async (tx) => {
+    const direct = await tx.select({ id: listing.id, status: listing.status }).from(listing).where(and(eq(listing.landlordId, me.landlordId), eq(listing.publishedDirectly, true), eq(listing.status, "active")));
+    if (direct.length) {
+      await tx.update(listing).set({ status: "unpublished", unpublishedAt: now, lastCheckedAt: now }).where(inArray(listing.id, direct.map((d) => d.id)));
+      await tx.insert(listingRevision).values(direct.map((d) => ({ listingId: d.id, field: "status", oldValue: d.status, newValue: "unpublished", origin: "portal", changedBy: me.userId, changedAt: now })));
+    }
+    await tx.update(source).set({ status: "disabled", consent: "objected", nextRunAt: null }).where(eq(source.landlordId, me.landlordId));
+    const members = await tx.select({ userId: landlordMember.userId }).from(landlordMember).where(eq(landlordMember.landlordId, me.landlordId));
+    await tx.delete(landlordInvitation).where(eq(landlordInvitation.landlordId, me.landlordId));
+    await tx.delete(landlordMember).where(eq(landlordMember.landlordId, me.landlordId));
+    await tx.update(landlord).set({ approvedAt: null, isMonitored: false }).where(eq(landlord.id, me.landlordId));
+    for (const m of members) {
+      const elsewhere = await tx.query.landlordMember.findFirst({ where: eq(landlordMember.userId, m.userId) });
+      const staff = await tx.query.staffUser.findFirst({ where: eq(staffUser.userId, m.userId) });
+      if (!elsewhere && !staff) await tx.delete(user).where(eq(user.id, m.userId));
+    }
+  });
+  invalidateListingCaches();
   return { ok: true };
 }
