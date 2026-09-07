@@ -28,7 +28,8 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self'",
-      `connect-src 'self' https://tiles.openfreemap.org${process.env.NEXT_PUBLIC_MAP_STYLE_URL ? ` ${new URL(process.env.NEXT_PUBLIC_MAP_STYLE_URL).origin}` : ""}`,
+      // Only the tile host actually configured: listing a provider we no longer use would keep it allowed.
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_MAP_STYLE_URL ? new URL(process.env.NEXT_PUBLIC_MAP_STYLE_URL).origin : "https://tiles.openfreemap.org"}`,
       "worker-src 'self' blob:",
       "child-src blob:",
       "frame-ancestors 'none'",

@@ -15,9 +15,10 @@ export const EXPIRY_NOTICE_DAYS = 3;
 /**
  * Reminds owners about homes they published here whose deadline is close.
  *
- * Only the homes reaching exactly `EXPIRY_NOTICE_DAYS` left are included, so
- * each home produces one reminder without a sent-flag column, and running the
- * job twice on the same day sends the same mail rather than a new one. Crawled
+ * Only the homes reaching exactly `EXPIRY_NOTICE_DAYS` left are included, so a
+ * home appears in one day's reminder and no sent-flag column is needed. Nothing
+ * dedupes beyond that: running this twice in a day sends the mail twice, which
+ * the single daily schedule with no retry is what prevents. Crawled
  * homes are left out: their dates come from the landlord's own page and cannot
  * be changed here.
  */

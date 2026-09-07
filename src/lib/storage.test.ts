@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -20,7 +20,7 @@ vi.mock("@aws-sdk/client-s3", () => {
         sent.push({ command: c.constructor.name, input: c.input });
         if (c.constructor.name !== "GetObjectCommand") return {};
         if (getResult instanceof Error) throw getResult;
-        return { Body: getResult.body === null ? undefined : { transformToByteArray: async () => getResult as never && (getResult as { body: Uint8Array }).body }, ContentType: getResult.contentType };
+        return { Body: getResult.body === null ? undefined : { transformToByteArray: async () => (getResult as { body: Uint8Array }).body }, ContentType: getResult.contentType };
       }
     },
     PutObjectCommand: class extends Command {},
@@ -29,6 +29,10 @@ vi.mock("@aws-sdk/client-s3", () => {
   };
 });
 
+// The disk driver resolves its root at import, so point it somewhere disposable
+// first — otherwise these tests write into the repo's own upload directory.
+const DISK_ROOT = await mkdtemp(path.join(tmpdir(), "hb-storage-"));
+process.env.UPLOAD_DIR = DISK_ROOT;
 const { diskStorage, s3Storage, imageKey, contentTypeFor } = await import("./storage");
 
 describe("imageKey and content types", () => {
@@ -47,15 +51,9 @@ describe("imageKey and content types", () => {
 });
 
 describe("disk storage", () => {
-  let dir: string;
-  beforeEach(async () => {
-    dir = await mkdtemp(path.join(tmpdir(), "hb-storage-"));
-    process.env.UPLOAD_DIR = dir;
-  });
-  afterEach(async () => rm(dir, { recursive: true, force: true }));
+  afterAll(async () => rm(DISK_ROOT, { recursive: true, force: true }));
 
   it("round-trips a file and deletes it", async () => {
-    // The module read UPLOAD_DIR at import, so exercise the default root it captured.
     const key = "listings/0f9c3a2e-1111-4222-8333-444455556666/abcdef0123456789.png";
     await diskStorage.put(key, Buffer.from([9, 8, 7]), "image/png");
     expect(await diskStorage.get(key)).toEqual({ data: Buffer.from([9, 8, 7]), contentType: "image/png" });

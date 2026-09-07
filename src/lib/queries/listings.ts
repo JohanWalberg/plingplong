@@ -315,8 +315,3 @@ export async function municipalityStats(municipalityId: string) {
   return row;
 }
 
-export function placeLabel(m: { nameSv: string; nameEn: string }, locale: Locale) {
-  return municipalityName(m, locale);
-}
-
-export { stockholmDate };

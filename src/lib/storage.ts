@@ -70,11 +70,16 @@ export const diskStorage: Storage = {
 // S3-compatible bucket (AWS S3, Cloudflare R2, MinIO)
 // ---------------------------------------------------------------------------
 
-/** Built lazily so the client is only constructed when the driver is actually in use. */
+/**
+ * The client is built on first use, not here: constructing it at module load
+ * would import the SDK during boot and leave an import failure as an unhandled
+ * rejection instead of an error on the call that needed it.
+ */
 export function s3Storage(): Storage {
   const bucket = process.env.S3_BUCKET;
   if (!bucket) throw new Error("STORAGE_DRIVER=s3 needs S3_BUCKET");
-  const clientPromise = (async () => {
+  let pending: Promise<import("@aws-sdk/client-s3").S3Client> | null = null;
+  const clientPromise = () => (pending ??= (async () => {
     const { S3Client } = await import("@aws-sdk/client-s3");
     const endpoint = process.env.S3_ENDPOINT || undefined;
     const accessKeyId = process.env.S3_ACCESS_KEY_ID;
@@ -88,17 +93,17 @@ export function s3Storage(): Storage {
       // Without explicit keys the SDK falls back to the instance role.
       credentials: accessKeyId && secretAccessKey ? { accessKeyId, secretAccessKey } : undefined,
     });
-  })();
+  })());
 
   return {
     async put(key, data, contentType) {
       const { PutObjectCommand } = await import("@aws-sdk/client-s3");
-      const client = await clientPromise;
+      const client = await clientPromise();
       await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: data, ContentType: contentType, CacheControl: "public, max-age=31536000, immutable" }));
     },
     async get(key) {
       const { GetObjectCommand } = await import("@aws-sdk/client-s3");
-      const client = await clientPromise;
+      const client = await clientPromise();
       try {
         const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
         if (!res.Body) return null;
@@ -112,7 +117,7 @@ export function s3Storage(): Storage {
     },
     async delete(key) {
       const { DeleteObjectCommand } = await import("@aws-sdk/client-s3");
-      const client = await clientPromise;
+      const client = await clientPromise();
       await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
     },
     url: publicUrl,

@@ -87,7 +87,8 @@ export function parseDate(v: string | null | undefined, now: Date = new Date()):
       return `${year}-${String(idx + 1).padStart(2, "0")}-${m[1].padStart(2, "0")}`;
     }
   }
-  if (/omg[åa]ende|snarast|enligt [öo]verenskommelse|immediately|asap/.test(s)) return null;
+  // "omgående", "snarast", "enligt överenskommelse" and their English forms all
+  // mean there is no date to show, which is what an unparsed value already gives.
   return null;
 }
 

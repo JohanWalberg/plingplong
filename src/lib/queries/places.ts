@@ -37,9 +37,6 @@ export async function listMunicipalities() {
   return db.query.municipality.findMany({ orderBy: (m, { asc }) => [asc(m.county), asc(m.nameSv)] });
 }
 
-export async function listAreas(municipalityId: string) {
-  return db.query.area.findMany({ where: eq(area.municipalityId, municipalityId), orderBy: (a, { asc }) => [asc(a.name)] });
-}
 
 export type PlaceMatch =
   | { kind: "municipality"; municipality: typeof municipality.$inferSelect }

@@ -1,6 +1,4 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { Link } from "@/i18n/navigation";
-import type { ComponentProps } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary" | "danger" | "dark";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -58,37 +56,5 @@ export function Button({
       {!loading && icon}
       <span>{loading && loadingLabel ? loadingLabel : children}</span>
     </button>
-  );
-}
-
-type ButtonLinkProps = Omit<ComponentProps<typeof Link>, "className"> & {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  className?: string;
-  icon?: ReactNode;
-};
-
-export function ButtonLink({ variant = "primary", size = "md", className = "", icon, children, ...rest }: ButtonLinkProps) {
-  return (
-    <Link className={buttonClasses(variant, size, className)} {...rest}>
-      {icon}
-      <span>{children}</span>
-    </Link>
-  );
-}
-
-export function ExternalButtonLink({
-  variant = "primary",
-  size = "md",
-  className = "",
-  icon,
-  children,
-  ...rest
-}: React.AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: ButtonVariant; size?: ButtonSize; icon?: ReactNode }) {
-  return (
-    <a className={buttonClasses(variant, size, className)} target="_blank" rel="noopener noreferrer" {...rest}>
-      <span>{children}</span>
-      {icon}
-    </a>
   );
 }
