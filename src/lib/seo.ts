@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getPathname } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 
-if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_SITE_URL) throw new Error("NEXT_PUBLIC_SITE_URL must be set in production (canonicals, hreflang, sitemap and share cards use it)");
+// A missing NEXT_PUBLIC_SITE_URL in production is refused at server start (src/lib/env-check.ts).
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 type Href = Parameters<typeof getPathname>[0]["href"];

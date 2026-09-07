@@ -6,8 +6,10 @@ import type { Job } from "pg-boss";
 import { QUEUES, createBoss } from "@/lib/jobs";
 import { dueSources, expireDirectListings, pruneRawPayloads, syncSource } from "./sync";
 import { purgeApplications } from "./retention";
+import { assertProductionConfig } from "@/lib/env-check";
 
 async function main() {
+  assertProductionConfig();
   const boss = await createBoss();
   boss.on("error", (e: unknown) => console.error("[pg-boss]", e));
 

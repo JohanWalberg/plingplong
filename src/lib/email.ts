@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-if (process.env.NODE_ENV === "production" && !process.env.RESEND_API_KEY) throw new Error("RESEND_API_KEY must be set in production: without it emails, including reset links, would be written to the log");
-
 export type Email = { to: string; subject: string; text: string };
 
 /**

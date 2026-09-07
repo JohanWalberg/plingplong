@@ -5,12 +5,7 @@ import { db, schema } from "@/db";
 import { sendEmail } from "./email";
 import { renderEmail } from "./email-templates";
 
-const PROD = process.env.NODE_ENV === "production";
-if (PROD) {
-  const secret = process.env.BETTER_AUTH_SECRET ?? "";
-  if (secret.length < 32 || /change-me/i.test(secret)) throw new Error("BETTER_AUTH_SECRET must be a random string of at least 32 characters in production");
-  if (!process.env.BETTER_AUTH_URL?.startsWith("https://")) throw new Error("BETTER_AUTH_URL must be the https origin in production (it decides Secure cookies and the origin check)");
-}
+// Production configuration (secret strength, https origin, email key) is checked once at server start in src/lib/env-check.ts.
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
