@@ -136,8 +136,17 @@ async function landlordFacetQuery(scope: SearchScope, f: SearchFilters) {
     .orderBy(desc(sql`count(*)`), asc(landlord.name))
     .limit(12);
 }
-/** Memoized for CACHE_TTL_SECONDS; results themselves stay uncached as the brief asks. */
-export const landlordFacet = memoize(LISTINGS_NS, landlordFacetQuery);
+const landlordFacetMemo = memoize(LISTINGS_NS, landlordFacetQuery);
+
+/**
+ * Memoized for CACHE_TTL_SECONDS; results themselves stay uncached as the brief
+ * asks. The page, the sort and the landlord filter are normalised away first:
+ * the facet ignores all three, so leaving them in the key gave every sort and
+ * every page its own copy of one answer and let filtered traffic evict itself.
+ */
+export function landlordFacet(scope: SearchScope, f: SearchFilters) {
+  return landlordFacetMemo(scope, { ...f, landlord: [], page: 1, sort: "new" });
+}
 
 /** Coverage: monitored vs known landlords in a municipality. Never a share of the market. */
 async function coverageForQuery(municipalityId: string) {
