@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { outer } from "@/lib/queries/sql";
 import { getTranslations } from "next-intl/server";
 import { sql, eq, and } from "drizzle-orm";
 import { db, schema } from "@/db";
@@ -26,7 +27,7 @@ export async function coverageTable() {
       m: municipality,
       known: sql<number>`count(distinct ${landlord.id}) filter (where ${landlord.isKnown})::int`,
       monitored: sql<number>`count(distinct ${landlord.id}) filter (where ${landlord.isKnown} and ${landlord.isMonitored})::int`,
-      listings: sql<number>`(select count(*) from ${listing} where ${listing.municipalityId} = ${municipality.id} and ${listing.status} = 'active')::int`,
+      listings: sql<number>`(select count(*) from ${listing} where ${listing.municipalityId} = ${outer(municipality.id)} and ${listing.status} = 'active')::int`,
     })
     .from(municipality)
     .leftJoin(landlordMunicipality, eq(landlordMunicipality.municipalityId, municipality.id))

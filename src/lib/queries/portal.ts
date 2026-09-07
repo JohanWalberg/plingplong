@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, gte, ilike, inArray, lt, sql } from "drizzle-orm";
 import { escapeLike } from "@/lib/like";
+import { outer } from "./sql";
 import { db, schema } from "@/db";
 import { stockholmDate } from "@/lib/format";
 
@@ -66,9 +67,9 @@ export async function landlordListings(landlordId: string, status: PortalStatus,
       status: listing.status,
       applicationDeadline: listing.applicationDeadline,
       publishedDirectly: listing.publishedDirectly,
-      views: sql<number>`coalesce((select sum(m.views) from listing_metric_daily m where m.listing_id = ${listing.id} and m.day >= ${from30}),0)::int`,
-      clicks: sql<number>`coalesce((select sum(m.outbound_clicks) from listing_metric_daily m where m.listing_id = ${listing.id} and m.day >= ${from30}),0)::int`,
-      sourceUrl: sql<string | null>`(select s.url from listing_source ls join source s on s.id = ls.source_id where ls.listing_id = ${listing.id} limit 1)`,
+      views: sql<number>`coalesce((select sum(m.views) from listing_metric_daily m where m.listing_id = ${outer(listing.id)} and m.day >= ${from30}),0)::int`,
+      clicks: sql<number>`coalesce((select sum(m.outbound_clicks) from listing_metric_daily m where m.listing_id = ${outer(listing.id)} and m.day >= ${from30}),0)::int`,
+      sourceUrl: sql<string | null>`(select s.url from listing_source ls join source s on s.id = ls.source_id where ls.listing_id = ${outer(listing.id)} limit 1)`,
     })
     .from(listing)
     .where(and(...where))
@@ -151,7 +152,7 @@ export async function landlordSources(landlordId: string) {
   return db
     .select({
       s: source,
-      listings: sql<number>`(select count(*) from listing_source ls join listing l on l.id = ls.listing_id where ls.source_id = ${source.id} and l.status = 'active')::int`,
+      listings: sql<number>`(select count(*) from listing_source ls join listing l on l.id = ls.listing_id where ls.source_id = ${outer(source.id)} and l.status = 'active')::int`,
     })
     .from(source)
     .where(and(eq(source.landlordId, landlordId), inArray(source.kind, ["feed", "api", "html"])))

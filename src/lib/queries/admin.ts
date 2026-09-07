@@ -1,6 +1,7 @@
 import { and, desc, eq, gte, ilike, inArray, lt, or, sql } from "drizzle-orm";
 import { stockholmDayStart } from "@/lib/format";
 import { escapeLike } from "@/lib/like";
+import { outer } from "./sql";
 import { db, schema } from "@/db";
 
 const { source, sourceRun, landlord, listing, landlordApplication, duplicateCandidate, listingSource, municipality, sourceStatusEnum, listingStatusEnum } = schema;
@@ -47,8 +48,8 @@ export async function listSources(filter: { q?: string; status?: string } = {}) 
       lastError: source.lastError,
       landlordId: landlord.id,
       landlordName: landlord.name,
-      listings: sql<number>`(select count(*) from ${listingSource} ls join ${listing} l on l.id = ls.listing_id where ls.source_id = ${source.id} and l.status = 'active')::int`,
-      errors24h: sql<number>`(select count(*) from ${sourceRun} r where r.source_id = ${source.id} and r.ok = false and r.started_at > now() - interval '24 hours')::int`,
+      listings: sql<number>`(select count(*) from ${listingSource} ls join ${listing} l on l.id = ls.listing_id where ls.source_id = ${outer(source.id)} and l.status = 'active')::int`,
+      errors24h: sql<number>`(select count(*) from ${sourceRun} r where r.source_id = ${outer(source.id)} and r.ok = false and r.started_at > now() - interval '24 hours')::int`,
     })
     .from(source)
     .innerJoin(landlord, eq(source.landlordId, landlord.id))
@@ -125,9 +126,9 @@ export async function listLandlords(q?: string) {
       isKnown: landlord.isKnown,
       isMonitored: landlord.isMonitored,
       approvedAt: landlord.approvedAt,
-      municipalities: sql<number>`(select count(*) from landlord_municipality lm where lm.landlord_id = ${landlord.id})::int`,
-      listings: sql<number>`(select count(*) from ${listing} l where l.landlord_id = ${landlord.id} and l.status = 'active')::int`,
-      sources: sql<number>`(select count(*) from ${source} s where s.landlord_id = ${landlord.id})::int`,
+      municipalities: sql<number>`(select count(*) from landlord_municipality lm where lm.landlord_id = ${outer(landlord.id)})::int`,
+      listings: sql<number>`(select count(*) from ${listing} l where l.landlord_id = ${outer(landlord.id)} and l.status = 'active')::int`,
+      sources: sql<number>`(select count(*) from ${source} s where s.landlord_id = ${outer(landlord.id)})::int`,
     })
     .from(landlord)
     .where(q ? or(ilike(landlord.name, `%${escapeLike(q)}%`), ilike(landlord.orgNumber, `%${escapeLike(q)}%`)) : undefined)
@@ -175,7 +176,7 @@ export async function listListingsAdmin(filter: { q?: string; status?: string; p
         publishedDirectly: listing.publishedDirectly,
         landlordName: landlord.name,
         municipality: municipality.nameSv,
-        sources: sql<number>`(select count(*) from ${listingSource} ls where ls.listing_id = ${listing.id})::int`,
+        sources: sql<number>`(select count(*) from ${listingSource} ls where ls.listing_id = ${outer(listing.id)})::int`,
       })
       .from(listing)
       .innerJoin(landlord, eq(landlord.id, listing.landlordId))
