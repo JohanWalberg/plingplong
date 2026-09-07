@@ -3,7 +3,7 @@ import { stockholmDayStart } from "@/lib/format";
 import { escapeLike } from "@/lib/like";
 import { db, schema } from "@/db";
 
-const { source, sourceRun, landlord, listing, landlordApplication, duplicateCandidate, listingSource, municipality } = schema;
+const { source, sourceRun, landlord, listing, landlordApplication, duplicateCandidate, listingSource, municipality, sourceStatusEnum, listingStatusEnum } = schema;
 
 export async function overviewKpis() {
   const dayAgo = new Date(Date.now() - 24 * 60 * 60_000);
@@ -32,7 +32,8 @@ export type SourceRow = Awaited<ReturnType<typeof listSources>>[number];
 export async function listSources(filter: { q?: string; status?: string } = {}) {
   const where = [sql`${source.kind} <> 'manual'`];
   if (filter.q) where.push(or(ilike(source.url, `%${escapeLike(filter.q)}%`), ilike(landlord.name, `%${escapeLike(filter.q)}%`))!);
-  if (filter.status) where.push(eq(source.status, filter.status as "active"));
+  const status = sourceStatusEnum.enumValues.find((v) => v === filter.status);
+  if (status) where.push(eq(source.status, status));
   return db
     .select({
       id: source.id,
@@ -158,7 +159,8 @@ export async function applicationCounts() {
 export async function listListingsAdmin(filter: { q?: string; status?: string; page: number }, pageSize = 50) {
   const where = [];
   if (filter.q) where.push(or(ilike(listing.address, `%${escapeLike(filter.q)}%`), ilike(landlord.name, `%${escapeLike(filter.q)}%`), ilike(listing.externalId, `%${escapeLike(filter.q)}%`))!);
-  if (filter.status) where.push(eq(listing.status, filter.status as "active"));
+  const status = listingStatusEnum.enumValues.find((v) => v === filter.status);
+  if (status) where.push(eq(listing.status, status));
   const w = where.length ? and(...where) : undefined;
   const [rows, [{ count }]] = await Promise.all([
     db

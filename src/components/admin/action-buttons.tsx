@@ -7,10 +7,11 @@ import { Button, type ButtonVariant, type ButtonSize } from "@/components/ui/but
 import { Dialog } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/form";
 import { useToast } from "@/components/ui/toast";
+import type { ActionResult } from "@/lib/action-result";
 
 type ActionProps = {
   /** A bound server action, e.g. `runSourceSync.bind(null, locale, id)`. */
-  action?: () => Promise<unknown>;
+  action?: () => Promise<ActionResult>;
   children: ReactNode;
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -23,6 +24,7 @@ type ActionProps = {
 export function ActionButton({ action, children, variant = "secondary", size = "sm", successMessage, className, disabled }: ActionProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const te = useTranslations("admin.errors");
   const [pending, start] = useTransition();
   return (
     <Button
@@ -34,11 +36,15 @@ export function ActionButton({ action, children, variant = "secondary", size = "
       onClick={() =>
         start(async () => {
           try {
-            await action?.();
+            const res = await action?.();
+            if (res && !res.ok) {
+              toast(te(res.error), "error");
+              return;
+            }
             if (successMessage) toast(successMessage, "success");
             router.refresh();
-          } catch (e) {
-            toast((e as Error).message, "error");
+          } catch {
+            toast(te("unexpected"), "error");
           }
         })
       }
@@ -48,13 +54,14 @@ export function ActionButton({ action, children, variant = "secondary", size = "
   );
 }
 
-type ConfirmProps = ActionProps & { title: string; body?: string; confirmLabel: string; textareaLabel?: string; textareaRequired?: boolean; actionWithText?: (text: string) => Promise<unknown> };
+type ConfirmProps = ActionProps & { title: string; body?: string; confirmLabel: string; textareaLabel?: string; textareaRequired?: boolean; actionWithText?: (text: string) => Promise<ActionResult> };
 
 /** Button that opens a confirmation dialog (optionally with a message field) before running the action. */
 export function ConfirmActionButton({ title, body, confirmLabel, textareaLabel, textareaRequired, actionWithText, action, children, variant = "secondary", size = "sm", successMessage, className, disabled }: ConfirmProps) {
   const router = useRouter();
   const { toast } = useToast();
   const tc = useTranslations("common");
+  const te = useTranslations("admin.errors");
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [pending, start] = useTransition();
@@ -67,13 +74,18 @@ export function ConfirmActionButton({ title, body, confirmLabel, textareaLabel, 
     }
     start(async () => {
       try {
-        if (actionWithText) await actionWithText(text.trim());
-        else await action?.();
+        const res = actionWithText ? await actionWithText(text.trim()) : await action?.();
+        if (res && !res.ok) {
+          // A validation failure keeps the dialog open so the text can be corrected.
+          if (res.error === "invalid" && textareaLabel) setError(te("checkField"));
+          else toast(te(res.error), "error");
+          return;
+        }
         setOpen(false);
         if (successMessage) toast(successMessage, "success");
         router.refresh();
-      } catch (e) {
-        toast((e as Error).message, "error");
+      } catch {
+        toast(te("unexpected"), "error");
       }
     });
   }

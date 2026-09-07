@@ -1170,6 +1170,15 @@
       "userAgent": "User-Agent för avläsningar",
       "retention": "Rådata sparas i {days} dagar.",
       "inviteHint": "Personen måste redan ha ett konto (registrera via portalens formulär först)."
+    },
+    "errors": {
+      "invalid": "Några fält behöver rättas.",
+      "checkField": "Kontrollera fältet.",
+      "missing": "Posten finns inte längre.",
+      "noChange": "Inget ändrades. Den var redan i det läget.",
+      "noUser": "Det finns inget konto med den e-postadressen.",
+      "self": "Du kan inte ändra din egen roll.",
+      "unexpected": "Något gick fel. Försök igen."
     }
   },
   "email": {

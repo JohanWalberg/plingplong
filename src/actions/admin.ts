@@ -16,6 +16,7 @@ import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { mergeListings } from "@/worker/sync";
 import { adapterForKind } from "@/lib/source-test";
 import type { Locale } from "@/i18n/routing";
+import { OK, fail, invalid, type ActionResult } from "@/lib/action-result";
 
 const { source, landlord, landlordApplication, landlordApplicationEvent, landlordMember, landlordMunicipality, duplicateCandidate, listing, staffUser, user } = schema;
 
@@ -27,31 +28,45 @@ function revalidateAdmin() {
 // Sources
 // ---------------------------------------------------------------------------
 
-export async function runSourceSync(locale: Locale, sourceId: string) {
+export async function runSourceSync(locale: Locale, sourceId: string): Promise<ActionResult> {
   await requireStaff(locale, "support");
   await enqueueSourceSync(sourceId, true, true);
   revalidateAdmin();
+  return OK;
 }
 
-export async function runAllSyncs(locale: Locale) {
+export async function runAllSyncs(locale: Locale): Promise<ActionResult<{ count: number }>> {
   await requireStaff(locale, "support");
   const rows = await db.select({ id: source.id }).from(source).where(and(sql`${source.status} <> 'disabled'`, sql`${source.kind} <> 'manual'`));
-  const n = await enqueueAllSyncs(rows.map((r) => r.id));
+  const count = await enqueueAllSyncs(rows.map((r) => r.id));
   revalidateAdmin();
-  return n;
+  return { ok: true, count };
 }
 
-export async function setSourceStatus(locale: Locale, sourceId: string, status: "active" | "disabled") {
-  z.enum(["active", "disabled"]).parse(status);
+export async function setSourceStatus(locale: Locale, sourceId: string, status: "active" | "disabled"): Promise<ActionResult> {
   await requireStaff(locale, "lead");
-  await db.update(source).set({ status, consecutiveFailures: 0, nextRunAt: status === "active" ? new Date() : null }).where(eq(source.id, sourceId));
+  const parsed = z.enum(["active", "disabled"]).safeParse(status);
+  if (!parsed.success) return fail("invalid");
+  const rows = await db
+    .update(source)
+    .set({ status: parsed.data, consecutiveFailures: 0, nextRunAt: parsed.data === "active" ? new Date() : null })
+    .where(eq(source.id, sourceId))
+    .returning({ id: source.id });
+  if (!rows.length) return fail("missing");
   revalidateAdmin();
+  return OK;
 }
 
-export async function markSourceReviewed(locale: Locale, sourceId: string) {
+export async function markSourceReviewed(locale: Locale, sourceId: string): Promise<ActionResult> {
   await requireStaff(locale, "support");
-  await db.update(source).set({ status: "active", nextRunAt: new Date() }).where(and(eq(source.id, sourceId), eq(source.status, "needs_review")));
+  const rows = await db
+    .update(source)
+    .set({ status: "active", nextRunAt: new Date() })
+    .where(and(eq(source.id, sourceId), eq(source.status, "needs_review")))
+    .returning({ id: source.id });
+  if (!rows.length) return fail("noChange");
   revalidateAdmin();
+  return OK;
 }
 
 const sourceInput = z.object({
@@ -67,10 +82,10 @@ const sourceInput = z.object({
   consent: z.enum(["unknown", "consented", "objected", "silent"]).default("unknown"),
 });
 
-export async function createSource(locale: Locale, formData: FormData): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+export async function createSource(locale: Locale, formData: FormData): Promise<ActionResult<{ id: string }>> {
   await requireStaff(locale, "lead");
   const parsed = sourceInput.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { ok: false, error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ") };
+  if (!parsed.success) return invalid(parsed.error.issues);
   const d = parsed.data;
   const config: Record<string, unknown> = { fields: {} };
   if (d.listSelector) config.listSelector = d.listSelector;
@@ -97,13 +112,13 @@ export async function createSource(locale: Locale, formData: FormData): Promise<
   return { ok: true, id: row.id };
 }
 
-export async function updateSource(locale: Locale, sourceId: string, formData: FormData) {
+export async function updateSource(locale: Locale, sourceId: string, formData: FormData): Promise<ActionResult> {
   await requireStaff(locale, "lead");
   const parsed = sourceInput.partial({ landlordId: true, kind: true }).safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { ok: false as const, error: "invalid" };
+  if (!parsed.success) return invalid(parsed.error.issues);
   const d = parsed.data;
   const current = await db.query.source.findFirst({ where: eq(source.id, sourceId) });
-  if (!current) return { ok: false as const, error: "missing" };
+  if (!current) return fail("missing");
   const config = { ...(current.config as Record<string, unknown>) };
   if (d.listSelector !== undefined) config.listSelector = d.listSelector || undefined;
   if (d.apiKey) config.apiKey = d.apiKey;
@@ -120,7 +135,7 @@ export async function updateSource(locale: Locale, sourceId: string, formData: F
     })
     .where(eq(source.id, sourceId));
   revalidateAdmin();
-  return { ok: true as const };
+  return OK;
 }
 
 // ---------------------------------------------------------------------------
@@ -138,12 +153,12 @@ const landlordInput = z.object({
   municipalityIds: z.array(z.string()).default([]),
 });
 
-export async function upsertLandlord(locale: Locale, landlordId: string | null, formData: FormData): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+export async function upsertLandlord(locale: Locale, landlordId: string | null, formData: FormData): Promise<ActionResult<{ id: string }>> {
   await requireStaff(locale, "lead");
   const raw = Object.fromEntries(formData) as Record<string, unknown>;
   raw.municipalityIds = formData.getAll("municipalityIds");
   const parsed = landlordInput.safeParse(raw);
-  if (!parsed.success) return { ok: false, error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ") };
+  if (!parsed.success) return invalid(parsed.error.issues);
   const d = parsed.data;
   const values = {
     name: d.name,
@@ -155,8 +170,10 @@ export async function upsertLandlord(locale: Locale, landlordId: string | null, 
     isKnown: d.isKnown === "on",
   };
   let id = landlordId;
-  if (id) await db.update(landlord).set(values).where(eq(landlord.id, id));
-  else {
+  if (id) {
+    const rows = await db.update(landlord).set(values).where(eq(landlord.id, id)).returning({ id: landlord.id });
+    if (!rows.length) return fail("missing");
+  } else {
     const [row] = await insertWithUniqueSlug(db, landlord, slugify(d.name), (tx, slug) => tx.insert(landlord).values({ ...values, slug }).returning({ id: landlord.id }));
     id = row.id;
   }
@@ -171,10 +188,11 @@ export async function upsertLandlord(locale: Locale, landlordId: string | null, 
 // ---------------------------------------------------------------------------
 
 /** Approve: create/attach the landlord, membership for the applicant, source if a feed was given, email. */
-export async function approveApplication(locale: Locale, applicationId: string) {
+export async function approveApplication(locale: Locale, applicationId: string): Promise<ActionResult> {
   const me = await requireStaff(locale, "lead");
   const app = await db.query.landlordApplication.findFirst({ where: eq(landlordApplication.id, applicationId) });
-  if (!app || app.status === "approved") return;
+  if (!app) return fail("missing");
+  if (app.status === "approved") return fail("noChange");
   const now = new Date();
 
   let sourceIdToSync: string | null = null;
@@ -230,46 +248,57 @@ export async function approveApplication(locale: Locale, applicationId: string) 
   const mail = await renderEmail(app.locale as Locale, "approved", { name: app.contactName, organisation: app.companyName, url: absoluteUrl(app.locale as Locale, "/portal/sign-in") });
   await sendEmail({ to: app.contactEmail, ...mail });
   revalidateAdmin();
+  return OK;
 }
 
-export async function requestMoreInfo(locale: Locale, applicationId: string, message: string) {
-  message = z.string().trim().min(1).max(2000).parse(message);
+const note = z.string().trim().min(1).max(2000);
+
+export async function requestMoreInfo(locale: Locale, applicationId: string, message: string): Promise<ActionResult> {
   const me = await requireStaff(locale, "lead");
+  const parsed = note.safeParse(message);
+  if (!parsed.success) return fail("invalid");
+  message = parsed.data;
   const app = await db.query.landlordApplication.findFirst({ where: eq(landlordApplication.id, applicationId) });
-  if (!app) return;
+  if (!app) return fail("missing");
   await db.update(landlordApplication).set({ status: "needs_info", reviewedBy: me.userId }).where(eq(landlordApplication.id, applicationId));
   await db.insert(landlordApplicationEvent).values({ applicationId, kind: "needs_info", actorId: me.userId, message });
   const mail = await renderEmail(app.locale as Locale, "needsInfo", { name: app.contactName, organisation: app.companyName, message });
   await sendEmail({ to: app.contactEmail, ...mail });
   revalidateAdmin();
+  return OK;
 }
 
-export async function rejectApplication(locale: Locale, applicationId: string, reason: string) {
-  reason = z.string().trim().min(1).max(2000).parse(reason);
+export async function rejectApplication(locale: Locale, applicationId: string, reason: string): Promise<ActionResult> {
   const me = await requireStaff(locale, "lead");
+  const parsed = note.safeParse(reason);
+  if (!parsed.success) return fail("invalid");
+  reason = parsed.data;
   const app = await db.query.landlordApplication.findFirst({ where: eq(landlordApplication.id, applicationId) });
-  if (!app) return;
+  if (!app) return fail("missing");
   await db.update(landlordApplication).set({ status: "rejected", reviewedBy: me.userId, reviewedAt: new Date(), decisionNote: reason }).where(eq(landlordApplication.id, applicationId));
   await db.insert(landlordApplicationEvent).values({ applicationId, kind: "rejected", actorId: me.userId, message: reason });
   const mail = await renderEmail(app.locale as Locale, "rejected", { name: app.contactName, organisation: app.companyName, reason });
   await sendEmail({ to: app.contactEmail, ...mail });
   revalidateAdmin();
+  return OK;
 }
 
-export async function reopenApplication(locale: Locale, applicationId: string) {
+export async function reopenApplication(locale: Locale, applicationId: string): Promise<ActionResult> {
   const me = await requireStaff(locale, "lead");
-  await db.update(landlordApplication).set({ status: "pending" }).where(eq(landlordApplication.id, applicationId));
+  const rows = await db.update(landlordApplication).set({ status: "pending" }).where(eq(landlordApplication.id, applicationId)).returning({ id: landlordApplication.id });
+  if (!rows.length) return fail("missing");
   await db.insert(landlordApplicationEvent).values({ applicationId, kind: "reopened", actorId: me.userId });
   revalidateAdmin();
+  return OK;
 }
 
 // ---------------------------------------------------------------------------
 // Duplicates and listings
 // ---------------------------------------------------------------------------
 
-export async function decideDuplicate(locale: Locale, candidateId: string, decision: "merged" | "not_duplicate" | "ignored") {
-  z.enum(["merged", "not_duplicate", "ignored"]).parse(decision);
+export async function decideDuplicate(locale: Locale, candidateId: string, decision: "merged" | "not_duplicate" | "ignored"): Promise<ActionResult> {
   const me = await requireStaff(locale, decision === "merged" ? "lead" : "support");
+  if (!z.enum(["merged", "not_duplicate", "ignored"]).safeParse(decision).success) return fail("invalid");
   // The conditional update is the lock: whoever flips "pending" first (staff or the worker's auto-merge) wins, and the merge rides in the same transaction.
   const done = await db.transaction(async (tx) => {
     const [c] = await tx
@@ -281,37 +310,44 @@ export async function decideDuplicate(locale: Locale, candidateId: string, decis
     if (decision === "merged") await mergeListings(c.a, c.b, me.userId, tx);
     return true;
   });
-  if (!done) return;
+  if (!done) return fail("noChange");
   revalidateAdmin();
   invalidateListingCaches();
+  return OK;
 }
 
-export async function markListingReviewed(locale: Locale, listingId: string) {
+export async function markListingReviewed(locale: Locale, listingId: string): Promise<ActionResult> {
   const me = await requireStaff(locale, "support");
-  await db.update(listing).set({ reviewedAt: new Date(), reviewedBy: me.userId }).where(eq(listing.id, listingId));
+  const rows = await db.update(listing).set({ reviewedAt: new Date(), reviewedBy: me.userId }).where(eq(listing.id, listingId)).returning({ id: listing.id });
+  if (!rows.length) return fail("missing");
   await db.insert(schema.listingRevision).values({ listingId, field: "reviewed", oldValue: null, newValue: me.name, origin: "admin", changedBy: me.userId });
   revalidateAdmin();
+  return OK;
 }
 
 // ---------------------------------------------------------------------------
 // Staff
 // ---------------------------------------------------------------------------
 
-export async function setStaffRole(locale: Locale, userId: string, role: "support" | "lead" | "engineer") {
-  z.enum(["support", "lead", "engineer"]).parse(role);
+const staffRole = z.enum(["support", "lead", "engineer"]);
+
+export async function setStaffRole(locale: Locale, userId: string, role: "support" | "lead" | "engineer"): Promise<ActionResult> {
   const me = await requireStaff(locale, "lead");
-  if (userId === me.userId) return;
+  if (!staffRole.safeParse(role).success) return fail("invalid");
+  if (userId === me.userId) return fail("self");
   await db.insert(staffUser).values({ userId, role }).onConflictDoUpdate({ target: staffUser.userId, set: { role } });
   revalidateAdmin();
+  return OK;
 }
 
-export async function addStaffByEmail(locale: Locale, email: string, role: "support" | "lead" | "engineer"): Promise<{ ok: boolean; error?: string }> {
+export async function addStaffByEmail(locale: Locale, email: string, role: "support" | "lead" | "engineer"): Promise<ActionResult> {
   await requireStaff(locale, "lead");
+  if (!staffRole.safeParse(role).success) return fail("invalid");
   const u = await db.query.user.findFirst({ where: eq(user.email, email.toLowerCase().trim()) });
-  if (!u) return { ok: false, error: "no_user" };
+  if (!u) return fail("noUser");
   await db.insert(staffUser).values({ userId: u.id, role }).onConflictDoUpdate({ target: staffUser.userId, set: { role } });
   revalidateAdmin();
-  return { ok: true };
+  return OK;
 }
 
 // ---------------------------------------------------------------------------
@@ -341,13 +377,13 @@ const numOrNull = (v: string | undefined) => {
 const dateOrNull = (v: string | undefined) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
 
 /** Staff correction of factual fields. Every change is a revision with origin "admin". */
-export async function adminUpdateListing(locale: Locale, listingId: string, formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function adminUpdateListing(locale: Locale, listingId: string, formData: FormData): Promise<ActionResult> {
   const me = await requireStaff(locale, "support");
   const parsed = listingEdit.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { ok: false, error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ") };
+  if (!parsed.success) return invalid(parsed.error.issues);
   const d = parsed.data;
   const before = await db.query.listing.findFirst({ where: eq(listing.id, listingId), columns: { location: false } });
-  if (!before) return { ok: false, error: "missing" };
+  if (!before) return fail("missing");
   const values = {
     address: d.address,
     areaName: d.areaName || null,
@@ -375,15 +411,18 @@ export async function adminUpdateListing(locale: Locale, listingId: string, form
   if (revisions.length) await db.insert(schema.listingRevision).values(revisions);
   revalidateAdmin();
   invalidateListingCaches();
-  return { ok: true };
+  return OK;
 }
 
 /** Takedown: hide a listing from search with a reason kept in the history. */
-export async function adminRemoveListing(locale: Locale, listingId: string, reason: string) {
-  reason = z.string().trim().min(1).max(2000).parse(reason);
+export async function adminRemoveListing(locale: Locale, listingId: string, reason: string): Promise<ActionResult> {
   const me = await requireStaff(locale, "lead");
+  const parsed = note.safeParse(reason);
+  if (!parsed.success) return fail("invalid");
+  reason = parsed.data;
   const before = await db.query.listing.findFirst({ where: eq(listing.id, listingId), columns: { status: true } });
-  if (!before || before.status === "removed") return;
+  if (!before) return fail("missing");
+  if (before.status === "removed") return fail("noChange");
   const now = new Date();
   await db.update(listing).set({ status: "removed", removedAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
   await db.insert(schema.listingRevision).values([
@@ -392,15 +431,18 @@ export async function adminRemoveListing(locale: Locale, listingId: string, reas
   ]);
   revalidateAdmin();
   invalidateListingCaches();
+  return OK;
 }
 
-export async function adminRestoreListing(locale: Locale, listingId: string) {
+export async function adminRestoreListing(locale: Locale, listingId: string): Promise<ActionResult> {
   const me = await requireStaff(locale, "lead");
   const before = await db.query.listing.findFirst({ where: eq(listing.id, listingId), columns: { status: true } });
-  if (!before || before.status !== "removed") return;
+  if (!before) return fail("missing");
+  if (before.status !== "removed") return fail("noChange");
   const now = new Date();
   await db.update(listing).set({ status: "active", removedAt: null, lastSeenAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
   await db.insert(schema.listingRevision).values({ listingId, field: "status", oldValue: "removed", newValue: "active", origin: "admin", changedBy: me.userId, changedAt: now });
   revalidateAdmin();
   invalidateListingCaches();
+  return OK;
 }

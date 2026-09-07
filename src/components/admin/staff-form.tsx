@@ -14,6 +14,7 @@ const ROLES = ["support", "lead", "engineer"] as const;
 export function StaffForm() {
   const t = useTranslations("admin.settings");
   const ta = useTranslations("auth");
+  const te = useTranslations("admin.errors");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const { toast } = useToast();
@@ -25,7 +26,7 @@ export function StaffForm() {
     start(async () => {
       const res = await addStaffByEmail(locale, String(fd.get("email") ?? ""), fd.get("role") as "support");
       if (!res.ok) {
-        setError(res.error === "no_user" ? ta("inviteInvalid") : "error");
+        setError(res.error === "noUser" ? ta("inviteInvalid") : te(res.error));
         return;
       }
       toast(t("inviteSent"), "success");

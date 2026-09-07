@@ -1170,6 +1170,15 @@
       "userAgent": "User-Agent for reads",
       "retention": "Raw data is kept for {days} days.",
       "inviteHint": "The person must already have an account (sign up via the portal form first)."
+    },
+    "errors": {
+      "invalid": "Some fields need attention.",
+      "checkField": "Check this field.",
+      "missing": "That item no longer exists.",
+      "noChange": "Nothing changed. It was already in that state.",
+      "noUser": "There is no account with that email address.",
+      "self": "You cannot change your own role.",
+      "unexpected": "Something went wrong. Try again."
     }
   },
   "email": {
