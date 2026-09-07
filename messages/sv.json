@@ -42,7 +42,7 @@
     "map": "Karta",
     "landlords": "Hyresvärdar",
     "municipalities": "Kommuner",
-    "saved": "Sparade sökningar",
+    "saved": "Sparat",
     "forLandlords": "För hyresvärdar",
     "portalLogin": "Logga in i portalen",
     "portal": "Hyresvärdsportal"
@@ -66,7 +66,9 @@
     "suggestions": "Förslag",
     "suggestionsLabel": "Föreslagna platser",
     "recentTitle": "Senast visade",
-    "recentClear": "Rensa"
+    "recentClear": "Rensa",
+    "totals": "{homes, plural, one {# ledig bostad} other {# lediga bostäder}} från {landlords, plural, one {# hyresvärd} other {# hyresvärdar}} i {municipalities, plural, one {# kommun} other {# kommuner}} just nu.",
+    "totalsLink": "Se vår täckning"
   },
   "results": {
     "heading": "{count, plural, =0 {Inga bostäder} one {# bostad} other {# bostäder}} i {place}",

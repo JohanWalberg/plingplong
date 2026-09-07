@@ -167,6 +167,25 @@ async function failingSourcesForQuery(municipalityId: string) {
 /** Memoized for CACHE_TTL_SECONDS; results themselves stay uncached as the brief asks. */
 export const failingSourcesFor = memoize(LISTINGS_NS, failingSourcesForQuery);
 
+/**
+ * Site totals for the home page. Counts what we have, never a share of the
+ * market: monitored landlords over known landlords is the coverage claim and
+ * it lives on the coverage page.
+ */
+async function siteTotalsQuery() {
+  const [homes] = await db.select({ n: sql<number>`count(*)::int` }).from(listing).where(eq(listing.status, "active"));
+  const [rest] = await db
+    .select({
+      landlords: sql<number>`count(distinct ${listing.landlordId})::int`,
+      municipalities: sql<number>`count(distinct ${listing.municipalityId})::int`,
+    })
+    .from(listing)
+    .where(eq(listing.status, "active"));
+  return { homes: homes?.n ?? 0, landlords: rest?.landlords ?? 0, municipalities: rest?.municipalities ?? 0 };
+}
+/** Memoized for CACHE_TTL_SECONDS; the home page itself revalidates every five minutes. */
+export const siteTotals = memoize(LISTINGS_NS, siteTotalsQuery);
+
 export async function latestListings(locale: Locale, limit = 3) {
   const rows = await db
     .select(cardSelect(locale))

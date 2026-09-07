@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
 import { ListingCard } from "@/components/listing/listing-card";
 import { RecentlyViewed } from "@/components/listing/recently-viewed";
-import { latestListings } from "@/lib/queries/listings";
+import { latestListings, siteTotals } from "@/lib/queries/listings";
 
 // Rendered at build time and refreshed every five minutes; listing changes from
 // the portal and admin clear it immediately through invalidateListingCaches().
@@ -16,7 +16,7 @@ const POPULAR = ["stockholm", "solna", "goteborg", "malmo", "uppsala"] as const;
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await resolveLocale(params);
   const t = await getTranslations("home");
-  const latest = await latestListings(locale, 3);
+  const [latest, totals] = await Promise.all([latestListings(locale, 3), siteTotals()]);
 
   return (
     <>
@@ -29,6 +29,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="mt-8 max-w-[720px]">
               <SearchBox locale={locale} />
             </div>
+            {/* What we actually have, never a share of the market: coverage is its own page. */}
+            {totals.homes ? (
+              <p className="mt-3 text-[14px] text-ink-2">
+                {t("totals", { homes: totals.homes, landlords: totals.landlords, municipalities: totals.municipalities })}{" "}
+                <Link href="/coverage" className="font-[600]">
+                  {t("totalsLink")}
+                </Link>
+              </p>
+            ) : null}
             <p className="mt-4 flex flex-wrap items-center gap-2 text-[13.5px] text-muted">
               <span>{t("popular")}</span>
               {POPULAR.map((p) => (
