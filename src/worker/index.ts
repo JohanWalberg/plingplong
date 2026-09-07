@@ -7,6 +7,7 @@ import { QUEUES, createBoss } from "@/lib/jobs";
 import { dueSources, expireDirectListings, pruneRawPayloads, syncSource } from "./sync";
 import { purgeApplications } from "./retention";
 import { notifyExpiringListings } from "./notify";
+import { requestRevalidate } from "@/lib/revalidate";
 import { assertProductionConfig } from "@/lib/env-check";
 import { initErrorReporting, reportError } from "@/lib/observability";
 
@@ -34,6 +35,8 @@ async function main() {
       throw e;
     }
     console.log(`[sync] ${job.data.sourceId} ${out.ok ? "ok" : "FAILED"} found=${out.found} new=${out.created} upd=${out.updated} gone=${out.gone}${out.anomaly ? " ANOMALY" : ""}${out.error ? ` err=${out.error}` : ""} (${Date.now() - started}ms)`);
+    // Only when search would actually look different; a run that changed nothing needs no invalidation.
+    if (out.created + out.updated + out.gone > 0) await requestRevalidate(`sync ${job.data.sourceId}`);
   });
 
   await boss.work(QUEUES.tick, async () => {
@@ -49,6 +52,7 @@ async function main() {
     await pruneRawPayloads();
     const purged = await purgeApplications();
     console.log(`[housekeeping] expired ${expired} direct listing(s), purged ${purged} application(s)`);
+    if (expired > 0) await requestRevalidate("housekeeping expiry");
   });
 
   // No retry: a landlord must never get the same reminder twice because a send failed halfway.

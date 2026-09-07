@@ -119,4 +119,4 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 - [ ] Playwright adapter for JavaScript-rendered landlord sites.
 - [ ] Saved-search email alerts (requires seeker email, a product decision).
 - [ ] Real municipality and area polygons from Lantmäteriet; search by drawn area.
-- [ ] ISR on-demand invalidation when a crawl changes a municipality's listings.
+- [x] ISR on-demand invalidation when a crawl changes a municipality's listings.

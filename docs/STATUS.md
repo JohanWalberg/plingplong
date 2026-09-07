@@ -8,7 +8,7 @@ Snapshot at the end of the first build session, 2026-09-05. Everything below
 **Foundation.** Next.js 16, Tailwind 4 with the design tokens, Drizzle schema
 for the full data model, PostGIS via Docker, seed with real municipalities and
 landlords plus about 50 synthetic listings, message catalogues in both languages
-with a parity check, translated pathnames, unit tests (86), database integration tests (24) and Playwright
+with a parity check, translated pathnames, unit tests (106), database integration tests (28) and Playwright
 end-to-end tests with axe (22).
 
 **Public site.** Home, search results with URL filter state, sorting,
@@ -143,23 +143,22 @@ priority order.
    accurate markers.
 6. **Real municipality and area polygons.** Only centroids are seeded; search
    by map bounds uses listing points. Area membership comes from feed data.
-7. **Image handling in production.** Uploads go to local disk. An S3-compatible
-   bucket needs to be wired behind the storage interface before deployment.
+7. **Image handling in production.** `STORAGE_DRIVER=s3` stores uploads in an
+   S3-compatible bucket; the bucket itself still has to be created and its
+   credentials set.
 8. **Email in production.** Emails log to the console unless `RESEND_API_KEY`
    is set. Templates are plain text in both languages.
 9. **Saved-search alerts** (post-MVP in the brief). Saved searches are
    browser-only links today.
-10. **ISR on-demand invalidation** when a crawl changes a municipality's
-    listing set. Portal and admin changes invalidate immediately; crawls in
-    the worker still rely on the five-minute revalidate.
-11. **Observability.** No Sentry or structured log shipping; source health is
-    in the database as the brief asks.
-12. **Deployment.** No Vercel or Fly.io configuration, no CI workflow. The
-    checks to run in CI are `pnpm typecheck`, `pnpm i18n:check`, `pnpm test`,
-    `pnpm build`, `pnpm test:e2e`.
-13. **Takedown SLA process.** Staff can now remove a listing with a logged
+10. **Observability.** Sentry is wired for the web server and the worker and
+    activates with `SENTRY_DSN`; the account and DSN are still needed. No
+    structured log shipping. Source health stays in the database as the brief
+    asks.
+11. **Deployment.** CI runs on every push and pull request; there is still no
+    Vercel or Fly.io configuration and no Dockerfile.
+12. **Takedown SLA process.** Staff can now remove a listing with a logged
     reason from the admin listing page; there is still no ticket flow.
-14. **Entity 404 shell.** Unmatched URLs get the styled global 404. Pages
+13. **Entity 404 shell.** Unmatched URLs get the styled global 404. Pages
     that call `notFound()` for an unknown slug answer 404 but stream Next's
     bare `__next_error__` shell until hydration (Next 16 behaviour for
     non-streamed 404s under a `[locale]` root).
