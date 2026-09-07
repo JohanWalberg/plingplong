@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ListingStatusPill } from "@/components/admin/listing-status";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/lib/locale";
@@ -6,14 +7,12 @@ import { requireStaff } from "@/lib/access";
 import { AdminShell, Table, Td, Th } from "@/components/admin/admin-shell";
 import { listListingsAdmin } from "@/lib/queries/admin";
 import { formatDateTimeShort, formatSek } from "@/lib/format";
-import { StatusPill, type StatusTone } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { inputClasses } from "@/components/ui/form";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | undefined>> };
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
-const tones: Record<string, StatusTone> = { active: "success", removed: "quiet", draft: "neutral", unpublished: "neutral", expired: "neutral", unknown: "warning" };
 
 export default async function AdminListingsPage({ params, searchParams }: Props) {
   const locale = await resolveLocale(params);
@@ -64,9 +63,9 @@ export default async function AdminListingsPage({ params, searchParams }: Props)
                 <Td>{r.landlordName}</Td>
                 <Td right>{r.rentMonthly === null ? "—" : formatSek(locale, r.rentMonthly)}</Td>
                 <Td>
-                  <StatusPill tone={tones[r.status] ?? "neutral"}>{r.status}</StatusPill>
+                  <ListingStatusPill status={r.status} />
                 </Td>
-                <Td right>{r.publishedDirectly ? "portal" : r.sources}</Td>
+                <Td right>{r.publishedDirectly ? t("sourcePortal") : r.sources}</Td>
                 <Td>{formatDateTimeShort(locale, r.firstSeenAt)}</Td>
                 <Td>{formatDateTimeShort(locale, r.lastCheckedAt)}</Td>
               </tr>

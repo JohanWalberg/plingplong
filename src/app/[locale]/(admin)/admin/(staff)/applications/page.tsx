@@ -147,7 +147,7 @@ export default async function ApplicationsPage({ params, searchParams }: Props) 
                     {selected.events.map((e) => (
                       <li key={e.id}>
                         <span className="text-muted">{formatDateTimeShort(locale, e.createdAt)}</span> ·{" "}
-                        {e.kind === "needs_info" ? t("historyRequested", { message: e.message ?? "" }) : e.kind === "rejected" ? t("historyRejected", { reason: e.message ?? "" }) : e.kind === "approved" ? t("historyApproved") : e.kind}
+                        {e.kind === "needs_info" ? t("historyRequested", { message: e.message ?? "" }) : e.kind === "rejected" ? t("historyRejected", { reason: e.message ?? "" }) : e.kind === "approved" ? t("historyApproved") : e.kind === "submitted" ? t("historySubmitted") : e.kind === "reopened" ? t("historyReopened") : e.kind}
                         {e.actorId ? ` (${actorName(e.actorId)})` : ""}
                       </li>
                     ))}

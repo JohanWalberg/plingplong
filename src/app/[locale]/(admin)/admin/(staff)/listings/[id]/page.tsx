@@ -7,6 +7,7 @@ import { requireStaff, isEngineer } from "@/lib/access";
 import { AdminShell, Table, Td, Th } from "@/components/admin/admin-shell";
 import { ActionButton, ConfirmActionButton } from "@/components/admin/action-buttons";
 import { ListingEditForm } from "@/components/admin/listing-edit-form";
+import { ListingStatusPill } from "@/components/admin/listing-status";
 import { getListingById } from "@/lib/queries/listings";
 import { adminRemoveListing, adminRestoreListing, markListingReviewed } from "@/actions/admin";
 import { formatDateTime, formatDateTimeShort, formatSek } from "@/lib/format";
@@ -27,6 +28,9 @@ export default async function AdminListingPage({ params }: Props) {
   if (!l) notFound();
   const t = await getTranslations("admin.listings");
   const tp = await getTranslations("portal.perf");
+  const ta = await getTranslations("portal.add");
+  const QUEUE_KEYS = { none: "queueNone", queue: "queueRequired", points: "queuePoints", unknown: "queueUnknown" } as const;
+  const ORIGIN_KEYS = { crawl: "originCrawl", portal: "originPortal", admin: "originAdmin", system: "originSystem" } as const;
   const reviewer = l.reviewedBy ? await db.query.user.findFirst({ where: eq(schema.user.id, l.reviewedBy), columns: { name: true } }) : null;
 
   return (
@@ -62,14 +66,14 @@ export default async function AdminListingPage({ params }: Props) {
             <dl className="grid gap-x-8 gap-y-3 text-[14px] sm:grid-cols-2">
               {(
                 [
-                  [t("colStatus"), <StatusPill key="s" tone={l.status === "active" ? "success" : "quiet"}>{l.status}</StatusPill>],
+                  [t("colStatus"), <ListingStatusPill key="s" status={l.status} />],
                   [t("colLandlord"), <Link key="l" href={{ pathname: "/admin/landlords/[id]", params: { id: l.landlordId } }}>{l.landlord.name}</Link>],
                   [tp("fieldRent"), l.rentMonthly === null ? "—" : formatSek(locale, l.rentMonthly)],
                   [tp("fieldRooms"), l.rooms ?? "—"],
                   [tp("fieldSize"), l.sizeSqm ?? "—"],
                   [tp("fieldDeadline"), l.applicationDeadline ?? "—"],
                   [tp("fieldMoveIn"), l.moveInDate ?? "—"],
-                  [t("queue"), l.queueRequirement],
+                  [t("queue"), ta(QUEUE_KEYS[l.queueRequirement])],
                   [t("colFirstSeen"), formatDateTime(locale, l.firstSeenAt)],
                   [t("colLastChecked"), formatDateTime(locale, l.lastCheckedAt)],
                   [t("slug"), l.slug],
@@ -107,7 +111,7 @@ export default async function AdminListingPage({ params }: Props) {
                       <Td className="font-mono text-[12.5px]">{r.field}</Td>
                       <Td>{r.oldValue ?? "—"}</Td>
                       <Td>{r.newValue ?? "—"}</Td>
-                      <Td>{r.origin}</Td>
+                      <Td>{r.origin in ORIGIN_KEYS ? t(ORIGIN_KEYS[r.origin as keyof typeof ORIGIN_KEYS]) : r.origin}</Td>
                     </tr>
                   ))}
                   {!l.revisions.length ? (
@@ -154,7 +158,7 @@ export default async function AdminListingPage({ params }: Props) {
                   </Link>
                   <p className="font-mono text-[12.5px] text-muted">{s.externalId}</p>
                   <p className="text-meta text-muted">
-                    {s.presentAtLastCheck ? "present" : "absent"} · {formatDateTimeShort(locale, s.lastCheckedAt)}
+                    {s.presentAtLastCheck ? t("sourcePresent") : t("sourceAbsent")} · {formatDateTimeShort(locale, s.lastCheckedAt)}
                   </p>
                   {s.sourceUrl ? (
                     <a href={s.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-[13px]">

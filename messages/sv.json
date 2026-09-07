@@ -1088,7 +1088,9 @@
       "selectHint": "Välj en ansökan i listan.",
       "checkOrgActive": "Organisationsnumret är aktivt hos Bolagsverket ({detail})",
       "checkOrgInactive": "Organisationsnumret är inte aktivt hos Bolagsverket ({detail})",
-      "checkOrgSince": "aktivt sedan {year}"
+      "checkOrgSince": "aktivt sedan {year}",
+      "historySubmitted": "Ansökan inkom",
+      "historyReopened": "Återöppnad"
     },
     "listings": {
       "title": "Bostäder",
@@ -1134,7 +1136,17 @@
       "fieldSegment": "Målgrupp",
       "fieldDescription": "Beskrivning",
       "fieldUrl": "Ansökningslänk",
-      "editNote": "Ändringar loggas med ditt namn. Hämtade bostäder skrivs över vid nästa avläsning om källan säger något annat."
+      "editNote": "Ändringar loggas med ditt namn. Hämtade bostäder skrivs över vid nästa avläsning om källan säger något annat.",
+      "statusDraft": "Utkast",
+      "statusUnpublished": "Avpublicerad",
+      "statusExpired": "Utgången",
+      "sourcePortal": "Portalen",
+      "originCrawl": "Avläsning",
+      "originPortal": "Portalen",
+      "originAdmin": "Admin",
+      "originSystem": "Systemet",
+      "sourcePresent": "Finns hos källan",
+      "sourceAbsent": "Borta hos källan"
     },
     "duplicates": {
       "title": "Dubblettgranskning",

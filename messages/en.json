@@ -1088,7 +1088,9 @@
       "selectHint": "Select an application in the list.",
       "checkOrgActive": "Organisation number active in the company register ({detail})",
       "checkOrgInactive": "Organisation number not active in the company register ({detail})",
-      "checkOrgSince": "active since {year}"
+      "checkOrgSince": "active since {year}",
+      "historySubmitted": "Application received",
+      "historyReopened": "Reopened"
     },
     "listings": {
       "title": "Listings",
@@ -1134,7 +1136,17 @@
       "fieldSegment": "Housing type",
       "fieldDescription": "Description",
       "fieldUrl": "Application link",
-      "editNote": "Changes are logged with your name. Fetched homes are overwritten at the next read if the source says otherwise."
+      "editNote": "Changes are logged with your name. Fetched homes are overwritten at the next read if the source says otherwise.",
+      "statusDraft": "Draft",
+      "statusUnpublished": "Unpublished",
+      "statusExpired": "Expired",
+      "sourcePortal": "Portal",
+      "originCrawl": "Crawl",
+      "originPortal": "Portal",
+      "originAdmin": "Admin",
+      "originSystem": "System",
+      "sourcePresent": "Present at the source",
+      "sourceAbsent": "Gone at the source"
     },
     "duplicates": {
       "title": "Duplicate review",

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ListingStatusPill } from "@/components/admin/listing-status";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -194,7 +195,7 @@ export default async function AdminSourcePage({ params }: Props) {
                         <Link href={{ pathname: "/admin/listings/[id]", params: { id: l.id } }}>{l.address}</Link>
                       </Td>
                       <Td>
-                        <StatusPill tone={l.status === "active" ? "success" : "quiet"}>{l.status}</StatusPill>
+                        <ListingStatusPill status={l.status} />
                       </Td>
                       <Td>{formatDateTimeShort(locale, l.lastCheckedAt)}</Td>
                     </tr>
