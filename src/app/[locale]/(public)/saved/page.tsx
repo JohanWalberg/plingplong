@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { inArray, eq, and, ne } from "drizzle-orm";
+import { inArray, eq, and, ne, isNull } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { resolveLocale } from "@/lib/locale";
 import { SiteHeader } from "@/components/site/header";
@@ -56,7 +56,7 @@ export default async function SavedPage({ params }: Props) {
         .from(listing)
         .innerJoin(landlord, eq(listing.landlordId, landlord.id))
         .innerJoin(municipality, eq(listing.municipalityId, municipality.id))
-        .where(and(inArray(listing.slug, slugs), ne(listing.status, "draft")))
+        .where(and(inArray(listing.slug, slugs), ne(listing.status, "draft"), isNull(listing.takenDownAt)))
     : [];
   const ordered = slugs.map((s) => rows.find((r) => r.slug === s)).filter(Boolean) as Array<SearchResultItem & { status: string }>;
   const td = await getTranslations("deadline");

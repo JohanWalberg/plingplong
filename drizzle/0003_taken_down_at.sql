@@ -1,0 +1,1 @@
+ALTER TABLE "listing" ADD COLUMN "taken_down_at" timestamp with time zone;

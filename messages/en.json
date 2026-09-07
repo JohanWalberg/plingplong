@@ -1152,7 +1152,8 @@
       "originAdmin": "Admin",
       "originSystem": "System",
       "sourcePresent": "Present at the source",
-      "sourceAbsent": "Gone at the source"
+      "sourceAbsent": "Gone at the source",
+      "statusTakenDown": "Taken down"
     },
     "duplicates": {
       "title": "Duplicate review",

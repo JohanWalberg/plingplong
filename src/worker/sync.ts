@@ -414,7 +414,7 @@ export async function withdrawSources(sourceIds: string[], actorId: string | nul
     if (!orphaned.length) return 0;
     const removed = await tx
       .update(listing)
-      .set({ status: "removed", removedAt: now, lastCheckedAt: now })
+      .set({ status: "removed", removedAt: now, takenDownAt: now, lastCheckedAt: now })
       .where(and(inArray(listing.id, orphaned), eq(listing.status, "active")))
       .returning({ id: listing.id });
     if (removed.length) {

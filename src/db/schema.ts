@@ -248,6 +248,13 @@ export const listing = pgTable(
     lastSeenAt: ts("last_seen_at").notNull().defaultNow(),
     lastCheckedAt: ts("last_checked_at").notNull().defaultNow(),
     removedAt: ts("removed_at"),
+    /**
+     * Set when we were told to stop showing this: a staff takedown, or a
+     * landlord objecting. Distinct from `status = "removed"`, which is the
+     * ordinary "gone at the source" state whose page stays readable so old
+     * links still explain themselves. A taken-down listing is public nowhere.
+     */
+    takenDownAt: ts("taken_down_at"),
     publishedAt: ts("published_at"),
     unpublishedAt: ts("unpublished_at"),
     reviewedAt: ts("reviewed_at"),

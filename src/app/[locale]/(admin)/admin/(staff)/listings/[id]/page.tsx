@@ -66,7 +66,7 @@ export default async function AdminListingPage({ params }: Props) {
             <dl className="grid gap-x-8 gap-y-3 text-[14px] sm:grid-cols-2">
               {(
                 [
-                  [t("colStatus"), <ListingStatusPill key="s" status={l.status} />],
+                  [t("colStatus"), <ListingStatusPill key="s" status={l.status} takenDown={l.takenDownAt !== null} />],
                   [t("colLandlord"), <Link key="l" href={{ pathname: "/admin/landlords/[id]", params: { id: l.landlordId } }}>{l.landlord.name}</Link>],
                   [tp("fieldRent"), l.rentMonthly === null ? "—" : formatSek(locale, l.rentMonthly)],
                   [tp("fieldRooms"), l.rooms ?? "—"],

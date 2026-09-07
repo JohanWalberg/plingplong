@@ -21,7 +21,13 @@ const TONES: Record<ListingStatus, StatusTone> = {
   unknown: "neutral",
 };
 
-export async function ListingStatusPill({ status }: { status: ListingStatus }) {
+/**
+ * `takenDown` separates a staff takedown or a landlord objection from the
+ * ordinary "gone at the source" removal. They share a status but not a
+ * meaning, and only the takedown makes the public page disappear.
+ */
+export async function ListingStatusPill({ status, takenDown = false }: { status: ListingStatus; takenDown?: boolean }) {
   const t = await getTranslations("admin.listings");
+  if (takenDown) return <StatusPill tone="error">{t("statusTakenDown")}</StatusPill>;
   return <StatusPill tone={TONES[status]}>{t(KEYS[status])}</StatusPill>;
 }

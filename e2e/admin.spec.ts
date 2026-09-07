@@ -51,11 +51,14 @@ test("lead edits a listing, removes it from search and restores it", async ({ pa
   await page.getByRole("dialog").getByLabel("Skäl").fill("Testtakedown");
   await page.getByRole("dialog").getByRole("button", { name: "Ta bort från sökningen" }).click();
   await expect(page.getByRole("dialog")).toBeHidden();
-  await page.goto("/sv/bostad/hornsgatan-152-stockholm");
-  await expect(page.getByText("Inte längre tillgänglig").first()).toBeVisible();
+  // A takedown is not the same as a home the feed stopped listing: the page goes entirely.
+  expect((await page.goto("/sv/bostad/hornsgatan-152-stockholm"))?.status()).toBe(404);
 
   await page.goto("/sv/admin/bostader?q=Hornsgatan");
   await page.getByRole("link", { name: "Hornsgatan 152" }).click();
+  await expect(page.getByText("Nedtagen").first()).toBeVisible();
   await page.getByRole("button", { name: "Visa igen" }).click();
   await expect(page.getByRole("button", { name: "Ta bort från sökningen" })).toBeVisible();
+  // Restoring clears the takedown, so the page comes back.
+  expect((await page.goto("/sv/bostad/hornsgatan-152-stockholm"))?.status()).toBe(200);
 });

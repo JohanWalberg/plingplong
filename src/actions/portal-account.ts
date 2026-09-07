@@ -56,9 +56,11 @@ export async function closeLandlordAccount(locale: Locale, confirmName: string):
   const now = new Date();
   const { listing, listingRevision, source, landlordMember, landlordInvitation, landlord } = schema;
   await db.transaction(async (tx) => {
+    // Everything published here goes down with the account, not merely out of search:
+    // closing is an objection, and an objection means the record stops being public.
     const direct = await tx.select({ id: listing.id, status: listing.status }).from(listing).where(and(eq(listing.landlordId, me.landlordId), eq(listing.publishedDirectly, true), eq(listing.status, "active")));
     if (direct.length) {
-      await tx.update(listing).set({ status: "unpublished", unpublishedAt: now, lastCheckedAt: now }).where(inArray(listing.id, direct.map((d) => d.id)));
+      await tx.update(listing).set({ status: "unpublished", unpublishedAt: now, takenDownAt: now, lastCheckedAt: now }).where(inArray(listing.id, direct.map((d) => d.id)));
       await tx.insert(listingRevision).values(direct.map((d) => ({ listingId: d.id, field: "status", oldValue: d.status, newValue: "unpublished", origin: "portal", changedBy: me.userId, changedAt: now })));
     }
     // Closing the account is an objection: the sources stop, and what they collected leaves search with them.

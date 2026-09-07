@@ -14,13 +14,12 @@ test("owner closes the landlord account; users are gone and homes unpublished", 
   await dialog.getByRole("button", { name: "Avsluta kontot" }).click();
   await page.waitForURL(/\/portal\/logga-in/);
 
-  // The direct listing is now unpublished publicly.
-  await page.goto("/sv/bostad/solnavagen-51-solna");
-  await expect(page.getByText("Inte längre tillgänglig").first()).toBeVisible();
-
-  // Closing the account is an objection, so what the feed put in search goes with it.
-  await page.goto("/sv/bostad/rasundavagen-102-solna");
-  await expect(page.getByText("Inte längre tillgänglig").first()).toBeVisible();
+  // Closing the account is an objection, so nothing the landlord published or
+  // the feed collected stays readable: these pages are gone, not "no longer available".
+  for (const slug of ["solnavagen-51-solna", "rasundavagen-102-solna"]) {
+    const res = await page.goto(`/sv/bostad/${slug}`);
+    expect(res?.status(), slug).toBe(404);
+  }
   await page.goto("/sv/bostader/solna");
   await expect(page.getByRole("link", { name: /Råsundavägen 102/ })).toHaveCount(0);
   await expect(page.getByRole("link", { name: /Hagalundsgatan 17/ })).toHaveCount(0);

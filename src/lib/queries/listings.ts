@@ -234,8 +234,10 @@ export async function similarListings(locale: Locale, ref: { id: string; municip
  */
 export const getListingBySlug = cache(async (slug: string) => {
   return db.query.listing.findFirst({
-    // Drafts are never public: not on the page, the share image or the saved list.
-    where: and(eq(listing.slug, slug), ne(listing.status, "draft")),
+    // Drafts were never public. A taken-down listing is not either: unlike an
+    // ordinary removal, whose page stays up to say the home is gone, a takedown
+    // or an objection means the record must not be readable at all.
+    where: and(eq(listing.slug, slug), ne(listing.status, "draft"), isNull(listing.takenDownAt)),
     columns: { location: false },
     extras: {
       lat: sql<number | null>`ST_Y(${listing.location})`.as("lat"),

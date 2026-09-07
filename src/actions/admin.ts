@@ -435,7 +435,7 @@ export async function adminRemoveListing(locale: Locale, listingId: string, reas
   if (!before) return fail("missing");
   if (before.status === "removed") return fail("noChange");
   const now = new Date();
-  await db.update(listing).set({ status: "removed", removedAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
+  await db.update(listing).set({ status: "removed", removedAt: now, takenDownAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
   await db.insert(schema.listingRevision).values([
     { listingId, field: "status", oldValue: before.status, newValue: "removed", origin: "admin", changedBy: me.userId, changedAt: now },
     { listingId, field: "takedown_reason", oldValue: null, newValue: reason, origin: "admin", changedBy: me.userId, changedAt: now },
@@ -451,7 +451,7 @@ export async function adminRestoreListing(locale: Locale, listingId: string): Pr
   if (!before) return fail("missing");
   if (before.status !== "removed") return fail("noChange");
   const now = new Date();
-  await db.update(listing).set({ status: "active", removedAt: null, lastSeenAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
+  await db.update(listing).set({ status: "active", removedAt: null, takenDownAt: null, lastSeenAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
   await db.insert(schema.listingRevision).values({ listingId, field: "status", oldValue: "removed", newValue: "active", origin: "admin", changedBy: me.userId, changedAt: now });
   revalidateAdmin();
   invalidateListingCaches();
