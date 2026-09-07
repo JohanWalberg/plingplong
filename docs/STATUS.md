@@ -8,8 +8,8 @@ Snapshot at the end of the first build session, 2026-09-05. Everything below
 **Foundation.** Next.js 16, Tailwind 4 with the design tokens, Drizzle schema
 for the full data model, PostGIS via Docker, seed with real municipalities and
 landlords plus about 40 synthetic listings, message catalogues in both languages
-with a parity check, translated pathnames, unit tests (76), database integration tests (13) and Playwright
-end-to-end tests with axe (19).
+with a parity check, translated pathnames, unit tests (86), database integration tests (24) and Playwright
+end-to-end tests with axe (22).
 
 **Public site.** Home, search results with URL filter state, sorting,
 pagination, coverage line, partial-coverage banner, empty state with recovery
@@ -84,6 +84,35 @@ portal, admin and public page; unknown paths under a locale reach the
 localised not-found page, and unknown listing, municipality and landlord
 slugs answer a real 404 from a per-slug layout that runs before the loading
 boundary.
+
+**Product review (2026-09-07, afternoon).** A walk through the public site,
+portal and admin at desktop and phone widths, against the brief. Three
+verified bugs, four gaps and five interface fixes, one commit each.
+
+Bugs. Correlated subqueries interpolated an outer column that Drizzle renders
+unqualified in a single-table select, so the name bound to the subquery's own
+tables and matched nothing: the portal showed 0 homes per source and no source
+per home, and the admin landlord list showed 0 listings and 0 sources for
+everyone. An objection (a landlord closing their account, or staff setting
+consent to objected) stopped the crawler but left everything it had already
+collected in search. The partial-coverage banner said homes from a failing
+source were missing from the results while they sat in the list below it.
+
+Gaps. Similar homes appeared only on a home that was already gone. There was
+no way to report a wrong listing. Nothing told an owner a home was about to
+pass its deadline. Admin rendered raw database values (`active`, `queue`,
+`crawl`, `present`, `submitted`) in a Swedish interface.
+
+Interface. A phone showed neither the rent nor the deadline without scrolling
+past everything. Six pages scrolled sideways on a phone, from grid items
+sized to their content and a visually hidden label escaping a scroll box;
+`e2e/responsive.spec.ts` now guards every surface at 390px. The home page
+said nothing about how much it holds. "Saved searches" was renamed to
+"Saved". The results coverage line links to the landlords behind it.
+
+Not done: a user who belongs to several landlords still gets an arbitrary
+one, which needs a product decision (a switcher, or one membership per
+account).
 
 ## Review
 
