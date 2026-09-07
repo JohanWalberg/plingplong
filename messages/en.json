@@ -88,7 +88,8 @@
     "activeFilters": "{count, plural, one {# active filter} other {# active filters}}",
     "liveCount": "{count, plural, =0 {No homes} one {# home} other {# homes}} match",
     "allOfSweden": "All of Sweden",
-    "in": "in {place}"
+    "in": "in {place}",
+    "coverageWhich": "Which ones?"
   },
   "filters": {
     "title": "Filters",

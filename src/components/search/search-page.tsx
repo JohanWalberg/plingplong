@@ -92,6 +92,15 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
                 </h1>
                 <p className="mt-1 text-[13.5px] text-muted">
                   {muni && coverage ? t("coverageLine", { monitored: coverage.monitored, known: coverage.known, place: municipalityName(muni, locale), sort: sortLabel }) : t("sortedBy", { sort: sortLabel })}
+                  {/* Which landlords those are, and which we do not read, is on the municipality page. */}
+                  {muni && coverage && coverage.known > coverage.monitored ? (
+                    <>
+                      {" "}
+                      <Link href={{ pathname: "/municipalities/[slug]", params: { slug: municipalitySlug(muni, locale) } }} className="font-[600] text-ink-2">
+                        {t("coverageWhich")}
+                      </Link>
+                    </>
+                  ) : null}
                 </p>
               </div>
               <div className="flex items-center gap-2">
