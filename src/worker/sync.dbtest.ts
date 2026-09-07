@@ -121,3 +121,19 @@ describe("syncSource", () => {
     if (!out.ok) expect(await bySource()).toEqual(before);
   });
 });
+
+describe("a source staff put in review", () => {
+  it("stays in review when a manual run fails, instead of becoming degraded", async () => {
+    const lid = await makeLandlord("Granskning AB");
+    landlords.push(lid);
+    const sid = await makeSource(lid);
+    await db.update(source).set({ status: "needs_review" }).where(eq(source.id, sid));
+
+    fetchText.mockRejectedValueOnce(new AdapterError("unreachable", "boom"));
+    const out = await syncSource(sid, { force: true });
+
+    expect(out.ok).toBe(false);
+    // "degraded" is scheduled again; "needs_review" waits for staff, which is the point.
+    expect((await db.query.source.findFirst({ where: eq(source.id, sid) }))?.status).toBe("needs_review");
+  });
+});

@@ -109,6 +109,9 @@ export async function setSourceEnabled(locale: Locale, id: string, enabled: bool
   const existing = await db.query.source.findFirst({ where: and(eq(source.id, id), eq(source.landlordId, me.landlordId)) });
   if (!existing) return;
   if (!rateLimit(`source-toggle:${id}`, 6, 3600).ok) return;
+  // Staff hold a source in review, or disable one, for reasons the owner cannot
+  // see. Pausing is always allowed; resuming is not a way around that decision.
+  if (enabled && existing.status === "needs_review") return;
   await db.update(source).set({ status: enabled ? "pending" : "disabled", consecutiveFailures: 0, nextRunAt: enabled ? new Date() : null }).where(eq(source.id, id));
 }
 

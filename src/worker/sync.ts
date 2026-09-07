@@ -289,7 +289,15 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
     return await recordFailure(src, run.id, e instanceof AdapterError ? e : new AdapterError("parse_error", `sync failed: ${(e as Error).message}`), now);
   }
 
-  if (newListingIds.length) await findDuplicates(newListingIds);
+  // After the run is committed and recorded as successful, so a failure here
+  // must not fail the crawl that already worked.
+  if (newListingIds.length) {
+    try {
+      await findDuplicates(newListingIds);
+    } catch (e) {
+      reportError(e, { kind: "duplicate detection", sourceId: src.id });
+    }
+  }
 
   return { ok: true, found, created, updated, gone, anomaly, landlordId: src.landlordId, municipalityIds: [...touchedMunicipalities] };
 }
@@ -303,7 +311,9 @@ async function recordFailure(src: typeof source.$inferSelect & { landlord: { nam
   await db
     .update(source)
     .set({
-      status: src.status === "disabled" ? "disabled" : failures >= 3 ? "failed" : "degraded",
+      // A source staff disabled or held for review keeps that state: a failed run
+      // must never be the thing that puts it back in the scheduler's reach.
+      status: src.status === "disabled" || src.status === "needs_review" ? src.status : failures >= 3 ? "failed" : "degraded",
       lastRunAt: now,
       nextRunAt: new Date(now.getTime() + Math.min(src.fetchIntervalMinutes * 60_000 * 2 ** Math.min(failures, 4), 24 * 60 * 60_000)),
       consecutiveFailures: failures,
