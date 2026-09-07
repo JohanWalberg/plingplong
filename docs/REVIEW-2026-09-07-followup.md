@@ -10,6 +10,55 @@ reading the code only. Fix the verified ones first.
 
 ---
 
+## Status
+
+Everything under "Fix before a public deploy", all five performance items and
+all four code-quality items are fixed, one commit each, plus the three missing
+rate limits and the two source-state escapes from the reported list. Two bugs
+surfaced while writing tests for the fixes and are recorded below.
+
+| Finding | Commit |
+|---|---|
+| S1 takedown left the listing readable | `4df6c45` |
+| S2 daily view dedupe lasted a minute | `0c85e93` |
+| S3 100 MB body before authentication | `fee0ba8` |
+| S4, S5 localhost carve-out, force flag | `63992a5` |
+| P1 crawl flushed every public page | `ff3b90e` |
+| P2, P3 missing indexes | `4ecb747` |
+| P4 facet cached per page and sort | `69b4ca9` |
+| P5 unbounded limiter store | `0c85e93` |
+| C1 retention never deleted the users | `b1901d8` |
+| C2, C3 enqueue in transaction, slug retry | `2ea90e4` |
+| C4 dead code and misleading comments | `c34bd18` |
+| Missing rate limits (three paths) | `8d53a88` |
+| Staff hold escapes, duplicate guard | `4dd8a53` |
+
+Found while fixing, not in the original list:
+
+- `purgeApplications` bound its cutoffs as `Date` objects inside a raw SQL
+  template, which reaches the driver unmapped. The nightly purge threw every
+  time it ran and nothing had exercised it. Fixed in `b1901d8`.
+- The slug retry matched any unique violation, so a duplicate organisation
+  number burned three retries and then threw instead of returning a validation
+  failure. Fixed in `2ea90e4`.
+
+Still open, all scale-related or judgement calls, none blocking:
+
+- Duplicate detection is one candidate query per new listing, and the worker
+  loads every area row per run. Both are invisible at this size.
+- Five call sites select whole municipality or area rows including geometry
+  columns. Free until boundaries are loaded, which the schema anticipates.
+- The suggest endpoint evaluates a correlated count per candidate row.
+- Portal and admin lists run correlated subqueries per row. Staff and landlord
+  traffic only.
+- The sitemap is assembled in memory and emits two entries per listing.
+- The map page serialises full card objects into its payload.
+- Accepting an invitation while signed in needs no confirmation of which
+  organisation is being joined, and membership still resolves arbitrarily for a
+  user who belongs to several. Both wait on the multi-landlord decision.
+- Unscoped rent and size sorts still sort in full.
+- The content-security policy is still report-only with no reporting endpoint.
+
 ## Fix before a public deploy
 
 ### S1. A takedown leaves the listing publicly readable — [verified]

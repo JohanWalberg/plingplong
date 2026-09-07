@@ -8,7 +8,7 @@ Snapshot at the end of the first build session, 2026-09-05. Everything below
 **Foundation.** Next.js 16, Tailwind 4 with the design tokens, Drizzle schema
 for the full data model, PostGIS via Docker, seed with real municipalities and
 landlords plus about 50 synthetic listings, message catalogues in both languages
-with a parity check, translated pathnames, unit tests (106), database integration tests (28) and Playwright
+with a parity check, translated pathnames, unit tests (110), database integration tests (39) and Playwright
 end-to-end tests with axe (22).
 
 **Public site.** Home, search results with URL filter state, sorting,
@@ -113,6 +113,22 @@ said nothing about how much it holds. "Saved searches" was renamed to
 Not done: a user who belongs to several landlords still gets an arbitrary
 one, which needs a product decision (a switcher, or one membership per
 account).
+
+**Follow-up review (2026-09-07).** A second pass over security, performance and
+code quality, written up in `REVIEW-2026-09-07-followup.md` with each finding
+marked verified or reported. Everything blocking is fixed, one commit each.
+
+The two that mattered most: a takedown left the listing fully readable, because
+a staff takedown, a landlord objection and an ordinary expiry all shared one
+status and only the last should keep its page; and the per-visitor-per-day view
+count lasted about a minute, because the rate limiter expired every entry
+against whichever caller happened to trigger its sweep. Also fixed: 100 MB
+bodies accepted before authentication, a localhost auth URL skipping the rest
+of the production checks, support staff able to force-run a source a lead
+disabled, the crawl flushing every public page rather than the ones it touched,
+four missing indexes, three unbounded authenticated paths, and a nightly
+retention job that threw every time it ran and, once fixed, never deleted the
+user rows it promised to.
 
 ## Review
 
