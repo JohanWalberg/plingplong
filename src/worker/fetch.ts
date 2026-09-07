@@ -3,16 +3,23 @@ import { AdapterError, type FetchContext } from "./adapters/types";
 import { assertPublicUrl, BlockedUrlError } from "@/lib/net-guard";
 
 const USER_AGENT = process.env.CRAWLER_USER_AGENT ?? "Hyrabostad/1.0 (+https://hyrabostad.se/om-insamling)";
+const ROBOTS_UA = USER_AGENT.split("/")[0];
 const TIMEOUT_MS = 30_000;
 const MAX_BODY_BYTES = 10 * 1024 * 1024; // decompressed
 const MAX_REDIRECTS = 5;
+const MIN_GAP_MS = 1000;
+const MAX_CRAWL_DELAY_MS = 30_000;
 
 /** One request at a time per host, with a polite minimum gap and jittered backoff on errors. */
 class HostQueue {
   private chain: Promise<unknown> = Promise.resolve();
   private lastAt = 0;
   private penalty = 0;
-  constructor(private readonly minGapMs: number) {}
+  constructor(private minGapMs: number) {}
+  /** robots.txt Crawl-delay, capped so one host cannot stall the worker. */
+  setMinGap(ms: number) {
+    this.minGapMs = Math.max(MIN_GAP_MS, Math.min(MAX_CRAWL_DELAY_MS, ms));
+  }
   run<T>(fn: () => Promise<T>): Promise<T> {
     const next = this.chain.then(async () => {
       const wait = Math.max(0, this.lastAt + this.minGapMs + this.penalty - Date.now());
@@ -39,7 +46,7 @@ const robotsCache = new Map<string, { at: number; robots: ReturnType<typeof robo
 
 function hostQueue(host: string) {
   let q = hosts.get(host);
-  if (!q) hosts.set(host, (q = new HostQueue(1000)));
+  if (!q) hosts.set(host, (q = new HostQueue(MIN_GAP_MS)));
   return q;
 }
 
@@ -52,16 +59,19 @@ async function robotsAllows(url: string): Promise<boolean> {
     let robots: ReturnType<typeof robotsParser> | null = null;
     try {
       await assertPublicUrl(`${origin}/robots.txt`);
-      const res = await fetch(`${origin}/robots.txt`, { headers: { "user-agent": USER_AGENT }, signal: AbortSignal.timeout(10_000), redirect: "manual" });
+      // Through the same per-host queue as the page fetches, so robots.txt counts towards the gap too.
+      const res = await hostQueue(u.host).run(() => fetch(`${origin}/robots.txt`, { headers: { "user-agent": USER_AGENT }, signal: AbortSignal.timeout(10_000), redirect: "manual" }));
       if (res.ok) robots = robotsParser(`${origin}/robots.txt`, await readCapped(res, 512 * 1024));
     } catch {
       robots = null; // unreachable robots.txt: treat as allow
     }
     entry = { at: Date.now(), robots };
     robotsCache.set(origin, entry);
+    const delay = robots?.getCrawlDelay(ROBOTS_UA);
+    if (delay) hostQueue(u.host).setMinGap(delay * 1000);
   }
   if (!entry.robots) return true;
-  return entry.robots.isAllowed(url, USER_AGENT.split("/")[0]) !== false;
+  return entry.robots.isAllowed(url, ROBOTS_UA) !== false;
 }
 
 /**

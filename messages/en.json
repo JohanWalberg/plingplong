@@ -525,7 +525,8 @@
       "needsInfoTitle": "We need more detail",
       "needsInfoBody": "Our reviewer has sent a question to {email}. Reply to the email and the review continues.",
       "termsLink": "Read the terms",
-      "rateLimited": "Too many attempts. Wait a while and try again."
+      "rateLimited": "Too many attempts. Wait a while and try again.",
+      "websitePlaceholder": "company.se"
     },
     "nav": {
       "homes": "Homes",
@@ -827,7 +828,10 @@
       "backToList": "All sources",
       "typeLabelShort": "Type",
       "colLastRun": "Last fetch",
-      "htmlSaved": "The address is saved. We will be in touch when the reader is set up."
+      "htmlSaved": "The address is saved. We will be in touch when the reader is set up.",
+      "queueOptionNone": "No queue required",
+      "queueOptionQueue": "Housing queue required",
+      "contactPlaceholder": "ops@company.se"
     },
     "account": {
       "title": "Account",
@@ -1169,7 +1173,12 @@
       "inviteSent": "The invitation has been sent.",
       "userAgent": "User-Agent for reads",
       "retention": "Raw data is kept for {days} days.",
-      "inviteHint": "The person must already have an account (sign up via the portal form first)."
+      "inviteHint": "The person must already have an account (sign up via the portal form first).",
+      "colActions": "Actions",
+      "remove": "Remove",
+      "removeTitle": "Remove staff access?",
+      "removeBody": "{name} will lose access to the admin. Their account stays.",
+      "removed": "Staff access removed."
     },
     "errors": {
       "invalid": "Some fields need attention.",

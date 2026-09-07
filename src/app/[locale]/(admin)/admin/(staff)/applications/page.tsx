@@ -7,7 +7,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { ActionButton, ConfirmActionButton } from "@/components/admin/action-buttons";
 import { applicationCounts, listApplications } from "@/lib/queries/admin";
 import { approveApplication, rejectApplication, reopenApplication, requestMoreInfo } from "@/actions/admin";
-import { formatDateTimeShort } from "@/lib/format";
+import { formatDateTimeShort, formatRelative } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Card, Kicker, icons } from "@/components/ui/misc";
 import { db, schema } from "@/db";
@@ -17,10 +17,7 @@ type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 function RelativeAge({ date, locale }: { date: Date; locale: "sv" | "en" }) {
-  const minutes = Math.round((Date.now() - date.getTime()) / 60_000);
-  const rtf = new Intl.RelativeTimeFormat(locale === "sv" ? "sv-SE" : "en-GB", { numeric: "auto" });
-  const text = minutes < 60 ? rtf.format(-minutes, "minute") : minutes < 1440 ? rtf.format(-Math.round(minutes / 60), "hour") : rtf.format(-Math.round(minutes / 1440), "day");
-  return <time dateTime={date.toISOString()}>{text}</time>;
+  return <time dateTime={date.toISOString()}>{formatRelative(locale, date)}</time>;
 }
 
 export default async function ApplicationsPage({ params, searchParams }: Props) {

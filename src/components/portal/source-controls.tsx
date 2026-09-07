@@ -57,8 +57,8 @@ export function SourceSettingsForm({ id, interval, techContact, queueDefault, ha
       {kind === "api" ? <Input label={t("apiKeyLabel")} name="apiKey" type="password" placeholder={hasApiKey ? "••••••••" : ""} hint={t("apiKeyHint")} autoComplete="off" /> : null}
       <Select label={t("queueDefaultLabel")} name="queueDefault" hint={t("queueDefaultHint")} defaultValue={queueDefault}>
         <option value="">{t("queueDefaultNone")}</option>
-        <option value="none">{locale === "sv" ? "Ingen kö krävs" : "No queue required"}</option>
-        <option value="queue">{locale === "sv" ? "Bostadskö krävs" : "Housing queue required"}</option>
+        <option value="none">{t("queueOptionNone")}</option>
+        <option value="queue">{t("queueOptionQueue")}</option>
         <option value="points">{locale === "sv" ? "Köpoäng används" : "Queue points used"}</option>
       </Select>
       <Button type="submit" loading={pending} className="self-start">

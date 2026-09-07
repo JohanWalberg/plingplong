@@ -71,6 +71,15 @@ export function formatDateTimeShort(locale: Locale, d: Date | string) {
 }
 
 /** "15,7 %" / "15.7%" */
+/** "5 minutes ago" / "för 2 timmar sedan"; minutes under an hour, hours under a day, then days. */
+export function formatRelative(locale: Locale, d: Date | string, now: Date = new Date()) {
+  const minutes = Math.round((now.getTime() - toDate(d).getTime()) / 60_000);
+  const rtf = new Intl.RelativeTimeFormat(locale === "sv" ? "sv-SE" : "en-GB", { numeric: "auto" });
+  if (Math.abs(minutes) < 60) return rtf.format(-minutes, "minute");
+  if (Math.abs(minutes) < 1440) return rtf.format(-Math.round(minutes / 60), "hour");
+  return rtf.format(-Math.round(minutes / 1440), "day");
+}
+
 export function formatPercent(locale: Locale, ratio: number, digits = 1) {
   return new Intl.NumberFormat(intlLocale(locale), { style: "percent", maximumFractionDigits: digits, minimumFractionDigits: digits }).format(ratio);
 }

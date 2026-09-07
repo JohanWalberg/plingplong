@@ -4,6 +4,7 @@ import { db, schema, type Db, type Tx } from "@/db";
 import { listingSlug, slugify } from "@/lib/slug";
 import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { LISTING_TRACKED, diffTracked } from "@/lib/queries/revisions";
+import { landlordLocale } from "@/lib/queries/landlords";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { getAdapter, AdapterError, sniffFeedAdapter, type AdapterResult } from "./adapters";
@@ -267,7 +268,7 @@ async function recordFailure(src: typeof source.$inferSelect & { landlord: { nam
     .where(eq(source.id, src.id));
   if (failures === 3 && src.techContactEmail) {
     try {
-      const mail = await renderEmail("sv", "sourceFailed", { source: src.url ?? src.landlord.name, count: failures, error: err.message });
+      const mail = await renderEmail(await landlordLocale(src.landlordId), "sourceFailed", { source: src.url ?? src.landlord.name, count: failures, error: err.message });
       await sendEmail({ to: src.techContactEmail, ...mail });
     } catch (mailErr) {
       console.error("could not email tech contact", mailErr);

@@ -525,7 +525,8 @@
       "needsInfoTitle": "Vi behöver en komplettering",
       "needsInfoBody": "Vår granskare har skickat en fråga till {email}. Svara på mejlet så fortsätter granskningen.",
       "termsLink": "Läs villkoren",
-      "rateLimited": "För många försök. Vänta en stund och försök igen."
+      "rateLimited": "För många försök. Vänta en stund och försök igen.",
+      "websitePlaceholder": "foretaget.se"
     },
     "nav": {
       "homes": "Bostäder",
@@ -827,7 +828,10 @@
       "backToList": "Alla källor",
       "typeLabelShort": "Typ",
       "colLastRun": "Senaste hämtning",
-      "htmlSaved": "Adressen är sparad. Vi hör av oss när avläsningen är uppsatt."
+      "htmlSaved": "Adressen är sparad. Vi hör av oss när avläsningen är uppsatt.",
+      "queueOptionNone": "Ingen kö krävs",
+      "queueOptionQueue": "Bostadskö krävs",
+      "contactPlaceholder": "drift@foretaget.se"
     },
     "account": {
       "title": "Konto",
@@ -1169,7 +1173,12 @@
       "inviteSent": "Inbjudan är skickad.",
       "userAgent": "User-Agent för avläsningar",
       "retention": "Rådata sparas i {days} dagar.",
-      "inviteHint": "Personen måste redan ha ett konto (registrera via portalens formulär först)."
+      "inviteHint": "Personen måste redan ha ett konto (registrera via portalens formulär först).",
+      "colActions": "Åtgärder",
+      "remove": "Ta bort",
+      "removeTitle": "Ta bort adminbehörighet?",
+      "removeBody": "{name} förlorar åtkomsten till admin. Kontot finns kvar.",
+      "removed": "Adminbehörigheten är borttagen."
     },
     "errors": {
       "invalid": "Några fält behöver rättas.",

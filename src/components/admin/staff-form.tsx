@@ -52,6 +52,8 @@ export function StaffForm() {
 
 export function StaffRoleSelect({ userId, role }: { userId: string; role: string }) {
   const t = useTranslations("admin.settings");
+  const te = useTranslations("admin.errors");
+  const { toast } = useToast();
   const locale = useLocale() as Locale;
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -64,7 +66,8 @@ export function StaffRoleSelect({ userId, role }: { userId: string; role: string
       className="min-h-9 py-0 text-[13.5px]"
       onChange={(e) =>
         start(async () => {
-          await setStaffRole(locale, userId, e.target.value as "support");
+          const res = await setStaffRole(locale, userId, e.target.value as "support");
+          if (!res.ok) toast(te(res.error), "error");
           router.refresh();
         })
       }

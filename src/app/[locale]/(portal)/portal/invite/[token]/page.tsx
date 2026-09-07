@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { resolveLocale } from "@/lib/locale";
-import { findInvitation } from "@/actions/invite";
+import { findInvitation } from "@/lib/queries/invitations";
 import { PortalPublicShell } from "@/components/portal/portal-shell";
 import { AcceptInviteForm } from "@/components/portal/accept-invite-form";
 import { Card, Callout } from "@/components/ui/misc";

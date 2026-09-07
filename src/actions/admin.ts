@@ -341,6 +341,15 @@ export async function setStaffRole(locale: Locale, userId: string, role: "suppor
   return OK;
 }
 
+export async function removeStaff(locale: Locale, userId: string): Promise<ActionResult> {
+  const me = await requireStaff(locale, "lead");
+  if (userId === me.userId) return fail("self");
+  const rows = await db.delete(staffUser).where(eq(staffUser.userId, userId)).returning({ userId: staffUser.userId });
+  if (!rows.length) return fail("missing");
+  revalidateAdmin();
+  return OK;
+}
+
 export async function addStaffByEmail(locale: Locale, email: string, role: "support" | "lead" | "engineer"): Promise<ActionResult> {
   await requireStaff(locale, "lead");
   if (!staffRole.safeParse(role).success) return fail("invalid");

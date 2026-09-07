@@ -56,7 +56,7 @@ export function SignupForm({ manualPublishing = true }: { manualPublishing?: boo
       <div className="grid gap-4 sm:grid-cols-2">
         <Input label={t("orgNumber")} name="orgNumber" hint={t("orgNumberHint")} error={err("orgNumber")} inputMode="numeric" autoComplete="off" required />
         <Input label={t("companyName")} name="companyName" error={err("companyName")} required wrapperClassName="sm:col-span-2" />
-        <Input label={t("website")} name="website" hint={t("websiteHint")} error={err("website")} inputMode="url" placeholder="foretaget.se" />
+        <Input label={t("website")} name="website" hint={t("websiteHint")} error={err("website")} inputMode="url" placeholder={t("websitePlaceholder")} />
         <Input label={t("contactName")} name="contactName" placeholder={t("contactNamePlaceholder")} error={err("contactName")} required autoComplete="name" />
         <Input label={t("email")} name="email" type="email" hint={t("emailHint")} error={err("email")} required autoComplete="email" />
         <Input label={t("phone")} name="phone" type="tel" hint={t("phoneHint")} error={err("phone")} autoComplete="tel" />

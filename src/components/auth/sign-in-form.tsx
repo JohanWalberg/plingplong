@@ -17,14 +17,11 @@ export function SignInForm({ surface }: { surface: "portal" | "admin" }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Only a message: a link with ?denied=1 must not be able to sign anyone out.
+  // Signing in below replaces whatever session the browser still has.
   useEffect(() => {
-    if (search.get("expired")) {
-      authClient.signOut();
-      setError(t("sessionExpired"));
-    } else if (search.get("denied")) {
-      authClient.signOut();
-      setError(t("noAccess"));
-    }
+    if (search.get("expired")) setError(t("sessionExpired"));
+    else if (search.get("denied")) setError(t("noAccess"));
   }, [search, t]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {

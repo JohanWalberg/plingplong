@@ -4,6 +4,8 @@ import { resolveLocale } from "@/lib/locale";
 import { requireStaff } from "@/lib/access";
 import { AdminShell, Table, Td, Th } from "@/components/admin/admin-shell";
 import { StaffForm, StaffRoleSelect } from "@/components/admin/staff-form";
+import { ConfirmActionButton } from "@/components/admin/action-buttons";
+import { removeStaff } from "@/actions/admin";
 import { listStaff } from "@/lib/queries/admin";
 import { Card } from "@/components/ui/misc";
 import { USER_AGENT } from "@/worker/fetch";
@@ -31,6 +33,7 @@ export default async function AdminSettingsPage({ params }: Props) {
                   <Th>{t("colName")}</Th>
                   <Th>{t("colEmail")}</Th>
                   <Th>{t("colRole")}</Th>
+                  {lead ? <Th right>{t("colActions")}</Th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -39,6 +42,15 @@ export default async function AdminSettingsPage({ params }: Props) {
                     <Td>{s.user.name}</Td>
                     <Td>{s.user.email}</Td>
                     <Td>{lead && s.userId !== viewer.userId ? <StaffRoleSelect userId={s.userId} role={s.role} /> : t(`role${s.role[0].toUpperCase()}${s.role.slice(1)}` as "roleLead")}</Td>
+                    {lead ? (
+                      <Td right>
+                        {s.userId !== viewer.userId ? (
+                          <ConfirmActionButton action={removeStaff.bind(null, locale, s.userId)} variant="danger" title={t("removeTitle")} body={t("removeBody", { name: s.user.name })} confirmLabel={t("remove")} successMessage={t("removed")}>
+                            {t("remove")}
+                          </ConfirmActionButton>
+                        ) : null}
+                      </Td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>

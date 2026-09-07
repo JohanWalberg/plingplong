@@ -7,7 +7,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { ActionButton, ConfirmActionButton } from "@/components/admin/action-buttons";
 import { listDuplicates } from "@/lib/queries/admin";
 import { decideDuplicate } from "@/actions/admin";
-import { formatNumber, formatSek } from "@/lib/format";
+import { formatNumber, formatSek, formatSize } from "@/lib/format";
 import { Card } from "@/components/ui/misc";
 import { StatusPill } from "@/components/ui/badge";
 
@@ -27,7 +27,7 @@ export default async function DuplicatesPage({ params, searchParams }: Props) {
       [t("fieldAddress"), x.address],
       [t("fieldRent"), x.rentMonthly === null ? "—" : formatSek(locale, x.rentMonthly)],
       [t("fieldRooms"), x.rooms === null ? "—" : formatNumber(locale, x.rooms, { maximumFractionDigits: 1 })],
-      [t("fieldSize"), x.sizeSqm === null ? "—" : `${formatNumber(locale, x.sizeSqm)} m²`],
+      [t("fieldSize"), x.sizeSqm === null ? "—" : formatSize(locale, x.sizeSqm)],
       [t("fieldLandlord"), x.landlordName],
       [t("fieldSource"), x.sourceDomain ?? "portal"],
     ] as Array<[string, string]>;

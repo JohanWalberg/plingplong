@@ -136,11 +136,11 @@ export function SourceForm() {
               <option value="240">{t("freq4h")}</option>
               <option value="1440">{t("freqDaily")}</option>
             </Select>
-            <Input label={t("contactLabel")} name="techContactEmail" type="email" placeholder="drift@foretaget.se" />
+            <Input label={t("contactLabel")} name="techContactEmail" type="email" placeholder={t("contactPlaceholder")} />
             <Select label={t("queueDefaultLabel")} name="queueDefault" hint={t("queueDefaultHint")} defaultValue="">
               <option value="">{t("queueDefaultNone")}</option>
-              <option value="none">{t("fieldQueue")}: {locale === "sv" ? "Ingen kö krävs" : "No queue required"}</option>
-              <option value="queue">{t("fieldQueue")}: {locale === "sv" ? "Bostadskö krävs" : "Housing queue required"}</option>
+              <option value="none">{t("fieldQueue")}: {t("queueOptionNone")}</option>
+              <option value="queue">{t("fieldQueue")}: {t("queueOptionQueue")}</option>
               <option value="points">{t("fieldQueue")}: {locale === "sv" ? "Köpoäng används" : "Queue points used"}</option>
             </Select>
             <Button type="submit" size="lg" loading={connecting} className="self-start">

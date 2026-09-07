@@ -1,6 +1,6 @@
 "use server";
 
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { APIError } from "better-auth";
@@ -11,15 +11,7 @@ import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { absoluteUrl } from "@/lib/seo";
 import type { Locale } from "@/i18n/routing";
-
-const hash = (t: string) => createHash("sha256").update(t).digest("hex");
-
-export async function findInvitation(token: string) {
-  return db.query.landlordInvitation.findFirst({
-    where: and(eq(schema.landlordInvitation.tokenHash, hash(token)), isNull(schema.landlordInvitation.acceptedAt), gt(schema.landlordInvitation.expiresAt, new Date())),
-    with: { landlord: true },
-  });
-}
+import { findInvitation, hashInviteToken } from "@/lib/queries/invitations";
 
 export type InviteState = { ok: true } | { ok: false; error: string };
 
@@ -41,7 +33,7 @@ export async function sendInvitation(locale: Locale, formData: FormData): Promis
     landlordId: me.landlordId,
     email,
     role: parsed.data.role,
-    tokenHash: hash(token),
+    tokenHash: hashInviteToken(token),
     invitedBy: me.userId,
     expiresAt: new Date(Date.now() + 24 * 60 * 60_000),
   });
