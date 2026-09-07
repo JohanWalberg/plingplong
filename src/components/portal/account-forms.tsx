@@ -28,7 +28,7 @@ export function InviteForm() {
     setError(null);
     start(async () => {
       const r = await sendInvitation(locale, fd);
-      if (!r.ok) setError(r.error === "exists" ? t("inviteExists") : t("inviteInvalid"));
+      if (!r.ok) setError(r.error === "exists" ? t("inviteExists") : r.error === "rateLimited" ? t("inviteTooMany") : t("inviteInvalid"));
       else {
         toast(t("inviteSent", { email }));
         form.reset();

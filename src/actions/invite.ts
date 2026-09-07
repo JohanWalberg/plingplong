@@ -7,6 +7,7 @@ import { APIError } from "better-auth";
 import { db, schema } from "@/db";
 import { auth } from "@/lib/auth";
 import { getViewer, requireLandlord } from "@/lib/access";
+import { rateLimit } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { absoluteUrl } from "@/lib/seo";
@@ -17,6 +18,9 @@ export type InviteState = { ok: true } | { ok: false; error: string };
 
 export async function sendInvitation(locale: Locale, formData: FormData): Promise<InviteState> {
   const me = await requireLandlord(locale, "owner");
+  // Branded mail to an address the owner chooses: the only outbound path here
+  // that was unbounded. Colleagues arrive a few at a time, not by the hundred.
+  if (!rateLimit(`invite:${me.landlordId}`, 20, 86_400).ok) return { ok: false, error: "rateLimited" };
   const parsed = z.object({ email: z.string().trim().email(), role: z.enum(["owner", "editor"]) }).safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, error: "invalid" };
   const email = parsed.data.email.toLowerCase();

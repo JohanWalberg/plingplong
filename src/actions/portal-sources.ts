@@ -26,7 +26,10 @@ const settings = z.object({
 export type TestState = SourceTestResult | { ok: false; errorClass: "invalid"; message: string } | null;
 
 export async function testConnection(locale: Locale, _prev: TestState, fd: FormData): Promise<TestState> {
-  await requireLandlord(locale, "owner");
+  const me = await requireLandlord(locale, "owner");
+  // Each call makes the server fetch a URL of the caller's choosing and reports
+  // what came back, holding a handler for up to 30 s. Bounded per owner.
+  if (!rateLimit(`source-test:${me.userId}`, 20, 3600).ok) return { ok: false, errorClass: "invalid", message: "rateLimited" };
   const parsed = z.object({ kind: kindSchema, url: z.string().trim().url(), apiKey: z.string().optional() }).safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { ok: false, errorClass: "invalid", message: "invalid" };
   const { kind, url, apiKey } = parsed.data;
@@ -37,6 +40,7 @@ export type ConnectState = { ok: true; id: string } | { ok: false; error: "inval
 
 export async function connectSource(locale: Locale, _prev: ConnectState, fd: FormData): Promise<ConnectState> {
   const me = await requireLandlord(locale, "owner");
+  if (!rateLimit(`source-test:${me.userId}`, 20, 3600).ok) return { ok: false, error: "invalid" };
   const parsed = settings.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { ok: false, error: "invalid" };
   const d = parsed.data;

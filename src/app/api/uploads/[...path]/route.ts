@@ -1,7 +1,10 @@
 import { storage } from "@/lib/storage";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 /** Serves uploaded listing images from the storage backend. */
-export async function GET(_req: Request, ctx: { params: Promise<{ path: string[] }> }) {
+export async function GET(req: Request, ctx: { params: Promise<{ path: string[] }> }) {
+  // Each hit reads a whole object into memory before responding.
+  if (!rateLimit(`uploads:${clientIp(req.headers)}`, 240, 60).ok) return new Response(null, { status: 429 });
   const { path } = await ctx.params;
   const key = path.join("/");
   // Exactly the shape imageKey() generates; nothing else under the storage root is reachable.

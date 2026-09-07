@@ -884,7 +884,8 @@
       "closeConfirmLabel": "Skriv organisationens namn för att bekräfta",
       "closeButton": "Avsluta kontot",
       "closeMismatch": "Namnet stämmer inte.",
-      "closeDone": "Kontot är avslutat."
+      "closeDone": "Kontot är avslutat.",
+      "inviteTooMany": "Ni har skickat många inbjudningar idag. Försök igen imorgon."
     },
     "stats": {
       "title": "Statistik",

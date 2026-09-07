@@ -884,7 +884,8 @@
       "closeConfirmLabel": "Type the organisation's name to confirm",
       "closeButton": "Close the account",
       "closeMismatch": "The name does not match.",
-      "closeDone": "The account has been closed."
+      "closeDone": "The account has been closed.",
+      "inviteTooMany": "You have sent many invitations today. Try again tomorrow."
     },
     "stats": {
       "title": "Statistics",
