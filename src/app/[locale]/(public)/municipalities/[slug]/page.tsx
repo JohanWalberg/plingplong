@@ -47,9 +47,8 @@ export default async function MunicipalityPage({ params }: Props) {
   const muni = await findMunicipalityBySlug(slug);
   if (!muni) notFound();
   const name = municipalityName(muni, locale);
-  const [t, tc, tl, coverage, stats, areas, landlords, listings] = await Promise.all([
+  const [t, tl, coverage, stats, areas, landlords, listings] = await Promise.all([
     getTranslations("municipality"),
-    getTranslations("coverage"),
     getTranslations("landlord"),
     coverageFor(muni.id),
     municipalityStats(muni.id),
@@ -57,7 +56,6 @@ export default async function MunicipalityPage({ params }: Props) {
     landlordCountsFor(muni.id),
     listingsForMunicipality(locale, muni.id, 3),
   ]);
-  void tc;
   const placeSlug = municipalitySlug(muni, locale);
 
   return (

@@ -4,6 +4,7 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { invalidateListingCaches } from "@/lib/listing-cache";
 import { z } from "zod";
 import { db, schema } from "@/db";
+import { deleteUserIfOrphan } from "@/lib/queries/users";
 import { requireLandlord } from "@/lib/access";
 import type { Locale } from "@/i18n/routing";
 
@@ -51,7 +52,7 @@ export async function closeLandlordAccount(locale: Locale, confirmName: string):
   const me = await requireLandlord(locale, "owner");
   if (confirmName.trim().toLowerCase() !== me.landlordName.trim().toLowerCase()) return { ok: false, error: "confirm" };
   const now = new Date();
-  const { listing, listingRevision, source, landlordMember, landlordInvitation, landlord, staffUser, user } = schema;
+  const { listing, listingRevision, source, landlordMember, landlordInvitation, landlord } = schema;
   await db.transaction(async (tx) => {
     const direct = await tx.select({ id: listing.id, status: listing.status }).from(listing).where(and(eq(listing.landlordId, me.landlordId), eq(listing.publishedDirectly, true), eq(listing.status, "active")));
     if (direct.length) {
@@ -63,11 +64,7 @@ export async function closeLandlordAccount(locale: Locale, confirmName: string):
     await tx.delete(landlordInvitation).where(eq(landlordInvitation.landlordId, me.landlordId));
     await tx.delete(landlordMember).where(eq(landlordMember.landlordId, me.landlordId));
     await tx.update(landlord).set({ approvedAt: null, isMonitored: false }).where(eq(landlord.id, me.landlordId));
-    for (const m of members) {
-      const elsewhere = await tx.query.landlordMember.findFirst({ where: eq(landlordMember.userId, m.userId) });
-      const staff = await tx.query.staffUser.findFirst({ where: eq(staffUser.userId, m.userId) });
-      if (!elsewhere && !staff) await tx.delete(user).where(eq(user.id, m.userId));
-    }
+    for (const m of members) await deleteUserIfOrphan(tx, m.userId);
   });
   invalidateListingCaches();
   return { ok: true };

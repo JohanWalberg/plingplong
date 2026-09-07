@@ -3,6 +3,7 @@ import { stockholmDate } from "@/lib/format";
 import { db, schema, type Db, type Tx } from "@/db";
 import { listingSlug, slugify } from "@/lib/slug";
 import { insertWithUniqueSlug } from "@/lib/queries/slug";
+import { LISTING_TRACKED, diffTracked } from "@/lib/queries/revisions";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { getAdapter, AdapterError, sniffFeedAdapter, type AdapterResult } from "./adapters";
@@ -11,9 +12,7 @@ import { normalise, type NormalisedListing } from "./normalise";
 import { isAnomalousDrop } from "./anomaly";
 import { blockKey, decide, scorePair, type DedupSubject } from "./dedup";
 
-const { source, sourceRun, listing, listingSource, listingRevision, municipality, area, landlord, landlordMunicipality, duplicateCandidate } = schema;
-
-const TRACKED_FIELDS = ["rent_monthly", "rooms", "size_sqm", "application_deadline", "move_in_date", "address", "queue_requirement"] as const;
+const { source, sourceRun, listing, listingSource, listingRevision, area, landlord, duplicateCandidate } = schema;
 
 const MAX_ITEMS_PER_RUN = 5000;
 
@@ -278,21 +277,7 @@ async function recordFailure(src: typeof source.$inferSelect & { landlord: { nam
 }
 
 function diffFields(before: typeof listing.$inferSelect, after: NormalisedListing & { queueRequirement: string }) {
-  const map: Record<(typeof TRACKED_FIELDS)[number], [unknown, unknown]> = {
-    rent_monthly: [before.rentMonthly, after.rentMonthly],
-    rooms: [before.rooms, after.rooms],
-    size_sqm: [before.sizeSqm, after.sizeSqm],
-    application_deadline: [before.applicationDeadline, after.applicationDeadline],
-    move_in_date: [before.moveInDate, after.moveInDate],
-    address: [before.address, after.address],
-    queue_requirement: [before.queueRequirement, after.queueRequirement],
-  };
-  const out: Array<{ field: string; oldValue: string | null; newValue: string | null }> = [];
-  for (const f of TRACKED_FIELDS) {
-    const [a, b] = map[f];
-    if ((a ?? null) !== (b ?? null)) out.push({ field: f, oldValue: a === null || a === undefined ? null : String(a), newValue: b === null || b === undefined ? null : String(b) });
-  }
-  return out;
+  return diffTracked(LISTING_TRACKED, before, after);
 }
 
 /** Score new listings against active listings in the same block; write candidates for staff. */
@@ -382,5 +367,3 @@ export async function dueSources(now: Date = new Date()) {
     .where(and(inArray(source.status, ["pending", "active", "degraded", "failed"]), ne(source.consent, "objected"), inArray(source.kind, ["feed", "api", "html"]), or(isNull(source.nextRunAt), lte(source.nextRunAt, now))));
 }
 
-void municipality;
-void landlordMunicipality;

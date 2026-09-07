@@ -550,7 +550,6 @@ async function main() {
       }
       await db.insert(listingMetricDaily).values(rows);
     }
-    void primarySource;
   }
 
   console.log("revisions…");

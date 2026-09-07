@@ -60,8 +60,6 @@ export default async function SavedPage({ params }: Props) {
     : [];
   const ordered = slugs.map((s) => rows.find((r) => r.slug === s)).filter(Boolean) as Array<SearchResultItem & { status: string }>;
   const td = await getTranslations("deadline");
-  const tf = await getTranslations("freshness");
-  void tf;
   // Available homes first, soonest deadline first; homes that are gone go in their own group.
   const available = ordered
     .filter((l) => l.status === "active")

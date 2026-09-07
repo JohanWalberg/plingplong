@@ -1,7 +1,8 @@
-import { and, eq, inArray, lt, sql } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
+import { deleteUserIfOrphan } from "@/lib/queries/users";
 
-const { landlordApplication, landlordMember, staffUser, user } = schema;
+const { landlordApplication } = schema;
 
 export const REJECTED_RETENTION_DAYS = 90;
 export const ABANDONED_RETENTION_DAYS = 180;
@@ -23,11 +24,6 @@ export async function purgeApplications(now: Date = new Date()): Promise<number>
     );
   if (!rows.length) return 0;
   await db.delete(landlordApplication).where(inArray(landlordApplication.id, rows.map((r) => r.id)));
-  for (const r of rows) {
-    if (!r.userId) continue;
-    const member = await db.query.landlordMember.findFirst({ where: eq(landlordMember.userId, r.userId) });
-    const staff = await db.query.staffUser.findFirst({ where: eq(staffUser.userId, r.userId) });
-    if (!member && !staff) await db.delete(user).where(and(eq(user.id, r.userId), lt(user.createdAt, abandonedBefore)));
-  }
+  for (const r of rows) if (r.userId) await deleteUserIfOrphan(db, r.userId, abandonedBefore);
   return rows.length;
 }

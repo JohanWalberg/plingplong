@@ -14,7 +14,8 @@ import { absoluteUrl } from "@/lib/seo";
 import { slugify } from "@/lib/slug";
 import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { mergeListings } from "@/worker/sync";
-import { adapterForKind } from "@/lib/source-test";
+import { adapterForKind, sniffSourceKind } from "@/lib/source-test";
+import { LISTING_TRACKED_ADMIN, diffTracked } from "@/lib/queries/revisions";
 import type { Locale } from "@/i18n/routing";
 import { OK, fail, invalid, type ActionResult } from "@/lib/action-result";
 
@@ -221,7 +222,7 @@ export async function approveApplication(locale: Locale, applicationId: string):
 
     if (app.publishingRoute === "source" && app.sourceUrl) {
       const feedCheck = app.automatedChecks.find((c) => c.key === "feed");
-      const kind = /\.(xml|json|rss)(\?|$)/i.test(app.sourceUrl) || /feed|api/i.test(app.sourceUrl) ? "feed" : "html";
+      const kind = sniffSourceKind(app.sourceUrl);
       const mapping = (feedCheck?.detail as { mapping?: Record<string, string> } | undefined)?.mapping ?? {};
       const [src] = await tx
         .insert(source)
@@ -398,15 +399,8 @@ export async function adminUpdateListing(locale: Locale, listingId: string, form
     applicationUrl: safeHttpUrl(d.applicationUrl),
     description: d.description || null,
   };
-  const tracked: Array<[keyof typeof values, string]> = [
-    ["address", "address"], ["areaName", "area_name"], ["rentMonthly", "rent_monthly"], ["rooms", "rooms"], ["sizeSqm", "size_sqm"], ["floor", "floor"],
-    ["moveInDate", "move_in_date"], ["applicationDeadline", "application_deadline"], ["queueRequirement", "queue_requirement"], ["segment", "segment"],
-    ["applicationUrl", "application_url"], ["description", "description"],
-  ];
   const now = new Date();
-  const revisions = tracked
-    .filter(([k]) => String(before[k] ?? "") !== String(values[k] ?? ""))
-    .map(([k, field]) => ({ listingId, field, oldValue: before[k] === null || before[k] === undefined ? null : String(before[k]), newValue: values[k] === null ? null : String(values[k]), origin: "admin", changedBy: me.userId, changedAt: now }));
+  const revisions = diffTracked(LISTING_TRACKED_ADMIN, before, values).map((c) => ({ listingId, ...c, origin: "admin", changedBy: me.userId, changedAt: now }));
   await db.update(listing).set(values).where(eq(listing.id, listingId));
   if (revisions.length) await db.insert(schema.listingRevision).values(revisions);
   revalidateAdmin();

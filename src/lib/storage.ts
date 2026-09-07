@@ -24,7 +24,7 @@ function safe(key: string) {
   return p;
 }
 
-export const localStorage: Storage = {
+const diskStorage: Storage = {
   async put(key, data) {
     const p = safe(key);
     await mkdir(path.dirname(p), { recursive: true });
@@ -53,7 +53,7 @@ export const localStorage: Storage = {
   },
 };
 
-export const storage: Storage = localStorage;
+export const storage: Storage = diskStorage;
 
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 export const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);

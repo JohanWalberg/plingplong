@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { domainMatches, isValidOrgNumber, normaliseOrgNumber, orgNumberKind } from "@/lib/org-number";
-import { testSource } from "@/lib/source-test";
+import { sniffSourceKind, testSource } from "@/lib/source-test";
 import { lookupOrganisation } from "@/lib/registry";
 import type { Locale } from "@/i18n/routing";
 import { headers } from "next/headers";
@@ -62,7 +62,7 @@ export async function submitApplication(_prev: SignupState | null, formData: For
   checks.push({ key: "email_domain", status: dm === null ? "na" : dm ? "done" : "fail" });
   if (d.publishingRoute === "source" && d.sourceUrl && !safeHttpUrl(d.sourceUrl)) return { ok: false, errors: { sourceUrl: "invalid" } };
   if (d.publishingRoute === "source" && d.sourceUrl) {
-    const kind = /\.(xml|json|rss)(\?|$)/i.test(d.sourceUrl) || /feed|api/i.test(d.sourceUrl) ? "feed" : "html";
+    const kind = sniffSourceKind(d.sourceUrl);
     const test = await testSource(kind, d.sourceUrl);
     if (test.ok) {
       checks.push({ key: "feed", status: "done", detail: { count: test.count, mapping: test.mapping } });

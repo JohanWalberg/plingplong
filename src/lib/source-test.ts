@@ -1,6 +1,11 @@
 import { AdapterError, IMPORTANT_FIELDS, REQUIRED_FIELDS, getAdapter, sniffFeedAdapter, type CanonicalField, type FieldMapping, type SourceConfig } from "@/worker/adapters";
 import { politeFetch } from "@/worker/fetch";
 
+/** Guesses feed versus HTML page from the URL alone; staff can change it on the source later. */
+export function sniffSourceKind(url: string): "feed" | "html" {
+  return /\.(xml|json|rss)(\?|$)/i.test(url) || /feed|api/i.test(url) ? "feed" : "html";
+}
+
 export type SourceTestResult =
   | { ok: true; count: number; itemCount: number; mapping: FieldMapping; missing: CanonicalField[]; warnings: CanonicalField[]; sample: Record<string, unknown> | null }
   | { ok: false; errorClass: AdapterError["errorClass"]; message: string; status?: number };

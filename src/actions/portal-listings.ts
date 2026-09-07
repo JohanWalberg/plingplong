@@ -9,6 +9,7 @@ import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { listingSlug } from "@/lib/slug";
 import { insertWithUniqueSlug } from "@/lib/queries/slug";
+import { LISTING_TRACKED, diffTracked } from "@/lib/queries/revisions";
 import { invalidateListingCaches } from "@/lib/listing-cache";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, imageKey, storage } from "@/lib/storage";
 
@@ -157,16 +158,6 @@ async function saveImages(listingId: string, images: PreparedImage[], fd: FormDa
   return null;
 }
 
-const TRACKED: Array<[keyof typeof listing.$inferSelect, string]> = [
-  ["rentMonthly", "rent_monthly"],
-  ["rooms", "rooms"],
-  ["sizeSqm", "size_sqm"],
-  ["applicationDeadline", "application_deadline"],
-  ["moveInDate", "move_in_date"],
-  ["address", "address"],
-  ["queueRequirement", "queue_requirement"],
-];
-
 /** Create or update a listing. `publish` requires owner role and the core fields. */
 export async function saveListing(locale: Locale, mode: "draft" | "publish", existingId: string | null, _prev: ListingFormState | null, fd: FormData): Promise<ListingFormState> {
   const me = await requireLandlord(locale, mode === "publish" ? "owner" : "editor");
@@ -194,15 +185,7 @@ export async function saveListing(locale: Locale, mode: "draft" | "publish", exi
         ...(publishNow ? { status: "active", publishedAt: now, unpublishedAt: null, firstSeenAt: before!.publishedAt ? before!.firstSeenAt : now, lastSeenAt: now, lastCheckedAt: now } : { lastCheckedAt: before!.status === "active" ? now : before!.lastCheckedAt }),
       })
       .where(eq(listing.id, existingId));
-    const revisions = TRACKED.filter(([k]) => String(before![k] ?? "") !== String((values as Record<string, unknown>)[k] ?? "")).map(([k, field]) => ({
-      listingId: existingId,
-      field,
-      oldValue: before![k] === null || before![k] === undefined ? null : String(before![k]),
-      newValue: (values as Record<string, unknown>)[k] === null ? null : String((values as Record<string, unknown>)[k]),
-      origin: "portal",
-      changedBy: me.userId,
-      changedAt: now,
-    }));
+    const revisions = diffTracked(LISTING_TRACKED, before!, values).map((c) => ({ listingId: existingId, ...c, origin: "portal", changedBy: me.userId, changedAt: now }));
     if (publishNow) revisions.push({ listingId: existingId, field: "status", oldValue: before!.status, newValue: "active", origin: "portal", changedBy: me.userId, changedAt: now });
     if (revisions.length) await db.insert(listingRevision).values(revisions);
   } else {

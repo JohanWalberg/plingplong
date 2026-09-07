@@ -69,8 +69,6 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
   const placeName = area ? `${area.name}, ${municipalityName(muni!, locale)}` : muni ? municipalityName(muni, locale) : null;
   const heading = placeName ? t("heading", { count: result.total, place: placeName }) : t("headingAll", { count: result.total });
   const sortLabel = ts(filters.sort).toLowerCase();
-  const alternates = muni ? { sv: { place: muni.slugSv }, en: { place: muni.slugEn } } : undefined;
-  void alternates;
 
   return (
     <>
