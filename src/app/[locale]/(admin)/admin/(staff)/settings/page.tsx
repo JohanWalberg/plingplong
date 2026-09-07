@@ -21,7 +21,7 @@ export default async function AdminSettingsPage({ params }: Props) {
   const lead = viewer.role === "lead";
   return (
     <AdminShell viewer={viewer} active="settings" title={t("title")}>
-      <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
+      <div className="grid gap-6 xl:grid-cols-[1fr_380px] [&>*]:min-w-0">
         <section aria-labelledby="staff">
           <h2 id="staff" className="text-h3">
             {t("staffTitle")}

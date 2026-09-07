@@ -68,7 +68,7 @@ export default async function PortalHomesPage({ params, searchParams }: Props) {
           </form>
         </div>
         {rows.length ? (
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[880px] text-[14px]">
               <thead>
                 <tr className="text-left text-meta uppercase tracking-wide text-muted">

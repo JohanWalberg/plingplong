@@ -36,7 +36,7 @@ export default async function AdminOverview({ params }: Props) {
         <Kpi label={t("kpiPending")} value={kpis.pending} tone={kpis.pending ? "warn" : "neutral"} />
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_360px]">
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_360px] [&>*]:min-w-0">
         <section aria-labelledby="sources-title">
           <div className="flex items-center justify-between">
             <h2 id="sources-title" className="text-h3">

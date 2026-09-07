@@ -140,7 +140,7 @@ export default async function MunicipalityPage({ params }: Props) {
             </section>
           </div>
 
-          <aside className="flex flex-col gap-4">
+          <aside className="flex min-w-0 flex-col gap-4">
             <CoverageCard place={name} monitored={coverage.monitored} known={coverage.known} />
             <Card as="section" className="p-5" aria-labelledby="landlords">
               <h2 id="landlords" className="text-h3">

@@ -58,7 +58,7 @@ export default async function ApplicationsPage({ params, searchParams }: Props) 
   return (
     <AdminShell viewer={viewer} active="queue" title={t("title")}>
       <p className="text-[14px] text-ink-2">{t("sub", { count: counts.pending })}</p>
-      <div className="mt-4 grid gap-6 xl:grid-cols-[1fr_440px]">
+      <div className="mt-4 grid gap-6 xl:grid-cols-[1fr_440px] [&>*]:min-w-0">
         <section>
           <div className="flex gap-1">
             {(["pending", "needs_info", "decided"] as const).map((k) => (

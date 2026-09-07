@@ -95,9 +95,11 @@ export async function AdminShell({ viewer, active, title, actions, children }: {
   );
 }
 
+/** relative: an absolutely positioned child (a visually hidden label) would otherwise
+ * escape the scroll box and widen the whole document. */
 export function Table({ children, minWidth = 720 }: { children: ReactNode; minWidth?: number }) {
   return (
-    <div className="overflow-x-auto rounded-md border border-line bg-surface">
+    <div className="relative overflow-x-auto rounded-md border border-line bg-surface">
       <table className="w-full text-[14px]" style={{ minWidth }}>
         {children}
       </table>

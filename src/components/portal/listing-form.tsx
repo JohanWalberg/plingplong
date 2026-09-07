@@ -126,8 +126,10 @@ export function ListingForm({ existingId, initial, status, municipalities, image
   const segments: Segment[] = ["none", "student", "youth", "senior", "accessible"];
   const segLabel = (s: Segment) => (s === "none" ? t("segmentNone") : locale === "sv" ? { student: "Studentbostad", youth: "Ungdom", senior: "Senior", accessible: "Tillgänglighetsanpassad" }[s] : { student: "Student housing", youth: "Youth housing", senior: "Senior housing", accessible: "Accessible housing" }[s]);
 
+  // [&>*]:min-w-0 — a grid item is at least its min-content wide by default,
+  // which lets one wide field stretch the whole column on a narrow screen.
   return (
-    <form action={formAction} noValidate className="grid gap-6 lg:grid-cols-[1fr_350px]">
+    <form action={formAction} noValidate className="grid gap-6 lg:grid-cols-[1fr_350px] [&>*]:min-w-0">
       <div className="flex flex-col gap-6">
         {errorCount ? (
           <div ref={summaryRef} tabIndex={-1}>

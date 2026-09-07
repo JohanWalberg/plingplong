@@ -110,7 +110,7 @@ export default async function LandlordPage({ params }: Props) {
             ) : null}
           </section>
 
-          <aside className="flex flex-col gap-4">
+          <aside className="flex min-w-0 flex-col gap-4">
             <Card as="section" className="p-5">
               <h2 className="text-h3">{t("howTitle")}</h2>
               <p className="mt-2 text-[15px] font-[650]">{tl(`queue${queueKey}Headline`)}</p>

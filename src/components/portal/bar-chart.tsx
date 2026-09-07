@@ -60,7 +60,9 @@ export function BarChart({ rows, series, locale, label, tableCaption, dayLabel }
           <span key={r.day}>{formatDateShort(locale, r.day)}</span>
         ))}
       </div>
-      <table className="sr-only">
+      {/* A table ignores width:1px and grows to its content, so sr-only has to clip from a block wrapper. */}
+      <div className="sr-only">
+      <table>
         <caption>{tableCaption}</caption>
         <thead>
           <tr>
@@ -83,6 +85,7 @@ export function BarChart({ rows, series, locale, label, tableCaption, dayLabel }
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

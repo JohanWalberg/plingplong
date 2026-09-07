@@ -76,11 +76,11 @@ export async function PortalPublicShell({ children, wide = false }: { children: 
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex min-h-[64px] max-w-[1200px] items-center gap-4 px-4 sm:px-6">
-          <Link href="/for-landlords" className="flex items-center gap-2.5 text-ink hover:text-ink hover:no-underline">
+        <div className="mx-auto flex min-h-[64px] max-w-[1200px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 sm:px-6 sm:py-0">
+          <Link href="/for-landlords" className="flex min-w-0 items-center gap-2.5 text-ink hover:text-ink hover:no-underline">
             <LogoMark />
             <span className="text-[17px] font-[700] tracking-tight">{tc("brand")}</span>
-            <span className="text-[13px] text-muted">{tc("forLandlords")}</span>
+            <span className="hidden text-[13px] text-muted sm:inline">{tc("forLandlords")}</span>
           </Link>
           <nav className="ml-auto hidden items-center gap-4 text-[14px] font-[600] md:flex" aria-label={tc("navMain")}>
             <Link href="/how-it-works" className="text-ink-2 hover:text-ink">
