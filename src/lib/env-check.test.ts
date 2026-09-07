@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { assertProductionConfig, productionConfigProblems } from "./env-check";
 
-const good = { NEXT_PUBLIC_SITE_URL: "https://hyrabostad.se", BETTER_AUTH_URL: "https://hyrabostad.se", BETTER_AUTH_SECRET: "x".repeat(40), RESEND_API_KEY: "re_123" };
+const good = { NEXT_PUBLIC_SITE_URL: "https://hyrabostad.se", BETTER_AUTH_URL: "https://hyrabostad.se", BETTER_AUTH_SECRET: "x".repeat(40), RESEND_API_KEY: "re_123", STORAGE_DRIVER: "s3", S3_BUCKET: "uploads" };
 
 describe("production config check", () => {
   it("accepts a complete deploy", () => {
@@ -13,6 +13,13 @@ describe("production config check", () => {
     expect(p.join("\n")).toMatch(/BETTER_AUTH_SECRET/);
     expect(p.join("\n")).toMatch(/https/);
     expect(p.join("\n")).toMatch(/RESEND_API_KEY/);
+  });
+
+  it("makes the upload destination an explicit choice", () => {
+    expect(productionConfigProblems({ ...good, STORAGE_DRIVER: undefined }).join("\n")).toMatch(/STORAGE_DRIVER/);
+    expect(productionConfigProblems({ ...good, S3_BUCKET: undefined }).join("\n")).toMatch(/S3_BUCKET/);
+    // Disk is allowed, for a host with a volume mounted at UPLOAD_DIR.
+    expect(productionConfigProblems({ ...good, STORAGE_DRIVER: "disk", S3_BUCKET: undefined })).toEqual([]);
   });
 
   it("lets a localhost production build run without https or email, but still wants the secret and site URL", () => {

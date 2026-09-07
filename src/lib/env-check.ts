@@ -20,6 +20,9 @@ export function productionConfigProblems(env: Record<string, string | undefined>
   if (authUrl && LOCAL.test(authUrl)) return problems;
   if (!authUrl?.startsWith("https://")) problems.push("BETTER_AUTH_URL must be the https origin (it decides Secure cookies and the origin check)");
   if (!env.RESEND_API_KEY) problems.push("RESEND_API_KEY must be set: without it emails, including reset links, would be written to the log");
+  // Uploads on local disk do not survive a redeploy on most hosts, so the choice has to be deliberate.
+  if (env.STORAGE_DRIVER !== "disk" && env.STORAGE_DRIVER !== "s3") problems.push('STORAGE_DRIVER must be "s3" (a bucket) or "disk" (only with a persistent volume mounted at UPLOAD_DIR)');
+  if (env.STORAGE_DRIVER === "s3" && !env.S3_BUCKET) problems.push("S3_BUCKET must be set when STORAGE_DRIVER=s3");
   return problems;
 }
 

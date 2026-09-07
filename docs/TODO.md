@@ -37,8 +37,11 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 - [?] **B1. Hosting choice and Dockerfile.** Fly.io or Railway for web +
   worker + Postgres/PostGIS in an EU region, or Vercel + Neon + Fly worker.
   Add Dockerfile, provider config, deploy checklist, migration step on deploy.
-- [ ] **B2. Object storage for uploads.** S3-compatible adapter (Cloudflare R2)
-  behind the existing storage interface, selected by env var.
+- [x] **B2. Object storage for uploads.** S3-compatible adapter (AWS S3,
+  Cloudflare R2, MinIO) behind the storage interface, selected by
+  `STORAGE_DRIVER`. Both drivers serve through `/api/uploads`, so the bucket
+  stays private and stored keys do not change when the driver does. Production
+  refuses to start unless the driver is chosen explicitly.
 - [?] **B3. Email delivery.** Resend API key and sender domain; templates are
   ready.
 - [x] **B4. Rate limiting** on sign-in, sign-up, password reset and the
