@@ -143,6 +143,15 @@ export default async function ListingPage({ params }: Props) {
                 <h1 className="font-serif text-[30px] leading-[1.1] sm:text-h1">{l.address}</h1>
                 <p className="mt-2 text-[16px] text-ink-2">{place}</p>
                 <BadgeList badges={badges} className="mt-4" />
+                {/* The rent and the deadline live in the sidebar, which is below everything on a phone. */}
+                <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 lg:hidden">
+                  <p className="text-[26px] font-[700] leading-none tabular text-ink">{rent}</p>
+                  {!gone ? (
+                    <Badge tone={dState.tone} icon={dState.tone === "urgent" ? "warn" : dState.tone === "soon" ? "clock" : undefined}>
+                      {td(dMsg.key, dMsg.values)}
+                    </Badge>
+                  ) : null}
+                </div>
                 <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-hairline pt-6 sm:grid-cols-4">
                   {facts.slice(1, 5).map(([k, v]) => (
                     <div key={k}>
