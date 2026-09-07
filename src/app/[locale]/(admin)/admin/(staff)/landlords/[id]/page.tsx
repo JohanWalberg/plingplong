@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { formatDateTimeShort } from "@/lib/format";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -36,6 +37,21 @@ export default async function AdminLandlordPage({ params }: Props) {
           />
         </Card>
         <div className="flex flex-col gap-6">
+          <Card className="p-5">
+            <dl className="flex flex-col divide-y divide-hairline text-[14px]">
+              {(
+                [
+                  [t("approvedAtLabel"), l.approvedAt ? formatDateTimeShort(locale, l.approvedAt) : "—"],
+                  [t("termsAccepted"), l.termsAcceptedAt ? formatDateTimeShort(locale, l.termsAcceptedAt) : "—"],
+                ] as Array<[string, string]>
+              ).map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-4 py-2">
+                  <dt className="text-muted">{k}</dt>
+                  <dd className="text-right font-[600]">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </Card>
           <section aria-labelledby="ll-sources">
             <h2 id="ll-sources" className="text-h3">
               {t("sourcesTitle")}

@@ -131,6 +131,8 @@ export const landlord = pgTable(
     descriptionEn: text("description_en"),
     logoUrl: text("logo_url"),
     approvedAt: ts("approved_at"),
+    /** When the terms were accepted for this organisation, carried from the application at approval. */
+    termsAcceptedAt: ts("terms_accepted_at"),
     isKnown: boolean("is_known").notNull().default(true),
     isMonitored: boolean("is_monitored").notNull().default(false),
     createdAt: createdAt(),
@@ -382,6 +384,8 @@ export const landlordApplication = pgTable(
       .notNull()
       .default([]),
     status: applicationStatusEnum("status").notNull().default("pending"),
+    /** When the applicant ticked the terms box; the form cannot be submitted without it. */
+    termsAcceptedAt: ts("terms_accepted_at"),
     /** The Better Auth user created at sign-up; activated on approval. */
     userId: text("user_id"),
     landlordId: text("landlord_id").references(() => landlord.id, { onDelete: "set null" }),

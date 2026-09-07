@@ -107,6 +107,8 @@ export async function submitApplication(_prev: SignupState | null, formData: For
       publishingRoute: d.publishingRoute,
       sourceUrl: d.sourceUrl || null,
       automatedChecks: checks,
+      // The form cannot be submitted without the box, so this is when it was ticked.
+      termsAcceptedAt: new Date(),
       userId,
       locale,
     })

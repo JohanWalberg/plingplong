@@ -15,6 +15,13 @@
       "when": 1788725286794,
       "tag": "0001_listing_muni_first_seen_idx",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788775803361,
+      "tag": "0002_terms_accepted_at",
+      "breakpoints": true
     }
   ]
 }

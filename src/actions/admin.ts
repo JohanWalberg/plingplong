@@ -211,12 +211,12 @@ export async function approveApplication(locale: Locale, applicationId: string):
       const existing = await tx.query.landlord.findFirst({ where: eq(landlord.orgNumber, app.orgNumber) });
       if (existing) {
         landlordId = existing.id;
-        await tx.update(landlord).set({ approvedAt: now, website: existing.website ?? app.website }).where(eq(landlord.id, landlordId));
+        await tx.update(landlord).set({ approvedAt: now, termsAcceptedAt: app.termsAcceptedAt ?? now, website: existing.website ?? app.website }).where(eq(landlord.id, landlordId));
       } else {
         const [row] = await insertWithUniqueSlug(tx, landlord, slugify(app.companyName), (sp, slug) =>
           sp
             .insert(landlord)
-            .values({ name: app.companyName, slug, orgNumber: app.orgNumber, website: app.website, type: "private", queueType: "unknown", approvedAt: now, isKnown: true, isMonitored: app.publishingRoute === "manual" })
+            .values({ name: app.companyName, slug, orgNumber: app.orgNumber, website: app.website, type: "private", queueType: "unknown", approvedAt: now, termsAcceptedAt: app.termsAcceptedAt ?? now, isKnown: true, isMonitored: app.publishingRoute === "manual" })
             .returning({ id: landlord.id }),
         );
         landlordId = row.id;

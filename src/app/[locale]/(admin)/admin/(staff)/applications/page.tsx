@@ -116,6 +116,7 @@ export default async function ApplicationsPage({ params, searchParams }: Props) 
                     [t("route"), selected.publishingRoute === "source" ? t("routeSource") : t("routeManual")],
                     [t("sourceUrl"), selected.sourceUrl ?? "—"],
                     [t("submitted"), formatDateTimeShort(locale, selected.createdAt)],
+                    [t("termsAccepted"), selected.termsAcceptedAt ? formatDateTimeShort(locale, selected.termsAcceptedAt) : "—"],
                   ] as Array<[string, string]>
                 ).map(([k, v]) => (
                   <div key={k} className="flex justify-between gap-4 py-2">

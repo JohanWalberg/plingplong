@@ -1034,7 +1034,9 @@
       "type": "Typ",
       "municipalities": "Kommuner",
       "isKnown": "Räknas som känd hyresvärd i täckningen",
-      "empty": "Inga hyresvärdar."
+      "empty": "Inga hyresvärdar.",
+      "termsAccepted": "Villkor godkända",
+      "approvedAtLabel": "Godkänd"
     },
     "queue": {
       "title": "Godkännandekö",
@@ -1093,7 +1095,8 @@
       "checkOrgInactive": "Organisationsnumret är inte aktivt hos Bolagsverket ({detail})",
       "checkOrgSince": "aktivt sedan {year}",
       "historySubmitted": "Ansökan inkom",
-      "historyReopened": "Återöppnad"
+      "historyReopened": "Återöppnad",
+      "termsAccepted": "Villkor godkända"
     },
     "listings": {
       "title": "Bostäder",

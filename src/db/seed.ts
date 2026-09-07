@@ -731,7 +731,8 @@ async function main() {
     },
   ];
   for (const a of apps) {
-    const [row] = await db.insert(landlordApplication).values(a).returning({ id: landlordApplication.id });
+    // Every application comes from the form, which cannot be submitted without the terms box.
+    const [row] = await db.insert(landlordApplication).values({ ...a, termsAcceptedAt: a.createdAt }).returning({ id: landlordApplication.id });
     await db.insert(landlordApplicationEvent).values({ applicationId: row.id, kind: "submitted", createdAt: a.createdAt });
     if (a.status === "needs_info")
       await db.insert(landlordApplicationEvent).values({

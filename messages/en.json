@@ -1034,7 +1034,9 @@
       "type": "Type",
       "municipalities": "Municipalities",
       "isKnown": "Counts as a known landlord in coverage",
-      "empty": "No landlords."
+      "empty": "No landlords.",
+      "termsAccepted": "Terms accepted",
+      "approvedAtLabel": "Approved"
     },
     "queue": {
       "title": "Approval queue",
@@ -1093,7 +1095,8 @@
       "checkOrgInactive": "Organisation number not active in the company register ({detail})",
       "checkOrgSince": "active since {year}",
       "historySubmitted": "Application received",
-      "historyReopened": "Reopened"
+      "historyReopened": "Reopened",
+      "termsAccepted": "Terms accepted"
     },
     "listings": {
       "title": "Listings",

@@ -66,7 +66,10 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 - [x] **C3. Application retention and account deletion.** Purge rejected
   applications after a set period, let owners close the landlord account,
   document both on the privacy page.
-- [ ] **C4. Landlord terms acceptance stored** with timestamp on approval.
+- [x] **C4. Landlord terms acceptance stored** with a timestamp. The
+  application records when the box was ticked; approval carries that onto the
+  landlord. Both are shown in the approval queue and on the landlord page in
+  admin.
 
 ## D. Nice to have for MVP
 
