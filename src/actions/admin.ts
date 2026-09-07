@@ -249,13 +249,16 @@ export async function approveApplication(locale: Locale, applicationId: string):
         })
         .returning({ id: source.id });
       await tx.update(landlord).set({ isMonitored: true }).where(eq(landlord.id, landlordId));
-      await enqueueSourceSync(src.id, true);
+      // Queued after the transaction commits: pg-boss writes on its own
+      // connection, so a job enqueued here would survive a rollback and the
+      // worker would then fail on a source row that does not exist.
+      sourceIdToSync = src.id;
     }
 
     await tx.update(landlordApplication).set({ status: "approved", landlordId, reviewedBy: me.userId, reviewedAt: now }).where(eq(landlordApplication.id, applicationId));
     await tx.insert(landlordApplicationEvent).values({ applicationId, kind: "approved", actorId: me.userId });
   });
-  if (sourceIdToSync) await enqueueSourceSync(sourceIdToSync, true, true);
+  if (sourceIdToSync) await enqueueSourceSync(sourceIdToSync, true);
   const mail = await renderEmail(app.locale as Locale, "approved", { name: app.contactName, organisation: app.companyName, url: absoluteUrl(app.locale as Locale, "/portal/sign-in") });
   await sendEmail({ to: app.contactEmail, ...mail });
   revalidateAdmin();

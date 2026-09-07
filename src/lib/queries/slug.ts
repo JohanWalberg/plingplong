@@ -22,10 +22,18 @@ export async function freeSlug(exec: Executor, table: SlugTable, base: string, e
   return `${base}-${Date.now().toString(36)}`;
 }
 
-/** Postgres unique_violation, whether thrown directly by postgres.js or wrapped by Drizzle. */
-export function isUniqueViolation(e: unknown): boolean {
-  const err = e as { code?: string; cause?: { code?: string } } | null;
-  return err?.code === "23505" || err?.cause?.code === "23505";
+type PgError = { code?: string; constraint_name?: string };
+
+/**
+ * A unique violation on the slug specifically, whether thrown directly by
+ * postgres.js or wrapped by Drizzle. The constraint name matters: `landlord`
+ * also has a unique organisation number, and retrying that one would burn
+ * three attempts and then rethrow, turning a validation failure into a crash.
+ */
+export function isSlugViolation(e: unknown): boolean {
+  const err = e as (PgError & { cause?: PgError }) | null;
+  const pg = err?.code === "23505" ? err : err?.cause?.code === "23505" ? err.cause : null;
+  return pg !== null && (pg.constraint_name ?? "").includes("slug");
 }
 
 /**
@@ -42,7 +50,7 @@ export async function insertWithUniqueSlug<T>(exec: Executor, table: SlugTable, 
     try {
       return await exec.transaction((tx) => insert(tx, slug));
     } catch (e) {
-      if (!isUniqueViolation(e)) throw e;
+      if (!isSlugViolation(e)) throw e;
       lastError = e;
     }
   }

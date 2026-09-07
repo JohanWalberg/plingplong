@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { QueryBuilder } from "drizzle-orm/pg-core";
 import * as schema from "@/db/schema";
 import { outer } from "./sql";
+import { isSlugViolation } from "./slug";
 
 // SQL generation only: the query builder needs no connection, so this stays a unit test.
 const db = new QueryBuilder();
@@ -30,5 +31,18 @@ describe("outer", () => {
   it("uses the declared column name, not the property name", () => {
     expect(db.select({ n: sql`${outer(listing.landlordId)}` }).from(listing).toSQL().sql).toContain(`"listing"."landlord_id"`);
     expect(db.select({ n: sql`${outer(schema.listingSource.sourceId)}` }).from(listing).toSQL().sql).toContain(`"listing_source"."source_id"`);
+  });
+});
+
+describe("isSlugViolation", () => {
+  it("retries a slug clash but not another unique constraint", () => {
+    const slug = { code: "23505", constraint_name: "landlord_slug_unique" };
+    const org = { code: "23505", constraint_name: "landlord_org_number_unique" };
+    expect(isSlugViolation(slug)).toBe(true);
+    expect(isSlugViolation({ cause: slug })).toBe(true);
+    expect(isSlugViolation(org)).toBe(false);
+    expect(isSlugViolation({ cause: org })).toBe(false);
+    expect(isSlugViolation({ code: "23503", constraint_name: "listing_slug_unique" })).toBe(false);
+    expect(isSlugViolation(new Error("boom"))).toBe(false);
   });
 });
