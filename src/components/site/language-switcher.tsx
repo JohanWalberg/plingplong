@@ -35,7 +35,7 @@ function LanguageSwitcherInner({ alternates, variant = "light" }: SwitcherProps)
     if (next === locale) return;
     const query = Object.fromEntries(search.entries());
     const nextParams = { ...(params as Record<string, string>), ...(alternates?.[next] ?? {}) };
-    router.replace({ pathname: pathname as never, params: nextParams, query } as never, { locale: next });
+    router.replace({ pathname, params: nextParams, query } as Parameters<typeof router.replace>[0], { locale: next });
   }
 
   if (variant === "text") {

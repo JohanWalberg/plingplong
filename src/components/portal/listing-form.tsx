@@ -310,8 +310,8 @@ export function ListingForm({ existingId, initial, status, municipalities, image
   );
 }
 
-function labelFor(k: string, t: (key: never) => string) {
-  const map: Record<string, string> = {
+function labelFor(k: string, t: ReturnType<typeof useTranslations<"portal.add">>) {
+  const map = {
     address: "street",
     municipalityId: "municipality",
     rentMonthly: "rent",
@@ -323,6 +323,6 @@ function labelFor(k: string, t: (key: never) => string) {
     applicationUrl: "applyUrlLabel",
     applicationContact: "applyContactLabel",
     images: "imagesTitle",
-  };
-  return t((map[k] ?? k) as never);
+  } as const;
+  return k in map ? t(map[k as keyof typeof map]) : k;
 }

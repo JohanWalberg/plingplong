@@ -60,7 +60,8 @@ export const auth = betterAuth({
     // to eight hours by the staff guard (see src/lib/access.ts).
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
-    cookieCache: { enabled: true, maxAge: 5 * 60 },
+    // A revoked session stays usable for at most this long (the cookie copy is trusted until it expires).
+    cookieCache: { enabled: true, maxAge: 60 },
   },
   advanced: {
     database: { generateId: () => crypto.randomUUID() },

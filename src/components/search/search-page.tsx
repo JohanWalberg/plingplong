@@ -208,19 +208,19 @@ async function EmptyState({ locale, filters, muni, area }: { locale: Locale; fil
 
   if (filters.maxRent && filters.maxRent < RENT_MAX) {
     const raised = Math.min(RENT_MAX, filters.maxRent + 2000);
-    actions.push({ label: t("raiseRent", { rent: formatSek(locale, raised) }), href: { ...base, query: toQuery({ ...filters, maxRent: raised >= RENT_MAX ? undefined : raised, page: 1 }) } as never });
+    actions.push({ label: t("raiseRent", { rent: formatSek(locale, raised) }), href: { ...base, query: toQuery({ ...filters, maxRent: raised >= RENT_MAX ? undefined : raised, page: 1 }) } });
   }
   if (filters.rooms.length) {
     const drop = filters.rooms[filters.rooms.length - 1];
-    actions.push({ label: t("removeRooms", { rooms: tf("roomsOption", { rooms: drop }) }), href: { ...base, query: toQuery({ ...filters, rooms: filters.rooms.filter((r) => r !== drop), page: 1 }) } as never });
+    actions.push({ label: t("removeRooms", { rooms: tf("roomsOption", { rooms: drop }) }), href: { ...base, query: toQuery({ ...filters, rooms: filters.rooms.filter((r) => r !== drop), page: 1 }) } });
   }
   if (area) {
-    actions.push({ label: t("expandArea", { area: municipalityName(muni!, locale) }), href: { pathname: "/homes/[place]", params: { place: municipalitySlug(muni!, locale) }, query: toQuery({ ...filters, page: 1 }) } as never });
+    actions.push({ label: t("expandArea", { area: municipalityName(muni!, locale) }), href: { pathname: "/homes/[place]", params: { place: municipalitySlug(muni!, locale) }, query: toQuery({ ...filters, page: 1 }) } });
   } else if (muni) {
-    actions.push({ label: t("expandArea", { area: countyName(muni, locale) }), href: { pathname: "/homes", query: toQuery({ ...filters, page: 1 }) } as never });
+    actions.push({ label: t("expandArea", { area: countyName(muni, locale) }), href: { pathname: "/homes", query: toQuery({ ...filters, page: 1 }) } });
   }
   if (actions.length < 3 || (!filters.maxRent && !filters.rooms.length)) {
-    actions.push({ label: t("clearAll"), href: base as never });
+    actions.push({ label: t("clearAll"), href: base });
   }
 
   return (
@@ -251,7 +251,7 @@ async function Pagination({ locale, filters, page, pages, muni, area }: { locale
     : muni
       ? { pathname: "/homes/[place]" as const, params: { place: municipalitySlug(muni, locale) } }
       : { pathname: "/homes" as const };
-  const href = (p: number) => ({ ...base, query: toQuery({ ...filters, page: p }) }) as never;
+  const href = (p: number) => ({ ...base, query: toQuery({ ...filters, page: p }) });
   return (
     <nav aria-label={t("page", { page, total: pages })} className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
       {page > 1 ? (

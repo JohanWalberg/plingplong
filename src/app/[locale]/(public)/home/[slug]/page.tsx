@@ -243,7 +243,7 @@ export default async function ListingPage({ params }: Props) {
                 {!gone ? (
                   <div className="mt-4">
                     <Badge tone={dState.tone} icon={dState.tone === "urgent" ? "warn" : dState.tone === "soon" ? "clock" : undefined}>
-                      {td(dMsg.key, dMsg.values as never)}
+                      {td(dMsg.key, dMsg.values)}
                     </Badge>
                   </div>
                 ) : null}
@@ -306,7 +306,7 @@ export default async function ListingPage({ params }: Props) {
             <div className="mx-auto flex max-w-[720px] items-center gap-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[18px] font-[700] leading-tight tabular text-ink">{rent}</p>
-                {l.applicationDeadline ? <p className="truncate text-meta text-muted">{td(dMsg.key, dMsg.values as never)}</p> : null}
+                {l.applicationDeadline ? <p className="truncate text-meta text-muted">{td(dMsg.key, dMsg.values)}</p> : null}
               </div>
               <SaveButton slug={l.slug} listingId={l.id} size="md" iconOnly />
               {applyAction("md", "shrink-0")}

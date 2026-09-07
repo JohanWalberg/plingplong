@@ -9,7 +9,7 @@ type Href = Parameters<typeof getPathname>[0]["href"];
 
 /** Canonical + hreflang alternates for a page, resolving translated pathnames per locale. */
 export function alternatesFor(locale: Locale, hrefFor: (l: Locale) => Href): NonNullable<Metadata["alternates"]> {
-  const url = (l: Locale) => SITE_URL + getPathname({ locale: l, href: hrefFor(l) as never });
+  const url = (l: Locale) => SITE_URL + getPathname({ locale: l, href: hrefFor(l) });
   const languages: Record<string, string> = {};
   for (const l of routing.locales) languages[l] = url(l);
   languages["x-default"] = url(routing.defaultLocale);
@@ -17,5 +17,5 @@ export function alternatesFor(locale: Locale, hrefFor: (l: Locale) => Href): Non
 }
 
 export function absoluteUrl(locale: Locale, href: Href) {
-  return SITE_URL + getPathname({ locale, href: href as never });
+  return SITE_URL + getPathname({ locale, href });
 }

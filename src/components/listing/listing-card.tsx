@@ -58,7 +58,7 @@ function DeadlinePill({ deadline, locale, t }: { deadline: string | null; locale
   const icon = s.tone === "urgent" ? "warn" : s.tone === "soon" ? "clock" : undefined;
   return (
     <Badge tone={s.tone} icon={icon}>
-      {t(m.key, m.values as never)}
+      {t(m.key, m.values)}
     </Badge>
   );
 }

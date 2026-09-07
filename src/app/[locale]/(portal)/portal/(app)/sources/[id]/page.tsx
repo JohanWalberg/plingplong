@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOURCE_FIELD_KEYS, isCanonicalField } from "@/components/portal/source-field-keys";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -87,7 +88,7 @@ export default async function SourceDetailPage({ params }: Props) {
               <h2 className="text-h3">{t("mapTitle")}</h2>
               <dl className="mt-3 flex flex-col gap-1 text-[13.5px]">
                 {Object.entries(cfg.fields).map(([k, v]) => (
-                  <div key={k} className="flex justify-between gap-3"><dt className="text-muted">{t(`field${k[0].toUpperCase()}${k.slice(1)}` as never)}</dt><dd className="font-mono">{v}</dd></div>
+                  <div key={k} className="flex justify-between gap-3"><dt className="text-muted">{isCanonicalField(k) ? t(SOURCE_FIELD_KEYS[k]) : k}</dt><dd className="font-mono">{v}</dd></div>
                 ))}
               </dl>
             </Card>

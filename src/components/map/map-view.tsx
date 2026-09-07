@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/routing";
 import { ListingMap, type MapMarker } from "./listing-map";
 import { buttonClasses } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export function MapView({ items, query, initialBounds, attribution }: Props) {
       }
       const bbox = b.map((n) => n.toFixed(4)).join(",");
       startTransition(() => {
-        router.replace({ pathname: pathname as never, query: { ...query, bbox } } as never, { scroll: false });
+        router.replace(`${pathname}?${new URLSearchParams({ ...query, bbox }).toString()}`, { scroll: false });
       });
     },
     [pathname, query, router],

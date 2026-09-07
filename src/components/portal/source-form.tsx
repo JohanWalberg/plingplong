@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { connectSource, testConnection, type ConnectState, type TestState } from "@/actions/portal-sources";
 import { Button } from "@/components/ui/button";
+import { SOURCE_FIELD_KEYS } from "./source-field-keys";
 import { Input, Select, ValidationSummary } from "@/components/ui/form";
 import { StatusPill } from "@/components/ui/badge";
 import { Card, Callout, icons } from "@/components/ui/misc";
@@ -35,7 +36,7 @@ export function SourceForm() {
   }, [connect, router, toast, t, kind]);
 
   const tested = test?.ok === true;
-  const fieldLabel = (f: CanonicalField) => t(`field${f[0].toUpperCase()}${f.slice(1)}` as never);
+  const fieldLabel = (f: CanonicalField) => t(SOURCE_FIELD_KEYS[f]);
   const errorText = (r: TestState) => {
     if (!r || r.ok) return null;
     if (r.errorClass === "auth") return t("errorAuth", { status: r.status ?? 401 });

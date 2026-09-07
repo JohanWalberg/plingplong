@@ -29,7 +29,7 @@ export function Freshness({ lastCheckedAt, prefix = "checked", className = "" }:
     <span className={`inline-flex items-center gap-1.5 text-meta text-muted ${className}`}>
       {icons.refresh}
       <time dateTime={date?.toISOString()} suppressHydrationWarning>
-        {t(key, m.values as never)}
+        {t(key, m.values)}
       </time>
     </span>
   );

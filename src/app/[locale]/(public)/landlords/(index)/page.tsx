@@ -32,7 +32,8 @@ export default async function LandlordsPage({ params }: Props) {
     .groupBy(landlord.id)
     .orderBy(sql`${landlord.isMonitored} desc`, sql`count(${listing.id}) desc`, landlord.name);
 
-  const typeLabel = (type: string) => t(`type${type[0].toUpperCase()}${type.slice(1)}` as never);
+  const TYPE_KEYS = { municipal: "typeMunicipal", private: "typePrivate", agency: "typeAgency", foundation: "typeFoundation" } as const;
+  const typeLabel = (type: keyof typeof TYPE_KEYS) => t(TYPE_KEYS[type]);
 
   return (
     <>

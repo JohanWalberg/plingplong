@@ -831,7 +831,13 @@
       "htmlSaved": "The address is saved. We will be in touch when the reader is set up.",
       "queueOptionNone": "No queue required",
       "queueOptionQueue": "Housing queue required",
-      "contactPlaceholder": "ops@company.se"
+      "contactPlaceholder": "ops@company.se",
+      "fieldPostcode": "Postcode",
+      "fieldSegment": "Target group",
+      "fieldContract": "Contract type",
+      "fieldDescription": "Description",
+      "fieldLat": "Latitude",
+      "fieldLon": "Longitude"
     },
     "account": {
       "title": "Account",

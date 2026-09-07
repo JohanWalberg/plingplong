@@ -32,7 +32,7 @@ export function parseRegistryResponse(json: unknown, provider = "bolagsverket"):
   if (!json || typeof json !== "object") return null;
   const root = (Array.isArray(json) ? json[0] : json) as Record<string, unknown> | undefined;
   if (!root) return null;
-  const org = (root.organisation ?? root.organisationer?.[0 as never] ?? root.foretag ?? root) as Record<string, unknown>;
+  const org = (root.organisation ?? (root.organisationer as unknown[] | undefined)?.[0] ?? root.foretag ?? root) as Record<string, unknown>;
   const pick = (...keys: string[]): unknown => {
     for (const k of keys) {
       const v = k.split(".").reduce<unknown>((acc, part) => (acc && typeof acc === "object" ? (acc as Record<string, unknown>)[part] : undefined), org);

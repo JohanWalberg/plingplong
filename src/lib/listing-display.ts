@@ -28,38 +28,42 @@ export function deadlineState(deadline: string | null, now: Date = new Date()): 
   return { kind: "by", tone: "neutral", days };
 }
 
+/** Interpolation values as next-intl expects them; each message key uses a subset. */
+type MessageValues = Record<string, string | number>;
+const values = (v: MessageValues): MessageValues => v;
+
 /** Message key + values for a deadline state; rendered via t("deadline.*"). */
 export function deadlineMessage(locale: Locale, deadline: string | null, now: Date = new Date()) {
   const s = deadlineState(deadline, now);
   switch (s.kind) {
     case "rolling":
-      return { key: "rolling" as const, values: {} };
+      return { key: "rolling" as const, values: values({}) };
     case "closed":
-      return { key: "closed" as const, values: {} };
+      return { key: "closed" as const, values: values({}) };
     case "today":
-      return { key: "today" as const, values: {} };
+      return { key: "today" as const, values: values({}) };
     case "tomorrow":
-      return { key: "tomorrow" as const, values: {} };
+      return { key: "tomorrow" as const, values: values({}) };
     default:
       // Inside two weeks a count reads faster than a date; beyond that the date is what people plan around.
-      if (s.days <= 14) return { key: "closesIn" as const, values: { count: s.days } };
-      return { key: "by" as const, values: { date: formatDateShort(locale, deadline!) } };
+      if (s.days <= 14) return { key: "closesIn" as const, values: values({ count: s.days }) };
+      return { key: "by" as const, values: values({ date: formatDateShort(locale, deadline!) }) };
   }
 }
 
 /** Freshness copy: which key and which values, from `last_checked_at`. */
 export function freshnessMessage(locale: Locale, lastCheckedAt: Date | null, now: Date = new Date()) {
-  if (!lastCheckedAt) return { key: "never" as const, values: {} };
+  if (!lastCheckedAt) return { key: "never" as const, values: values({}) };
   const minutes = Math.max(0, Math.round((now.getTime() - lastCheckedAt.getTime()) / 60_000));
-  if (minutes <= 3) return { key: "justNow" as const, values: {} };
-  if (minutes < 60) return { key: "minutesAgo" as const, values: { count: minutes } };
+  if (minutes <= 3) return { key: "justNow" as const, values: values({}) };
+  if (minutes < 60) return { key: "minutesAgo" as const, values: values({ count: minutes }) };
   const sameDay =
     new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(now) ===
     new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(lastCheckedAt);
-  if (sameDay) return { key: "todayAt" as const, values: { time: formatTime(locale, lastCheckedAt) } };
+  if (sameDay) return { key: "todayAt" as const, values: values({ time: formatTime(locale, lastCheckedAt) }) };
   const days = Math.round(minutes / 1440);
-  if (days <= 1) return { key: "yesterday" as const, values: {} };
-  return { key: "daysAgo" as const, values: { count: days } };
+  if (days <= 1) return { key: "yesterday" as const, values: values({}) };
+  return { key: "daysAgo" as const, values: values({ count: days }) };
 }
 
 export type ListingForBadges = {

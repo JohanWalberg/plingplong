@@ -2,8 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Fieldset, Select } from "@/components/ui/form";
@@ -21,6 +20,7 @@ import {
   SORTS,
   toQuery,
   type SearchFilters,
+  type SegmentFilter,
   type Sort,
 } from "@/lib/search-params";
 
@@ -32,16 +32,18 @@ type Props = {
   total: number;
 };
 
+const SEGMENT_KEYS = { student: "segmentStudent", youth: "segmentYouth", senior: "segmentSenior", accessible: "segmentAccessible" } as const satisfies Record<SegmentFilter, string>;
+
 function useFilterNavigation(filters: SearchFilters) {
   const router = useRouter();
-  const pathname = usePathname();
-  const params = useParams();
+  const pathname = usePathname(); // the real URL path, locale prefix included: filters never change the page, only its query
   const { pending, start: startTransition } = useSearchTransition();
 
   function apply(next: Partial<SearchFilters>, resetPage = true) {
     const merged = { ...filters, ...next, page: resetPage ? 1 : (next.page ?? filters.page) };
     startTransition(() => {
-      router.replace({ pathname: pathname as never, params: params as never, query: toQuery(merged) } as never, { scroll: false });
+      const qs = new URLSearchParams(toQuery(merged)).toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     });
   }
   return { apply, pending };
@@ -84,7 +86,7 @@ export function FilterPanel({ filters, landlords, total, onApplied }: Props & { 
     const set = new Set<string>(filters[key] as string[]);
     if (set.has(v)) set.delete(v);
     else set.add(v);
-    apply({ [key]: [...set] } as never);
+    apply({ [key]: [...set] } as Partial<SearchFilters>);
   }
 
   const [sizeMin, setSizeMin] = useState(filters.sizeMin ? String(filters.sizeMin) : "");
@@ -228,7 +230,7 @@ export function FilterPanel({ filters, landlords, total, onApplied }: Props & { 
                       onClick={() => toggleIn("segment", s)}
                       className={`min-h-touch rounded-full border px-3.5 text-[13.5px] font-[650] ${on ? "border-ink bg-ink text-white" : "border-line-strong bg-surface text-ink hover:bg-bg"}`}
                     >
-                      {t(`segment${s[0].toUpperCase()}${s.slice(1)}` as never)}
+                      {t(SEGMENT_KEYS[s])}
                     </button>
                   );
                 })}
@@ -269,7 +271,7 @@ export function ActiveChips({ filters, landlords }: { filters: SearchFilters; la
   }
   for (const q of filters.queue) chips.push({ key: `q-${q}`, label: t(q === "none" ? "queueNone" : q === "queue" ? "queueRequired" : "queueUnknown"), remove: () => apply({ queue: filters.queue.filter((x) => x !== q) }) });
   for (const l of filters.landlord) chips.push({ key: `l-${l}`, label: landlords.find((x) => x.slug === l)?.name ?? l, remove: () => apply({ landlord: filters.landlord.filter((x) => x !== l) }) });
-  for (const s of filters.segment) chips.push({ key: `s-${s}`, label: t(`segment${s[0].toUpperCase()}${s.slice(1)}` as never), remove: () => apply({ segment: filters.segment.filter((x) => x !== s) }) });
+  for (const s of filters.segment) chips.push({ key: `s-${s}`, label: t(SEGMENT_KEYS[s]), remove: () => apply({ segment: filters.segment.filter((x) => x !== s) }) });
   if (filters.moveInBefore) chips.push({ key: "movein", label: t("moveInBefore", { date: filters.moveInBefore }), remove: () => apply({ moveInBefore: undefined }) });
 
   if (!chips.length) return null;

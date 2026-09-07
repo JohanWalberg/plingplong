@@ -831,7 +831,13 @@
       "htmlSaved": "Adressen är sparad. Vi hör av oss när avläsningen är uppsatt.",
       "queueOptionNone": "Ingen kö krävs",
       "queueOptionQueue": "Bostadskö krävs",
-      "contactPlaceholder": "drift@foretaget.se"
+      "contactPlaceholder": "drift@foretaget.se",
+      "fieldPostcode": "Postnummer",
+      "fieldSegment": "Målgrupp",
+      "fieldContract": "Kontraktstyp",
+      "fieldDescription": "Beskrivning",
+      "fieldLat": "Latitud",
+      "fieldLon": "Longitud"
     },
     "account": {
       "title": "Konto",

@@ -18,7 +18,7 @@ export async function renderEmail(
   const messages = (await import(`../../messages/${locale}.json`)).default;
   const t = createTranslator({ locale, messages, namespace: "email" });
   return {
-    subject: t(`${template}Subject` as never, values as never),
-    text: t(`${template}Body` as never, values as never),
+    subject: t(`${template}Subject` as const, values),
+    text: t(`${template}Body` as const, values),
   };
 }
