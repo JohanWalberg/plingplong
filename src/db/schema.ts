@@ -270,7 +270,17 @@ export const listing = pgTable(
     index("listing_status_last_seen_idx").on(t.status, t.lastSeenAt),
     index("listing_status_first_seen_idx").on(t.status, t.firstSeenAt),
     index("listing_muni_status_first_seen_idx").on(t.municipalityId, t.status, t.firstSeenAt),
+    // The "recently checked" and "deadline" sorts had no index; last_seen_at is
+    // the neighbouring column and cannot serve last_checked_at.
+    index("listing_status_checked_idx").on(t.status, t.lastCheckedAt),
+    index("listing_status_deadline_idx").on(t.status, t.applicationDeadline),
     index("listing_landlord_idx").on(t.landlordId),
+    // The municipality page counts homes per area, joining on area_id alone.
+    index("listing_area_status_idx").on(t.areaId, t.status),
+    // Slug allocation asks for `slug = base OR slug LIKE 'base-%'` on every
+    // insert. Under a non-C collation the unique index cannot serve the prefix
+    // match, so without this the planner scans the whole table each time.
+    index("listing_slug_pattern_idx").on(t.slug.op("text_pattern_ops")),
     index("listing_location_gix").using("gist", t.location),
   ],
 );
