@@ -1216,7 +1216,9 @@
     "applicationExistsSubject": "Det finns redan en ansökan för {organisation}",
     "applicationExistsBody": "Hej {name},\n\nDet finns redan en ansökan om hyresvärdskonto för {organisation}, så vi skapade ingen ny. Om det var du eller en kollega kan ni logga in här: {url}. Om du inte väntade dig detta, kontakta oss så reder vi ut det.\n\nHyrabostad",
     "accountExistsSubject": "Du har redan ett konto",
-    "accountExistsBody": "Hej {name},\n\nEn ansökan skickades nyss in med den här e-postadressen, men det finns redan ett konto för den, så inget nytt skapades. Logga in här: {url}. Har du glömt lösenordet kan du återställa det där. Om det inte var du kan du bortse från det här mejlet.\n\nHyrabostad"
+    "accountExistsBody": "Hej {name},\n\nEn ansökan skickades nyss in med den här e-postadressen, men det finns redan ett konto för den, så inget nytt skapades. Logga in här: {url}. Har du glömt lösenordet kan du återställa det där. Om det inte var du kan du bortse från det här mejlet.\n\nHyrabostad",
+    "expiringSoonSubject": "Sista ansökningsdag om {days} dagar för {count, plural, one {en bostad} other {# bostäder}}",
+    "expiringSoonBody": "Hej,\n\nSista ansökningsdag är om {days} dagar för:\n\n{homes}\n\nEfter sista ansökningsdag ligger bostaden kvar en vecka och avpubliceras sedan automatiskt. Vill ni förlänga söktiden ändrar ni datumet i portalen: {url}\n\nHyrabostad"
   },
   "map": {
     "hint": "Flytta kartan för att uppdatera resultaten",

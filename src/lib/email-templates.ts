@@ -10,7 +10,8 @@ type Template =
   | "rejected"
   | "invite"
   | "reset"
-  | "sourceFailed";
+  | "sourceFailed"
+  | "expiringSoon";
 
 export async function renderEmail(
   locale: Locale,

@@ -4,6 +4,7 @@ export const QUEUES = {
   sync: "source.sync",
   tick: "scheduler.tick",
   housekeeping: "housekeeping.daily",
+  notify: "notify.daily",
 } as const;
 
 const globalForBoss = globalThis as unknown as { __hyrabostadBoss?: Promise<PgBoss> };

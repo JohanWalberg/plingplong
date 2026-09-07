@@ -6,6 +6,7 @@ import type { Job } from "pg-boss";
 import { QUEUES, createBoss } from "@/lib/jobs";
 import { dueSources, expireDirectListings, pruneRawPayloads, syncSource } from "./sync";
 import { purgeApplications } from "./retention";
+import { notifyExpiringListings } from "./notify";
 import { assertProductionConfig } from "@/lib/env-check";
 
 async function main() {
@@ -41,8 +42,15 @@ async function main() {
     console.log(`[housekeeping] expired ${expired} direct listing(s), purged ${purged} application(s)`);
   });
 
+  // No retry: a landlord must never get the same reminder twice because a send failed halfway.
+  await boss.work(QUEUES.notify, async () => {
+    const sent = await notifyExpiringListings();
+    if (sent) console.log(`[notify] ${sent} deadline reminder(s) sent`);
+  });
+
   await boss.schedule(QUEUES.tick, "* * * * *", undefined, { tz: "Europe/Stockholm" });
   await boss.schedule(QUEUES.housekeeping, "15 3 * * *", undefined, { tz: "Europe/Stockholm" });
+  await boss.schedule(QUEUES.notify, "0 8 * * *", undefined, { tz: "Europe/Stockholm", retryLimit: 0 });
   console.log("worker started: queues", Object.values(QUEUES).join(", "));
 
   // Deploys send SIGTERM: finish the running job instead of leaving a source run open.

@@ -1216,7 +1216,9 @@
     "applicationExistsSubject": "There is already an application for {organisation}",
     "applicationExistsBody": "Hi {name},\n\nAn application for a landlord account for {organisation} already exists, so we did not create a new one. If it was you or a colleague, sign in here: {url}. If you did not expect this, contact us and we will sort it out.\n\nHyrabostad",
     "accountExistsSubject": "You already have an account",
-    "accountExistsBody": "Hi {name},\n\nAn application was just submitted with this email address, but an account already exists for it, so nothing new was created. Sign in here: {url}. If you have forgotten your password you can reset it there. If this was not you, you can ignore this email.\n\nHyrabostad"
+    "accountExistsBody": "Hi {name},\n\nAn application was just submitted with this email address, but an account already exists for it, so nothing new was created. Sign in here: {url}. If you have forgotten your password you can reset it there. If this was not you, you can ignore this email.\n\nHyrabostad",
+    "expiringSoonSubject": "Application deadline in {days} days for {count, plural, one {one home} other {# homes}}",
+    "expiringSoonBody": "Hi,\n\nThe application deadline is in {days} days for:\n\n{homes}\n\nAfter the deadline the home stays for one week and is then unpublished automatically. To give people longer, change the date in the portal: {url}\n\nHyrabostad"
   },
   "map": {
     "hint": "Move the map to update the results",
