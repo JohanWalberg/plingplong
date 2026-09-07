@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Link, getPathname } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { resolveLocale } from "@/lib/locale";
+import { absoluteUrl } from "@/lib/seo";
 import { SiteHeader } from "@/components/site/header";
 import { Badge, BadgeList } from "@/components/ui/badge";
 import { Card, Callout, Kicker, icons } from "@/components/ui/misc";
@@ -54,6 +55,7 @@ export default async function ListingPage({ params }: Props) {
   const ta = await getTranslations("actions");
   const td = await getTranslations("deadline");
   const ts = await getTranslations("states");
+  const tp = await getTranslations("pages");
   const tb = await getTranslations("badges");
   const labels = await getBadgeLabels();
   const gone = l.status !== "active";
@@ -65,7 +67,8 @@ export default async function ListingPage({ params }: Props) {
   const activeSources = l.sources.filter((s) => s.presentAtLastCheck || gone);
   const multi = activeSources.length > 1;
   const applyUrl = l.applicationUrl ?? activeSources[0]?.sourceUrl ?? null;
-  const similar = gone ? await similarListings(locale, { id: l.id, municipalityId: l.municipalityId, rooms: l.rooms }, 2) : [];
+  // Also on an available home: "what else is like this" is the next question either way.
+  const similar = await similarListings(locale, { id: l.id, municipalityId: l.municipalityId, rooms: l.rooms }, gone ? 2 : 3);
   const queueKey = l.queueRequirement === "none" ? "None" : l.queueRequirement === "queue" ? "Required" : l.queueRequirement === "points" ? "Points" : "Unknown";
   const lat = l.lat;
   const lon = l.lon;
@@ -215,12 +218,12 @@ export default async function ListingPage({ params }: Props) {
                 </div>
               </Card>
 
-              {gone && similar.length ? (
+              {similar.length ? (
                 <section aria-labelledby="similar">
                   <h2 id="similar" className="text-h2">
                     {ts("similarTitle")}
                   </h2>
-                  <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <ul className={`mt-4 grid gap-4 sm:grid-cols-2 ${gone ? "" : "lg:grid-cols-3"}`}>
                     {similar.map((s) => (
                       <li key={s.id} className="list-none">
                         <ListingCard listing={s} variant="compact" />
@@ -228,8 +231,8 @@ export default async function ListingPage({ params }: Props) {
                     ))}
                   </ul>
                   <p className="mt-4">
-                    <Link href={{ pathname: "/homes/[place]", params: { place: municipalitySlug(l.municipality, locale) } }} className={buttonClasses("primary")}>
-                      {ts("backToSearch")}
+                    <Link href={{ pathname: "/homes/[place]", params: { place: municipalitySlug(l.municipality, locale) } }} className={buttonClasses(gone ? "primary" : "secondary")}>
+                      {gone ? ts("backToSearch") : ts("moreIn", { place: municipalityName(l.municipality, locale) })}
                     </Link>
                   </p>
                 </section>
@@ -297,6 +300,15 @@ export default async function ListingPage({ params }: Props) {
                   </p>
                 ) : null}
                 <p className="mt-3 text-meta leading-relaxed text-muted">{t("sourceDisclaimer")}</p>
+                {/* The documented takedown channel, with the home already identified so nobody has to describe it. */}
+                <p className="mt-3 text-meta">
+                  <a
+                    href={`mailto:${tp("contactEmail")}?subject=${encodeURIComponent(t("reportSubject", { address: l.address }))}&body=${encodeURIComponent(t("reportBody", { url: absoluteUrl(locale, { pathname: "/home/[slug]", params: { slug: l.slug } }) }))}`}
+                    className="font-[650] text-ink-2 underline underline-offset-2"
+                  >
+                    {t("reportProblem")}
+                  </a>
+                </p>
               </Card>
             </aside>
           </div>

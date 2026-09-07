@@ -207,7 +207,10 @@
     "savedGone": "Inte längre tillgängliga",
     "savedGoneBody": "De här bostäderna har hyrts ut, dragits tillbaka eller stängt sedan du sparade dem.",
     "copyList": "Kopiera listan",
-    "listCopied": "Listan är kopierad."
+    "listCopied": "Listan är kopierad.",
+    "reportProblem": "Rapportera fel i uppgifterna",
+    "reportSubject": "Fel i uppgifterna: {address}",
+    "reportBody": "Bostad: {url}\n\nVad är fel?\n"
   },
   "freshness": {
     "justNow": "Kontrollerad nyss",
@@ -305,7 +308,8 @@
     "similarTitle": "Liknande bostäder som är lediga nu",
     "backToSearch": "Tillbaka till sökningen",
     "errorTitle": "Vi kunde inte hämta bostäderna just nu.",
-    "errorBody": "Försök igen om en stund. Om felet kvarstår har vi troligen redan fått en rapport."
+    "errorBody": "Försök igen om en stund. Om felet kvarstår har vi troligen redan fått en rapport.",
+    "moreIn": "Fler bostäder i {place}"
   },
   "footer": {
     "blurb": "Lediga hyresrätter från flera hyresvärdar på ett ställe. Vi förmedlar inga bostäder och tar inga avgifter från hyressökande.",

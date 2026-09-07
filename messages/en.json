@@ -207,7 +207,10 @@
     "savedGone": "No longer available",
     "savedGoneBody": "These homes were let, withdrawn or closed since you saved them.",
     "copyList": "Copy list",
-    "listCopied": "The list is copied."
+    "listCopied": "The list is copied.",
+    "reportProblem": "Report incorrect information",
+    "reportSubject": "Incorrect information: {address}",
+    "reportBody": "Home: {url}\n\nWhat is wrong?\n"
   },
   "freshness": {
     "justNow": "Checked just now",
@@ -305,7 +308,8 @@
     "similarTitle": "Similar homes available now",
     "backToSearch": "Back to search",
     "errorTitle": "We could not load the homes right now.",
-    "errorBody": "Try again in a moment. If the problem persists we have most likely already received a report."
+    "errorBody": "Try again in a moment. If the problem persists we have most likely already received a report.",
+    "moreIn": "More homes in {place}"
   },
   "footer": {
     "blurb": "Vacant rental homes from many landlords in one place. We broker no homes and charge people searching nothing.",
