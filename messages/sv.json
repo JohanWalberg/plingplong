@@ -1247,6 +1247,12 @@
     "empty": "Inga bostäder i det här kartutsnittet.",
     "attribution": "Kartdata © OpenStreetMap-bidragsgivare",
     "zoomIn": "Zooma in",
-    "zoomOut": "Zooma ut"
+    "zoomOut": "Zooma ut",
+    "emptyHeading": "Inga bostäder i det här kartutsnittet",
+    "emptyBody": "Flytta eller zooma ut kartan, eller hoppa till en av de närmaste bostäderna.",
+    "showAll": "{count, plural, one {Visa den enda lediga bostaden} other {Visa alla # lediga bostäder}}",
+    "nearestTitle": "Närmast härifrån",
+    "awayFromView": "{distance} härifrån",
+    "noneAnywhere": "Just nu har vi inga lediga bostäder som matchar dina filter."
   }
 }

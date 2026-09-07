@@ -9,7 +9,7 @@ import { MapView } from "@/components/map/map-view";
 import { icons } from "@/components/ui/misc";
 import { parseSearchParams } from "@/lib/search-params-parse";
 import { toQuery, type RawSearchParams } from "@/lib/search-params";
-import { searchListingsForMap, type SearchScope } from "@/lib/queries/listings";
+import { countMatching, nearestListings, searchListingsForMap, type SearchScope } from "@/lib/queries/listings";
 import { findMunicipalityBySlug, municipalityName, municipalitySlug } from "@/lib/queries/places";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<RawSearchParams> };
@@ -47,7 +47,15 @@ export default async function MapPage({ params, searchParams }: Props) {
     initialBounds = [Math.min(...lons) - 0.01, Math.min(...lats) - 0.01, Math.max(...lons) + 0.01, Math.max(...lats) + 0.01];
   }
   const query = { ...toQuery(filters), ...(placeSlug ? { place: placeSlug } : {}) };
-  const heading = muni ? t("heading", { count: items.length, place: municipalityName(muni, locale) }) : t("headingAll", { count: items.length });
+
+  // An empty view is a dead end unless it can say what it is missing and where.
+  // Only when the visitor has panned somewhere: an empty whole-country result is
+  // the search page's problem, and it already offers its own recovery actions.
+  const emptyView = items.length === 0 && bbox !== undefined;
+  const centre = bbox ? { lon: (bbox[0] + bbox[2]) / 2, lat: (bbox[1] + bbox[3]) / 2 } : null;
+  const [nearby, totalElsewhere] = emptyView && centre ? await Promise.all([nearestListings(locale, centre, filters, 5), countMatching(filters)]) : [[], 0];
+
+  const heading = emptyView ? tm("emptyHeading") : muni ? t("heading", { count: items.length, place: municipalityName(muni, locale) }) : t("headingAll", { count: items.length });
 
   return (
     <>
@@ -72,7 +80,7 @@ export default async function MapPage({ params, searchParams }: Props) {
             </span>
           </div>
         </div>
-        <MapView items={items} query={query} initialBounds={initialBounds} attribution={tm("attribution")} />
+        <MapView items={items} query={query} initialBounds={initialBounds} attribution={tm("attribution")} nearby={nearby} totalElsewhere={totalElsewhere} />
       </main>
     </>
   );

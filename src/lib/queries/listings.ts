@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, asc, desc, eq, gte, inArray, isNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { Locale } from "@/i18n/routing";
 import { PAGE_SIZE, RENT_MAX, type SearchFilters } from "@/lib/search-params";
@@ -194,6 +194,37 @@ async function siteTotalsQuery() {
 }
 /** Memoized for CACHE_TTL_SECONDS; the home page itself revalidates every five minutes. */
 export const siteTotals = memoize(LISTINGS_NS, siteTotalsQuery);
+
+/**
+ * The homes closest to a point, whatever the map is currently showing. Used when
+ * a map view has nothing in it, so the answer to "is there anything?" is a list
+ * with distances rather than an empty panel.
+ */
+export async function nearestListings(locale: Locale, from: { lat: number; lon: number }, f: SearchFilters, limit = 5) {
+  // Stored geometry carries SRID 0 (see the note on `location` in the schema), so
+  // the ordering runs in that space to keep the GiST index, and the distance we
+  // show is computed separately with an explicit SRID. Degrees rank differently
+  // from metres at this latitude, so a wider set is ordered properly afterwards.
+  const plain = sql`ST_MakePoint(${from.lon}, ${from.lat})`;
+  const metres = sql<number>`ST_Distance(ST_SetSRID(${listing.location}, 4326)::geography, ST_SetSRID(${plain}, 4326)::geography)`;
+  const rows = await db
+    .select({ ...cardSelect(locale), distanceM: metres })
+    .from(listing)
+    .innerJoin(landlord, eq(listing.landlordId, landlord.id))
+    .innerJoin(municipality, eq(listing.municipalityId, municipality.id))
+    // The scope is deliberately empty: these are the homes the current view is missing.
+    .where(and(...whereClauses({}, f), isNotNull(listing.location)))
+    .orderBy(sql`${listing.location} <-> ${plain}`)
+    .limit(limit * 4);
+  const byDistance = (rows as Array<SearchResultItem & { distanceM: number }>).sort((a, b) => a.distanceM - b.distanceM);
+  return byDistance.slice(0, limit);
+}
+
+/** How many homes match these filters anywhere, so an empty view can say what it is missing. */
+export async function countMatching(f: SearchFilters) {
+  const [row] = await db.select({ n: sql<number>`count(*)::int` }).from(listing).where(and(...whereClauses({}, f)));
+  return row?.n ?? 0;
+}
 
 export async function latestListings(locale: Locale, limit = 3) {
   const rows = await db

@@ -224,6 +224,13 @@ export const listing = pgTable(
     address: text("address").notNull(),
     postcode: text("postcode"),
     areaName: text("area_name"),
+    /**
+     * Coordinates are WGS 84, but the column and every row carry SRID 0: the
+     * generated DDL left the constraint off and inserts do not set one. Bounding
+     * box operators ignore SRID so search works, but anything doing real spatial
+     * maths must say ST_SetSRID(location, 4326) explicitly. Same for the centroid
+     * columns above.
+     */
     location: geometry("location", { type: "point", mode: "xy", srid: 4326 }),
     rentMonthly: integer("rent_monthly"),
     rooms: real("rooms"),

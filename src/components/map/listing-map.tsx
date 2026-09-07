@@ -16,7 +16,8 @@ type Props = {
   ariaLabel: string;
   interactive?: boolean;
   onSelect?: (id: string | null) => void;
-  onMoveEnd?: (bounds: [number, number, number, number]) => void;
+  /** `userMoved` is false for the map's own initial fit, true for a drag, a zoom or an eased jump. */
+  onMoveEnd?: (bounds: [number, number, number, number], userMoved: boolean) => void;
   selectedId?: string | null;
   /** Highlighted from the list on hover; mirrors onHover from the markers. */
   hoveredId?: string | null;
@@ -75,9 +76,16 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
       if (map.getZoom() < minInitialZoom) map.setZoom(minInitialZoom);
     }
     map.on("load", () => setReady(true));
+    // Only the opening fit is discounted, and only for the tick it happens in.
+    // fitBounds runs with duration 0, so any moveend it causes lands before this
+    // clears; anything later is a real movement, whether dragged or eased.
+    let openingFit = Boolean(bounds);
+    if (openingFit) setTimeout(() => (openingFit = false), 0);
     map.on("moveend", () => {
+      const fromFit = openingFit;
+      openingFit = false;
       const b = map.getBounds();
-      onMoveEndRef.current?.([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+      onMoveEndRef.current?.([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()], !fromFit);
     });
     map.on("click", () => onSelectRef.current?.(null));
     mapRef.current = map;

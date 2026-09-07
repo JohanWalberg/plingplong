@@ -1247,6 +1247,12 @@
     "empty": "No homes in this part of the map.",
     "attribution": "Map data © OpenStreetMap contributors",
     "zoomIn": "Zoom in",
-    "zoomOut": "Zoom out"
+    "zoomOut": "Zoom out",
+    "emptyHeading": "No homes in this map view",
+    "emptyBody": "Move or zoom out the map, or jump to one of the closest homes.",
+    "showAll": "{count, plural, one {Show the one available home} other {Show all # available homes}}",
+    "nearestTitle": "Closest to here",
+    "awayFromView": "{distance} from here",
+    "noneAnywhere": "We have no available homes matching your filters right now."
   }
 }

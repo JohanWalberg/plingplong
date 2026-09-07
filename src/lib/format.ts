@@ -80,6 +80,12 @@ export function formatRelative(locale: Locale, d: Date | string, now: Date = new
   return rtf.format(-Math.round(minutes / 1440), "day");
 }
 
+/** "850 m" under a kilometre, "3,2 km" above it. */
+export function formatDistance(locale: Locale, metres: number) {
+  if (metres < 1000) return `${formatNumber(locale, Math.round(metres / 10) * 10)} m`;
+  return `${formatNumber(locale, metres / 1000, { maximumFractionDigits: 1 })} km`;
+}
+
 export function formatPercent(locale: Locale, ratio: number, digits = 1) {
   return new Intl.NumberFormat(intlLocale(locale), { style: "percent", maximumFractionDigits: digits, minimumFractionDigits: digits }).format(ratio);
 }
