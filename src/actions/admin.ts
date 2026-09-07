@@ -12,6 +12,7 @@ import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { absoluteUrl } from "@/lib/seo";
 import { slugify } from "@/lib/slug";
+import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { mergeListings } from "@/worker/sync";
 import { adapterForKind } from "@/lib/source-test";
 import type { Locale } from "@/i18n/routing";
@@ -156,10 +157,7 @@ export async function upsertLandlord(locale: Locale, landlordId: string | null, 
   let id = landlordId;
   if (id) await db.update(landlord).set(values).where(eq(landlord.id, id));
   else {
-    let slug = slugify(d.name);
-    const clash = await db.query.landlord.findFirst({ where: eq(landlord.slug, slug) });
-    if (clash) slug = `${slug}-${Date.now().toString(36)}`;
-    const [row] = await db.insert(landlord).values({ ...values, slug }).returning({ id: landlord.id });
+    const [row] = await insertWithUniqueSlug(db, landlord, slugify(d.name), (tx, slug) => tx.insert(landlord).values({ ...values, slug }).returning({ id: landlord.id }));
     id = row.id;
   }
   await db.delete(landlordMunicipality).where(eq(landlordMunicipality.landlordId, id));
@@ -188,13 +186,12 @@ export async function approveApplication(locale: Locale, applicationId: string) 
         landlordId = existing.id;
         await tx.update(landlord).set({ approvedAt: now, website: existing.website ?? app.website }).where(eq(landlord.id, landlordId));
       } else {
-        let slug = slugify(app.companyName);
-        const clash = await tx.query.landlord.findFirst({ where: eq(landlord.slug, slug) });
-        if (clash) slug = `${slug}-${app.orgNumber.replace(/\D/g, "").slice(-4)}`;
-        const [row] = await tx
-          .insert(landlord)
-          .values({ name: app.companyName, slug, orgNumber: app.orgNumber, website: app.website, type: app.orgNumber.startsWith("7696") ? "private" : "private", queueType: "unknown", approvedAt: now, isKnown: true, isMonitored: app.publishingRoute === "manual" })
-          .returning({ id: landlord.id });
+        const [row] = await insertWithUniqueSlug(tx, landlord, slugify(app.companyName), (sp, slug) =>
+          sp
+            .insert(landlord)
+            .values({ name: app.companyName, slug, orgNumber: app.orgNumber, website: app.website, type: "private", queueType: "unknown", approvedAt: now, isKnown: true, isMonitored: app.publishingRoute === "manual" })
+            .returning({ id: landlord.id }),
+        );
         landlordId = row.id;
       }
     }

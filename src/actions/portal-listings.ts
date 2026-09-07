@@ -8,6 +8,7 @@ import { requireLandlord } from "@/lib/access";
 import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { listingSlug } from "@/lib/slug";
+import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { invalidateListingCaches } from "@/lib/listing-cache";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, imageKey, storage } from "@/lib/storage";
 
@@ -108,16 +109,6 @@ async function resolveLocation(municipalityId: string, areaName: string | null) 
   return { areaId: null, lat: m?.lat ?? null, lon: m?.lon ?? null };
 }
 
-async function uniqueSlug(base: string, excludeId?: string) {
-  let slug = base;
-  for (let i = 2; i < 50; i++) {
-    const hit = await db.query.listing.findFirst({ where: eq(listing.slug, slug), columns: { id: true } });
-    if (!hit || hit.id === excludeId) return slug;
-    slug = `${base}-${i}`;
-  }
-  return `${base}-${Date.now()}`;
-}
-
 const MAX_IMAGES_PER_LISTING = 12;
 type PreparedImage = { data: Buffer; contentType: "image/jpeg" | "image/png" | "image/webp" };
 
@@ -215,25 +206,26 @@ export async function saveListing(locale: Locale, mode: "draft" | "publish", exi
     if (publishNow) revisions.push({ listingId: existingId, field: "status", oldValue: before!.status, newValue: "active", origin: "portal", changedBy: me.userId, changedAt: now });
     if (revisions.length) await db.insert(listingRevision).values(revisions);
   } else {
-    const slug = await uniqueSlug(listingSlug(values.address, muni.nameSv));
-    const [row] = await db
-      .insert(listing)
-      .values({
-        ...values,
-        slug,
-        landlordId: me.landlordId,
-        areaId: loc.areaId,
-        location: loc.lat !== null && loc.lon !== null ? { x: loc.lon, y: loc.lat } : null,
-        contractType: "first_hand",
-        status: mode === "publish" ? "active" : "draft",
-        publishedDirectly: true,
-        publishedAt: mode === "publish" ? now : null,
-        firstSeenAt: now,
-        lastSeenAt: now,
-        lastCheckedAt: now,
-        createdBy: me.userId,
-      })
-      .returning({ id: listing.id });
+    const [row] = await insertWithUniqueSlug(db, listing, listingSlug(values.address, muni.nameSv), (tx, slug) =>
+      tx
+        .insert(listing)
+        .values({
+          ...values,
+          slug,
+          landlordId: me.landlordId,
+          areaId: loc.areaId,
+          location: loc.lat !== null && loc.lon !== null ? { x: loc.lon, y: loc.lat } : null,
+          contractType: "first_hand",
+          status: mode === "publish" ? "active" : "draft",
+          publishedDirectly: true,
+          publishedAt: mode === "publish" ? now : null,
+          firstSeenAt: now,
+          lastSeenAt: now,
+          lastCheckedAt: now,
+          createdBy: me.userId,
+        })
+        .returning({ id: listing.id }),
+    );
     id = row.id;
     await db.insert(listingRevision).values({ listingId: id, field: "status", oldValue: null, newValue: mode === "publish" ? "active" : "draft", origin: "portal", changedBy: me.userId, changedAt: now });
   }

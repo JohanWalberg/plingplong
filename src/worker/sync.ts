@@ -2,6 +2,7 @@ import { and, desc, eq, inArray, isNull, lt, lte, or, sql, ne } from "drizzle-or
 import { stockholmDate } from "@/lib/format";
 import { db, schema, type Db, type Tx } from "@/db";
 import { listingSlug, slugify } from "@/lib/slug";
+import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { getAdapter, AdapterError, sniffFeedAdapter, type AdapterResult } from "./adapters";
@@ -162,40 +163,41 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
     } else {
       const muniName = munis.find((m) => m.id === municipalityId)!.nameSv;
       const base = listingSlug(n.address, muniName);
-      const slug = await uniqueSlug(base);
-      const [row] = await db
-        .insert(listing)
-        .values({
-          slug,
-          landlordId: src.landlordId,
-          municipalityId,
-          areaId: matchedArea?.id ?? null,
-          address: n.address,
-          postcode: n.postcode,
-          areaName: n.areaName,
-          location: lat !== null && lon !== null ? { x: lon, y: lat } : null,
-          rentMonthly: n.rentMonthly,
-          rooms: n.rooms,
-          sizeSqm: n.sizeSqm,
-          floor: n.floor,
-          floorsTotal: n.floorsTotal,
-          contractType: n.contractType,
-          moveInDate: n.moveInDate,
-          applicationDeadline: n.applicationDeadline,
-          queueRequirement,
-          segment: n.segment,
-          applyRoute: "url",
-          applicationUrl: n.sourceUrl,
-          description: n.description,
-          imageUrl: n.imageUrl,
-          externalId: n.externalId,
-          status: "active",
-          publishedDirectly: false,
-          firstSeenAt: now,
-          lastSeenAt: now,
-          lastCheckedAt: now,
-        })
-        .returning({ id: listing.id });
+      const [row] = await insertWithUniqueSlug(db, listing, base, (tx, slug) =>
+        tx
+          .insert(listing)
+          .values({
+            slug,
+            landlordId: src.landlordId,
+            municipalityId,
+            areaId: matchedArea?.id ?? null,
+            address: n.address,
+            postcode: n.postcode,
+            areaName: n.areaName,
+            location: lat !== null && lon !== null ? { x: lon, y: lat } : null,
+            rentMonthly: n.rentMonthly,
+            rooms: n.rooms,
+            sizeSqm: n.sizeSqm,
+            floor: n.floor,
+            floorsTotal: n.floorsTotal,
+            contractType: n.contractType,
+            moveInDate: n.moveInDate,
+            applicationDeadline: n.applicationDeadline,
+            queueRequirement,
+            segment: n.segment,
+            applyRoute: "url",
+            applicationUrl: n.sourceUrl,
+            description: n.description,
+            imageUrl: n.imageUrl,
+            externalId: n.externalId,
+            status: "active",
+            publishedDirectly: false,
+            firstSeenAt: now,
+            lastSeenAt: now,
+            lastCheckedAt: now,
+          })
+          .returning({ id: listing.id }),
+      );
       listingId = row.id;
       created++;
       newListingIds.push(listingId);
@@ -291,16 +293,6 @@ function diffFields(before: typeof listing.$inferSelect, after: NormalisedListin
     if ((a ?? null) !== (b ?? null)) out.push({ field: f, oldValue: a === null || a === undefined ? null : String(a), newValue: b === null || b === undefined ? null : String(b) });
   }
   return out;
-}
-
-async function uniqueSlug(base: string): Promise<string> {
-  let slug = base;
-  for (let i = 2; i < 50; i++) {
-    const hit = await db.query.listing.findFirst({ where: eq(listing.slug, slug), columns: { id: true } });
-    if (!hit) return slug;
-    slug = `${base}-${i}`;
-  }
-  return `${base}-${Date.now()}`;
 }
 
 /** Score new listings against active listings in the same block; write candidates for staff. */
