@@ -14,7 +14,7 @@ import { absoluteUrl } from "@/lib/seo";
 import { slugify } from "@/lib/slug";
 import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { encryptSecret } from "@/lib/secrets";
-import { mergeListings } from "@/worker/sync";
+import { mergeListings, withdrawSources } from "@/worker/sync";
 import { adapterForKind, sniffSourceKind } from "@/lib/source-test";
 import { LISTING_TRACKED_ADMIN, diffTracked } from "@/lib/queries/revisions";
 import type { Locale } from "@/i18n/routing";
@@ -115,7 +115,7 @@ export async function createSource(locale: Locale, formData: FormData): Promise<
 }
 
 export async function updateSource(locale: Locale, sourceId: string, formData: FormData): Promise<ActionResult> {
-  await requireStaff(locale, "lead");
+  const me = await requireStaff(locale, "lead");
   const parsed = sourceInput.partial({ landlordId: true, kind: true }).safeParse(Object.fromEntries(formData));
   if (!parsed.success) return invalid(parsed.error.issues);
   const d = parsed.data;
@@ -124,6 +124,7 @@ export async function updateSource(locale: Locale, sourceId: string, formData: F
   const config = { ...(current.config as Record<string, unknown>) };
   if (d.listSelector !== undefined) config.listSelector = d.listSelector || undefined;
   if (d.apiKey) config.apiKey = encryptSecret(d.apiKey);
+  const nowObjecting = d.consent === "objected" && current.consent !== "objected";
   await db
     .update(source)
     .set({
@@ -136,6 +137,12 @@ export async function updateSource(locale: Locale, sourceId: string, formData: F
       config,
     })
     .where(eq(source.id, sourceId));
+  // An objection is a takedown: stop crawling and clear what this source already put in search.
+  if (nowObjecting) {
+    await db.update(source).set({ status: "disabled", nextRunAt: null }).where(eq(source.id, sourceId));
+    await withdrawSources([sourceId], me.userId);
+    invalidateListingCaches();
+  }
   revalidateAdmin();
   return OK;
 }

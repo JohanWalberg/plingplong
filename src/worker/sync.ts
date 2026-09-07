@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull, lt, lte, or, sql, ne } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, lt, lte, notInArray, or, sql, ne } from "drizzle-orm";
 import { stockholmDate } from "@/lib/format";
 import { db, schema, type Db, type Tx } from "@/db";
 import { listingSlug, slugify } from "@/lib/slug";
@@ -384,6 +384,46 @@ export async function mergeListings(survivorId: string, loserId: string, actorId
   // Standalone callers get their own transaction; callers already inside one pass it in.
   if (exec === db) await db.transaction((tx) => run(tx));
   else await run(exec);
+}
+
+/**
+ * A landlord objected, or closed their account: nothing crawled from these
+ * sources may stay in search. Their links are marked absent and every listing
+ * that no other present source still carries is removed, with a revision
+ * saying why. The crawler already refuses to run an objected source, so this
+ * is what clears what it collected earlier.
+ */
+export async function withdrawSources(sourceIds: string[], actorId: string | null, exec: Db | Tx = db): Promise<number> {
+  if (!sourceIds.length) return 0;
+  const run = async (tx: Db | Tx) => {
+    const now = new Date();
+    const linked = await tx.select({ id: listingSource.listingId }).from(listingSource).where(inArray(listingSource.sourceId, sourceIds));
+    const ids = [...new Set(linked.map((l) => l.id))];
+    if (!ids.length) return 0;
+    await tx.update(listingSource).set({ presentAtLastCheck: false, lastCheckedAt: now }).where(inArray(listingSource.sourceId, sourceIds));
+    const elsewhere = new Set(
+      (
+        await tx
+          .select({ id: listingSource.listingId })
+          .from(listingSource)
+          .where(and(inArray(listingSource.listingId, ids), eq(listingSource.presentAtLastCheck, true), notInArray(listingSource.sourceId, sourceIds)))
+      ).map((r) => r.id),
+    );
+    const orphaned = ids.filter((id) => !elsewhere.has(id));
+    if (!orphaned.length) return 0;
+    const removed = await tx
+      .update(listing)
+      .set({ status: "removed", removedAt: now, lastCheckedAt: now })
+      .where(and(inArray(listing.id, orphaned), eq(listing.status, "active")))
+      .returning({ id: listing.id });
+    if (removed.length) {
+      await tx.insert(listingRevision).values(
+        removed.map((r) => ({ listingId: r.id, field: "status", oldValue: "active", newValue: "removed", origin: actorId ? "admin" : "system", changedBy: actorId, changedAt: now })),
+      );
+    }
+    return removed.length;
+  };
+  return exec === db ? db.transaction((tx) => run(tx)) : run(exec);
 }
 
 /** Direct listings: seven days after the deadline they expire automatically. */

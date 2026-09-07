@@ -92,10 +92,12 @@ export default async function LandlordPage({ params }: Props) {
             {!l.isMonitored ? (
               <div className="mt-4">
                 <Callout tone="info" icon={icons.info}>
-                  {t("notMonitored", { name: l.name })}
+                  {t("notMonitored")}
                 </Callout>
               </div>
-            ) : listings.length ? (
+            ) : null}
+            {/* A landlord we do not crawl can still have homes here: published in the portal, or crawled before they objected. */}
+            {listings.length ? (
               <ul className="mt-4 flex flex-col gap-3">
                 {listings.map((x) => (
                   <li key={x.id} className="list-none">
@@ -103,9 +105,9 @@ export default async function LandlordPage({ params }: Props) {
                   </li>
                 ))}
               </ul>
-            ) : (
+            ) : l.isMonitored ? (
               <p className="mt-3 text-ink-2">{t("noListings", { name: l.name })}</p>
-            )}
+            ) : null}
           </section>
 
           <aside className="flex flex-col gap-4">

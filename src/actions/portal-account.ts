@@ -5,6 +5,7 @@ import { invalidateListingCaches } from "@/lib/listing-cache";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { deleteUserIfOrphan } from "@/lib/queries/users";
+import { withdrawSources } from "@/worker/sync";
 import { requireLandlord } from "@/lib/access";
 import type { Locale } from "@/i18n/routing";
 
@@ -44,9 +45,10 @@ export async function removeMember(locale: Locale, userId: string) {
 
 
 /**
- * Close the landlord account: unpublish direct listings, disable sources,
- * remove members and invitations, delete users who belong nowhere else.
- * The landlord row stays as a known landlord so coverage does not change.
+ * Close the landlord account: unpublish direct listings, withdraw everything
+ * crawled from the landlord's sources, disable those sources, remove members
+ * and invitations, delete users who belong nowhere else. The landlord row
+ * stays as a known landlord so coverage does not change.
  */
 export async function closeLandlordAccount(locale: Locale, confirmName: string): Promise<{ ok: true } | { ok: false; error: "confirm" }> {
   const me = await requireLandlord(locale, "owner");
@@ -59,7 +61,10 @@ export async function closeLandlordAccount(locale: Locale, confirmName: string):
       await tx.update(listing).set({ status: "unpublished", unpublishedAt: now, lastCheckedAt: now }).where(inArray(listing.id, direct.map((d) => d.id)));
       await tx.insert(listingRevision).values(direct.map((d) => ({ listingId: d.id, field: "status", oldValue: d.status, newValue: "unpublished", origin: "portal", changedBy: me.userId, changedAt: now })));
     }
+    // Closing the account is an objection: the sources stop, and what they collected leaves search with them.
+    const sources = await tx.select({ id: source.id }).from(source).where(eq(source.landlordId, me.landlordId));
     await tx.update(source).set({ status: "disabled", consent: "objected", nextRunAt: null }).where(eq(source.landlordId, me.landlordId));
+    await withdrawSources(sources.map((s) => s.id), me.userId, tx);
     const members = await tx.select({ userId: landlordMember.userId }).from(landlordMember).where(eq(landlordMember.landlordId, me.landlordId));
     await tx.delete(landlordInvitation).where(eq(landlordInvitation.landlordId, me.landlordId));
     await tx.delete(landlordMember).where(eq(landlordMember.landlordId, me.landlordId));
