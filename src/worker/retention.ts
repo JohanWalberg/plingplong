@@ -16,14 +16,20 @@ export async function purgeApplications(now: Date = new Date()): Promise<number>
   const rejectedBefore = new Date(now.getTime() - REJECTED_RETENTION_DAYS * 86_400_000);
   const abandonedBefore = new Date(now.getTime() - ABANDONED_RETENTION_DAYS * 86_400_000);
   const rows = await db
-    .select({ id: landlordApplication.id, userId: landlordApplication.userId })
+    .select({ id: landlordApplication.id, userId: landlordApplication.userId, status: landlordApplication.status })
     .from(landlordApplication)
     .where(
-      sql`(${landlordApplication.status} = 'rejected' and coalesce(${landlordApplication.reviewedAt}, ${landlordApplication.createdAt}) < ${rejectedBefore})
-        or (${landlordApplication.status} in ('pending', 'needs_info') and ${landlordApplication.createdAt} < ${abandonedBefore})`,
+      // The cutoffs are bound as ISO strings and cast: a bare Date in a raw
+      // template reaches the driver unmapped and the query throws.
+      sql`(${landlordApplication.status} = 'rejected' and coalesce(${landlordApplication.reviewedAt}, ${landlordApplication.createdAt}) < ${rejectedBefore.toISOString()}::timestamptz)
+        or (${landlordApplication.status} in ('pending', 'needs_info') and ${landlordApplication.createdAt} < ${abandonedBefore.toISOString()}::timestamptz)`,
     );
   if (!rows.length) return 0;
   await db.delete(landlordApplication).where(inArray(landlordApplication.id, rows.map((r) => r.id)));
-  for (const r of rows) if (r.userId) await deleteUserIfOrphan(db, r.userId, abandonedBefore);
+  // Each row is aged out against its own cutoff. Passing the 180-day one for
+  // everything meant a rejected applicant's user, typically 90 days old, always
+  // failed the age check — and its application had just been deleted, so nothing
+  // ever looked at that user again and the row stayed forever.
+  for (const r of rows) if (r.userId) await deleteUserIfOrphan(db, r.userId, r.status === "rejected" ? rejectedBefore : abandonedBefore);
   return rows.length;
 }

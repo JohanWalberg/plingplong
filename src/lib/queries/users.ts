@@ -5,8 +5,9 @@ const { landlordMember, staffUser, user } = schema;
 
 /**
  * Deletes a user row that nothing needs any more: not a member of any
- * landlord and not staff. `createdBefore` keeps very recent accounts (an
- * application in flight) out of the retention sweep.
+ * landlord and not staff. `createdBefore` guards against deleting an account
+ * newer than the record being purged; callers pass the cutoff that matches
+ * what they are purging.
  */
 export async function deleteUserIfOrphan(exec: Db | Tx, userId: string, createdBefore?: Date): Promise<boolean> {
   const member = await exec.query.landlordMember.findFirst({ where: eq(landlordMember.userId, userId), columns: { userId: true } });
