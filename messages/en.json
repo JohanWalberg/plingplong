@@ -507,8 +507,6 @@
       "validationBody": "Fill in the highlighted fields. We need them to review the application.",
       "fieldRequired": "This field is required.",
       "emailInvalid": "Enter a valid email address.",
-      "emailTaken": "There is already an account with that address. Sign in instead.",
-      "orgTaken": "There is already an application for that organisation number.",
       "statusTag": "Awaiting review",
       "statusTitle": "We review your application by hand",
       "statusBody": "Manual review is what lets people trust that listings come from real landlords. You will get an email once the account is approved.",
@@ -1210,7 +1208,11 @@
     "resetSubject": "Reset your password",
     "resetBody": "Hi,\n\nChoose a new password here (the link is valid for one hour): {url}\n\nIf you did not request this you can ignore this email.\n\nHyrabostad",
     "sourceFailedSubject": "The source {source} is not responding",
-    "sourceFailedBody": "Hi,\n\nWe have not been able to read {source} on the last {count} attempts. The homes are still shown but will not update until the source responds again.\n\nLatest error: {error}\n\nHyrabostad"
+    "sourceFailedBody": "Hi,\n\nWe have not been able to read {source} on the last {count} attempts. The homes are still shown but will not update until the source responds again.\n\nLatest error: {error}\n\nHyrabostad",
+    "applicationExistsSubject": "There is already an application for {organisation}",
+    "applicationExistsBody": "Hi {name},\n\nAn application for a landlord account for {organisation} already exists, so we did not create a new one. If it was you or a colleague, sign in here: {url}. If you did not expect this, contact us and we will sort it out.\n\nHyrabostad",
+    "accountExistsSubject": "You already have an account",
+    "accountExistsBody": "Hi {name},\n\nAn application was just submitted with this email address, but an account already exists for it, so nothing new was created. Sign in here: {url}. If you have forgotten your password you can reset it there. If this was not you, you can ignore this email.\n\nHyrabostad"
   },
   "map": {
     "hint": "Move the map to update the results",

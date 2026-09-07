@@ -33,9 +33,7 @@ export function SignupForm({ manualPublishing = true }: { manualPublishing?: boo
   const err = (field: string) => {
     const code = errors[field];
     if (!code) return undefined;
-    if (field === "orgNumber" && code === "taken") return t("orgTaken");
     if (field === "orgNumber") return t("orgNumberInvalid");
-    if (field === "email" && code === "taken") return t("emailTaken");
     if (field === "email") return t("emailInvalid");
     if (field === "terms") return t("termsRequired");
     if (field === "password") return ta("passwordHint");

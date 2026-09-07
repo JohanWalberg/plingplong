@@ -8,6 +8,7 @@ import { db, schema } from "@/db";
 import { auth } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
+import { absoluteUrl } from "@/lib/seo";
 import { domainMatches, isValidOrgNumber, normaliseOrgNumber, orgNumberKind } from "@/lib/org-number";
 import { sniffSourceKind, testSource } from "@/lib/source-test";
 import { lookupOrganisation } from "@/lib/registry";
@@ -46,8 +47,14 @@ export async function submitApplication(_prev: SignupState | null, formData: For
   if (!isValidOrgNumber(d.orgNumber)) return { ok: false, errors: { orgNumber: "invalid" } };
   const orgNumber = normaliseOrgNumber(d.orgNumber)!;
 
+  // The answer is the same whether or not the organisation or the address is already known:
+  // the difference goes to the submitter's inbox, so the form cannot be used to enumerate either.
   const existingApp = await db.query.landlordApplication.findFirst({ where: eq(schema.landlordApplication.orgNumber, orgNumber) });
-  if (existingApp && existingApp.status !== "rejected") return { ok: false, errors: { orgNumber: "taken" } };
+  if (existingApp && existingApp.status !== "rejected") {
+    const mail = await renderEmail(locale, "applicationExists", { name: d.contactName, organisation: d.companyName, url: absoluteUrl(locale, "/portal/sign-in") });
+    await sendEmail({ to: d.email, ...mail });
+    return { ok: true, email: d.email };
+  }
 
   // Automated checks, recorded for the reviewer. None of them auto-approve.
   const checks: Array<{ key: string; status: "done" | "warn" | "fail" | "na"; detail?: Record<string, unknown> }> = [
@@ -77,7 +84,11 @@ export async function submitApplication(_prev: SignupState | null, formData: For
     const res = await auth.api.signUpEmail({ body: { email: d.email, password: d.password, name: d.contactName, locale } });
     userId = res.user.id;
   } catch (e) {
-    if (e instanceof APIError && /exist/i.test(e.message)) return { ok: false, errors: { email: "taken" } };
+    if (e instanceof APIError && /exist/i.test(e.message)) {
+      const mail = await renderEmail(locale, "accountExists", { name: d.contactName, url: absoluteUrl(locale, "/portal/sign-in") });
+      await sendEmail({ to: d.email, ...mail });
+      return { ok: true, email: d.email };
+    }
     throw e;
   }
 

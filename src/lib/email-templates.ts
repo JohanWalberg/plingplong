@@ -3,6 +3,8 @@ import type { Locale } from "@/i18n/routing";
 
 type Template =
   | "applicationReceived"
+  | "applicationExists"
+  | "accountExists"
   | "approved"
   | "needsInfo"
   | "rejected"
