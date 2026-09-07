@@ -123,7 +123,8 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
           </div>
 
           {failing.length ? (
-            <Callout tone="warning" title={t("partialTitle")} icon={icons.warn}>
+            <Callout tone="warning" title={t("partialTitle", { failed: failing.length })} icon={icons.warn}>
+              {/* A failed run removes nothing, so those homes are still listed; what they are is stale. */}
               {failing.length === 1 && coverage
                 ? t("partialBody", { source: failing[0].landlordName, count: Math.max(0, coverage.monitored - 1), place: municipalityName(muni!, locale) })
                 : t("partialBodyMany", { failed: failing.length })}
