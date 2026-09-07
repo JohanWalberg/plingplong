@@ -6,3 +6,6 @@ minimumReleaseAgeExclude:
   - '@playwright/test@1.63.0'
   - playwright-core@1.63.0
   - playwright@1.63.0
+overrides:
+  # drizzle-kit pulls an esbuild with GHSA-67mh-4wv8-2f99 (dev-server request forgery); development tooling only, but keep it patched.
+  esbuild: ">=0.25.0"
