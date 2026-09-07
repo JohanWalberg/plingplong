@@ -8,7 +8,7 @@
  */
 let warned = false;
 
-export async function requestRevalidate(reason: string): Promise<boolean> {
+export async function requestRevalidate(reason: string, scope: { municipalityIds?: string[]; landlordIds?: string[] } = {}): Promise<boolean> {
   const secret = process.env.REVALIDATE_SECRET;
   const base = process.env.NEXT_PUBLIC_SITE_URL;
   if (!secret || !base) {
@@ -21,7 +21,8 @@ export async function requestRevalidate(reason: string): Promise<boolean> {
   try {
     const res = await fetch(`${base.replace(/\/$/, "")}/api/revalidate?reason=${encodeURIComponent(reason)}`, {
       method: "POST",
-      headers: { "x-revalidate-secret": secret },
+      headers: { "x-revalidate-secret": secret, "content-type": "application/json" },
+      body: JSON.stringify(scope),
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) {

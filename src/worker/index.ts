@@ -36,7 +36,9 @@ async function main() {
     }
     console.log(`[sync] ${job.data.sourceId} ${out.ok ? "ok" : "FAILED"} found=${out.found} new=${out.created} upd=${out.updated} gone=${out.gone}${out.anomaly ? " ANOMALY" : ""}${out.error ? ` err=${out.error}` : ""} (${Date.now() - started}ms)`);
     // Only when search would actually look different; a run that changed nothing needs no invalidation.
-    if (out.created + out.updated + out.gone > 0) await requestRevalidate(`sync ${job.data.sourceId}`);
+    if (out.created + out.updated + out.gone > 0) {
+      await requestRevalidate(`sync ${job.data.sourceId}`, { municipalityIds: out.municipalityIds, landlordIds: out.landlordId ? [out.landlordId] : [] });
+    }
   });
 
   await boss.work(QUEUES.tick, async () => {

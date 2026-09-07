@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { headers } from "next/headers";
-import { invalidateListingCaches } from "@/lib/listing-cache";
+import { invalidateListingCaches, invalidateListingCachesFor } from "@/lib/listing-cache";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -23,8 +23,20 @@ export async function POST(req: Request) {
   const h = await headers();
   if (!rateLimit(`revalidate:${clientIp(h)}`, 60, 60).ok) return new Response(null, { status: 429 });
   if (!secretMatches(h.get("x-revalidate-secret"))) return new Response(null, { status: 401 });
-  invalidateListingCaches();
+  // A scope names the municipalities and landlords a crawl touched, so only their
+  // pages are cleared. Without one (or with an unreadable body) fall back to everything.
+  const scope = await req
+    .json()
+    .then((b: unknown) => (b && typeof b === "object" ? (b as { municipalityIds?: string[]; landlordIds?: string[] }) : null))
+    .catch(() => null);
   const reason = new URL(req.url).searchParams.get("reason") ?? "unknown";
-  console.log(`[revalidate] listing caches cleared (${reason})`);
+  const ids = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string").slice(0, 500) : []);
+  if (scope && (ids(scope.municipalityIds).length || ids(scope.landlordIds).length)) {
+    const cleared = await invalidateListingCachesFor({ municipalityIds: ids(scope.municipalityIds), landlordIds: ids(scope.landlordIds) });
+    console.log(`[revalidate] ${cleared} path(s) cleared (${reason})`);
+  } else {
+    invalidateListingCaches();
+    console.log(`[revalidate] all public pages cleared (${reason})`);
+  }
   return Response.json({ ok: true }, { headers: { "cache-control": "no-store" } });
 }

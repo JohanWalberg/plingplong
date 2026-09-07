@@ -19,7 +19,8 @@ const { source, sourceRun, listing, listingSource, listingRevision, area, landlo
 
 const MAX_ITEMS_PER_RUN = 5000;
 
-type SyncOutcome = { ok: boolean; found: number; created: number; updated: number; gone: number; anomaly: boolean; error?: string };
+/** `municipalityIds` are the places this run touched, so the web app can clear only their pages. */
+type SyncOutcome = { ok: boolean; found: number; created: number; updated: number; gone: number; anomaly: boolean; error?: string; landlordId?: string; municipalityIds?: string[] };
 
 /**
  * One crawl of one source. Rules (see brief §2–3):
@@ -115,6 +116,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
   let created = 0;
   let updated = 0;
   const seen = new Set<string>();
+  const touchedMunicipalities = new Set<string>();
   const newListingIds: string[] = [];
   type RevisionRow = typeof listingRevision.$inferInsert;
   type LinkRow = typeof listingSource.$inferInsert;
@@ -139,6 +141,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
         const queueRequirement = n.queueRequirement === "unknown" && src.queueDefault ? src.queueDefault : n.queueRequirement;
         const municipalityId = (n.municipalityName && (muniByName.get(n.municipalityName.toLowerCase()) ?? muniByName.get(slugify(n.municipalityName)))) || fallbackMuni;
         if (!municipalityId) continue; // cannot place the listing; counted in found but not stored
+        touchedMunicipalities.add(municipalityId);
         const matchedArea = n.areaName ? areas.find((a) => a.municipalityId === municipalityId && (a.name.toLowerCase() === n.areaName!.toLowerCase() || a.slug === slugify(n.areaName!))) : undefined;
         const lat = n.lat ?? matchedArea?.lat ?? null;
         const lon = n.lon ?? matchedArea?.lon ?? null;
@@ -288,7 +291,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
 
   if (newListingIds.length) await findDuplicates(newListingIds);
 
-  return { ok: true, found, created, updated, gone, anomaly };
+  return { ok: true, found, created, updated, gone, anomaly, landlordId: src.landlordId, municipalityIds: [...touchedMunicipalities] };
 }
 
 async function recordFailure(src: typeof source.$inferSelect & { landlord: { name: string } }, runId: string, e: unknown, now: Date): Promise<SyncOutcome> {
