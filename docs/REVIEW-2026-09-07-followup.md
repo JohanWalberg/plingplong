@@ -58,6 +58,14 @@ Still open, all scale-related or judgement calls, none blocking:
   user who belongs to several. Both wait on the multi-landlord decision.
 - Unscoped rent and size sorts still sort in full.
 - The content-security policy is still report-only with no reporting endpoint.
+- The "which listings are now orphaned" logic exists twice, in the crawl removal
+  path and in `withdrawSources`.
+- A crawled item whose municipality cannot be resolved is skipped silently, with
+  no counter and no log line.
+- Three weak tests: the poison-item case asserts only that a boolean is a
+  boolean, the terms test asserts a property of the seed, and the bad-photo test
+  never checks why the write was refused.
+- `requireStaff`'s eight-hour session cap is covered end to end only.
 
 ## Fix before a public deploy
 
