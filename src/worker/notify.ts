@@ -5,6 +5,7 @@ import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { absoluteUrl } from "@/lib/seo";
 import type { Locale } from "@/i18n/routing";
+import { reportError } from "@/lib/observability";
 
 const { listing, landlordMember, user } = schema;
 
@@ -48,7 +49,7 @@ export async function notifyExpiringListings(now: Date = new Date()): Promise<nu
         sent++;
       } catch (e) {
         // One landlord's mail failing must not stop the others.
-        console.error(`[notify] could not email ${owner.email}`, e);
+        reportError(e, { kind: "deadline reminder", landlordId });
       }
     }
   }

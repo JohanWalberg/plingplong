@@ -6,6 +6,7 @@ import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { LISTING_TRACKED, diffTracked } from "@/lib/queries/revisions";
 import { landlordLocale } from "@/lib/queries/landlords";
 import { withPlainApiKey } from "@/lib/secrets";
+import { reportError } from "@/lib/observability";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { getAdapter, AdapterError, sniffFeedAdapter, type AdapterResult } from "./adapters";
@@ -311,7 +312,7 @@ async function recordFailure(src: typeof source.$inferSelect & { landlord: { nam
       const mail = await renderEmail(await landlordLocale(src.landlordId), "sourceFailed", { source: src.url ?? src.landlord.name, count: failures, error: err.message });
       await sendEmail({ to: src.techContactEmail, ...mail });
     } catch (mailErr) {
-      console.error("could not email tech contact", mailErr);
+      reportError(mailErr, { kind: "tech contact email", sourceId: src.id });
     }
   }
   return { ok: false, found: 0, created: 0, updated: 0, gone: 0, anomaly: false, error: `${err.errorClass}: ${err.message}` };

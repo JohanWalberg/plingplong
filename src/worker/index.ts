@@ -8,11 +8,20 @@ import { dueSources, expireDirectListings, pruneRawPayloads, syncSource } from "
 import { purgeApplications } from "./retention";
 import { notifyExpiringListings } from "./notify";
 import { assertProductionConfig } from "@/lib/env-check";
+import { initErrorReporting, reportError } from "@/lib/observability";
 
 async function main() {
   assertProductionConfig();
+  await initErrorReporting("worker");
   const boss = await createBoss();
-  boss.on("error", (e: unknown) => console.error("[pg-boss]", e));
+  boss.on("error", (e: unknown) => reportError(e, { queue: "pg-boss" }));
+
+  // A job that throws is retried or dropped by pg-boss; without this nobody hears about it.
+  process.on("unhandledRejection", (e) => reportError(e, { kind: "unhandledRejection" }));
+  process.on("uncaughtException", (e) => {
+    reportError(e, { kind: "uncaughtException" });
+    process.exit(1);
+  });
 
   await boss.work<{ sourceId: string; manual?: boolean; force?: boolean }>(QUEUES.sync, async (jobs: Job<{ sourceId: string; manual?: boolean; force?: boolean }>[]) => {
     const [job] = jobs;
@@ -21,7 +30,7 @@ async function main() {
     try {
       out = await syncSource(job.data.sourceId, { manual: job.data.manual, force: job.data.force });
     } catch (e) {
-      console.error(`[sync] ${job.data.sourceId} crashed`, e);
+      reportError(e, { queue: "source.sync", sourceId: job.data.sourceId });
       throw e;
     }
     console.log(`[sync] ${job.data.sourceId} ${out.ok ? "ok" : "FAILED"} found=${out.found} new=${out.created} upd=${out.updated} gone=${out.gone}${out.anomaly ? " ANOMALY" : ""}${out.error ? ` err=${out.error}` : ""} (${Date.now() - started}ms)`);
@@ -64,6 +73,6 @@ async function main() {
 }
 
 main().catch((e) => {
-  console.error(e);
+  reportError(e, { kind: "worker start" });
   process.exit(1);
 });

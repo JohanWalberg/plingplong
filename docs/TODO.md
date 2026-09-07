@@ -49,8 +49,11 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 - [x] **B5. CI workflow.** `.github/workflows/ci.yml`: typecheck, i18n check,
   unit tests, database tests, migrate and seed, build, then Playwright against
   the production build on a Postgres/PostGIS service.
-- [ ] **B6. Error monitoring.** Sentry for web and worker; keep source health
-  in the database as the brief asks.
+- [x] **B6. Error monitoring.** Sentry for the web server (through
+  `instrumentation.ts`, `register` plus `onRequestError`) and the worker
+  (job failures, pg-boss errors, unhandled rejections). Off without
+  `SENTRY_DSN`; errors are always logged either way. Source health stays in
+  the database as the brief asks.
 
 ## C. Trust and compliance
 
