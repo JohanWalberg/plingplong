@@ -9,6 +9,7 @@ import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { adapterForKind, testSource, type SourceTestResult } from "@/lib/source-test";
 import { enqueueSourceSync } from "@/lib/jobs";
+import { encryptSecret } from "@/lib/secrets";
 
 const { source } = schema;
 
@@ -56,7 +57,7 @@ export async function connectSource(locale: Locale, _prev: ConnectState, fd: For
       kind: d.kind,
       adapter: adapterForKind(d.kind, hint),
       url: d.url,
-      config: { fields: mapping, ...(d.apiKey ? { apiKey: d.apiKey } : {}), ...(d.kind === "html" ? { listSelector: "" } : {}) },
+      config: { fields: mapping, ...(d.apiKey ? { apiKey: encryptSecret(d.apiKey) } : {}), ...(d.kind === "html" ? { listSelector: "" } : {}) },
       fetchIntervalMinutes: d.fetchIntervalMinutes,
       status,
       consent: "consented",
@@ -84,7 +85,7 @@ export async function updateSourceSettings(locale: Locale, id: string, _prev: Co
   if (!existing) redirect({ href: "/portal/sources", locale });
   const config = { ...(existing!.config as Record<string, unknown>) };
   if (d.apiKey !== undefined) {
-    if (d.apiKey) config.apiKey = d.apiKey;
+    if (d.apiKey) config.apiKey = encryptSecret(d.apiKey);
     else delete config.apiKey;
   }
   await db

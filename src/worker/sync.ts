@@ -5,6 +5,7 @@ import { listingSlug, slugify } from "@/lib/slug";
 import { insertWithUniqueSlug } from "@/lib/queries/slug";
 import { LISTING_TRACKED, diffTracked } from "@/lib/queries/revisions";
 import { landlordLocale } from "@/lib/queries/landlords";
+import { withPlainApiKey } from "@/lib/secrets";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
 import { getAdapter, AdapterError, sniffFeedAdapter, type AdapterResult } from "./adapters";
@@ -38,7 +39,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
 
   let result: AdapterResult;
   try {
-    const config = (src.config ?? {}) as Parameters<typeof getAdapter>[0] extends string ? import("./adapters").SourceConfig : never;
+    const config = withPlainApiKey((src.config ?? {}) as import("./adapters").SourceConfig);
     if (src.kind === "feed" || src.kind === "api") {
       // Feeds sniff JSON vs XML from the payload so a mislabelled adapter still works.
       const res = await politeFetch.fetchText(src.url, { headers: { ...(config.headers ?? {}), ...(config.apiKey ? { authorization: `Bearer ${config.apiKey}` } : {}) } });

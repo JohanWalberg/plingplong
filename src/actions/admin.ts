@@ -13,6 +13,7 @@ import { renderEmail } from "@/lib/email-templates";
 import { absoluteUrl } from "@/lib/seo";
 import { slugify } from "@/lib/slug";
 import { insertWithUniqueSlug } from "@/lib/queries/slug";
+import { encryptSecret } from "@/lib/secrets";
 import { mergeListings } from "@/worker/sync";
 import { adapterForKind, sniffSourceKind } from "@/lib/source-test";
 import { LISTING_TRACKED_ADMIN, diffTracked } from "@/lib/queries/revisions";
@@ -90,7 +91,7 @@ export async function createSource(locale: Locale, formData: FormData): Promise<
   const d = parsed.data;
   const config: Record<string, unknown> = { fields: {} };
   if (d.listSelector) config.listSelector = d.listSelector;
-  if (d.apiKey) config.apiKey = d.apiKey;
+  if (d.apiKey) config.apiKey = encryptSecret(d.apiKey);
   const [row] = await db
     .insert(source)
     .values({
@@ -122,7 +123,7 @@ export async function updateSource(locale: Locale, sourceId: string, formData: F
   if (!current) return fail("missing");
   const config = { ...(current.config as Record<string, unknown>) };
   if (d.listSelector !== undefined) config.listSelector = d.listSelector || undefined;
-  if (d.apiKey) config.apiKey = d.apiKey;
+  if (d.apiKey) config.apiKey = encryptSecret(d.apiKey);
   await db
     .update(source)
     .set({
