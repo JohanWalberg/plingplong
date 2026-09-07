@@ -66,6 +66,12 @@ Still open, all scale-related or judgement calls, none blocking:
   boolean, the terms test asserts a property of the seed, and the bad-photo test
   never checks why the write was refused.
 - `requireStaff`'s eight-hour session cap is covered end to end only.
+- Every geometry column carries SRID 0 while the schema declares 4326: the
+  generated DDL left the constraint off and inserts do not set one. Bounding-box
+  operators ignore SRID so search is unaffected, and `nearestListings` is
+  explicit about it, but the column and the data should be corrected before more
+  spatial work (`ALTER ... TYPE geometry(Point,4326) USING ST_SetSRID(...)`,
+  after checking what Drizzle writes on insert).
 
 ## Fix before a public deploy
 
