@@ -7,7 +7,7 @@ Snapshot at the end of the first build session, 2026-09-05. Everything below
 
 **Foundation.** Next.js 16, Tailwind 4 with the design tokens, Drizzle schema
 for the full data model, PostGIS via Docker, seed with real municipalities and
-landlords plus about 40 synthetic listings, message catalogues in both languages
+landlords plus about 50 synthetic listings, message catalogues in both languages
 with a parity check, translated pathnames, unit tests (86), database integration tests (24) and Playwright
 end-to-end tests with axe (22).
 

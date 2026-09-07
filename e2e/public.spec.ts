@@ -93,7 +93,8 @@ test("results paginate with page numbers", async ({ page }) => {
   await page.goto("/sv/bostader");
   const nav = page.getByRole("navigation", { name: /Sida 1 av/ });
   await expect(nav.locator("[aria-current='page']")).toHaveText("1");
-  await nav.getByRole("link", { name: "Sida 2 av 2" }).click();
+  // Not "Sida 2 av 2": the number of pages depends on how much the seed holds.
+  await nav.getByRole("link", { name: /^Sida 2 av \d+$/ }).click();
   await page.waitForURL(/page=2/);
   await expect(page.getByRole("navigation", { name: /Sida 2 av/ }).locator("[aria-current='page']")).toHaveText("2");
 });

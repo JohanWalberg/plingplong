@@ -83,6 +83,24 @@ const MUNIS: Muni[] = [
 ];
 
 const AREAS: Record<string, Array<[name: string, lat: number, lon: number]>> = {
+  Göteborg: [
+    ["Majorna", 57.694, 11.929],
+    ["Linnéstaden", 57.695, 11.951],
+    ["Angered", 57.795, 12.02],
+    ["Frölunda", 57.652, 11.914],
+  ],
+  Malmö: [
+    ["Möllevången", 55.591, 13.005],
+    ["Västra Hamnen", 55.615, 12.982],
+    ["Rosengård", 55.588, 13.041],
+    ["Limhamn", 55.578, 12.925],
+  ],
+  Uppsala: [
+    ["Luthagen", 59.863, 17.62],
+    ["Flogsta", 59.85, 17.594],
+    ["Gränby", 59.878, 17.66],
+    ["Sävja", 59.797, 17.688],
+  ],
   Solna: [
     ["Arenastaden", 59.371, 18.004],
     ["Hagalund", 59.358, 17.996],
@@ -174,9 +192,9 @@ const LANDLORDS: LL[] = [
   { key: "nackavatten", name: "Nacka Bostäder", type: "private", queue: "unknown", munis: ["Nacka"], monitored: false },
   { key: "solnabostader", name: "Solna Bostäder AB", type: "private", queue: "unknown", munis: ["Solna"], monitored: false },
   { key: "sundbybergsbo", name: "Sundbybergs Bostads AB", type: "private", queue: "unknown", munis: ["Sundbyberg"], monitored: false },
-  { key: "poseidon", name: "Bostads AB Poseidon", org: "556120-3398", type: "municipal", queue: "queue", website: "poseidon.goteborg.se", munis: ["Göteborg"], monitored: false },
-  { key: "mkb", name: "MKB Fastighets AB", org: "556049-1432", type: "municipal", queue: "queue", website: "mkbfastighet.se", munis: ["Malmö"], monitored: false },
-  { key: "uppsalahem", name: "Uppsalahem AB", org: "556137-3589", type: "municipal", queue: "queue", website: "uppsalahem.se", munis: ["Uppsala"], monitored: false },
+  { key: "poseidon", name: "Bostads AB Poseidon", org: "556120-3398", type: "municipal", queue: "queue", website: "poseidon.goteborg.se", munis: ["Göteborg"], monitored: true },
+  { key: "mkb", name: "MKB Fastighets AB", org: "556049-1432", type: "municipal", queue: "queue", website: "mkbfastighet.se", munis: ["Malmö"], monitored: true },
+  { key: "uppsalahem", name: "Uppsalahem AB", org: "556137-3589", type: "municipal", queue: "queue", website: "uppsalahem.se", munis: ["Uppsala"], monitored: true },
   // Very long landlord name: exercises card and table layouts.
   {
     key: "longname",
@@ -221,6 +239,10 @@ const SOURCES: Src[] = [
   { key: "stadshus", landlord: "stadshus", kind: "html", adapter: "html-list", url: "https://bostad.stockholm.se/lediga-bostader", status: "failed", failures: 3, lastRunMin: 12, lastSuccessMin: 192, lastError: "parse_error: expected .listing-card, found 0 elements", runs: [[12, false, 0, 0, 0, "parse_error: expected .listing-card, found 0 elements"], [72, false, 0, 0, 0, "parse_error: expected .listing-card, found 0 elements"], [132, false, 0, 0, 0, "parse_error: expected .listing-card, found 0 elements"], [192, true, 44, 2, 1]] },
   { key: "bostadsformedlingen", landlord: "bostadsformedlingen", kind: "api", adapter: "generic-json", url: "https://bostad.stockholm.se/api/vacancies", status: "active", lastRunMin: 22, runs: [[22, true, 212, 6, 4], [82, true, 210, 5, 3], [142, true, 208, 2, 2]] },
   { key: "longname", landlord: "longname", kind: "feed", adapter: "generic-xml", url: "https://sssb.se/feed/ledigt.xml", status: "active", lastRunMin: 8, runs: [[8, true, 6, 0, 0]] },
+  // Outside Stockholm County, so the popular-search pills on the home page lead somewhere.
+  { key: "poseidon", landlord: "poseidon", kind: "feed", adapter: "generic-xml", url: "https://poseidon.goteborg.se/feed/lediga.xml", status: "active", lastRunMin: 17, runs: [[17, true, 21, 1, 0], [77, true, 20, 0, 1]] },
+  { key: "mkb", landlord: "mkb", kind: "api", adapter: "generic-json", url: "https://api.mkbfastighet.se/v1/vacancies", status: "active", lastRunMin: 33, runs: [[33, true, 18, 2, 0], [93, true, 17, 0, 0]] },
+  { key: "uppsalahem", landlord: "uppsalahem", kind: "html", adapter: "html-list", url: "https://www.uppsalahem.se/lediga-objekt/", status: "active", lastRunMin: 51, runs: [[51, true, 11, 0, 0], [111, true, 11, 1, 0]] },
 ];
 
 // ---------------------------------------------------------------------------
@@ -258,7 +280,7 @@ type L = {
 const LISTINGS: L[] = [
   // --- Prototype fixtures ---------------------------------------------------
   { addr: "Gustav III:s Boulevard 46", muni: "Solna", area: "Arenastaden", postcode: "169 73", ll: "signalisten", rent: 9340, rooms: 2, size: 54, floor: 4, floorsTotal: 7, queue: "points", deadlineDays: 4, moveInDays: 57, checkedMin: 6, firstSeenDays: 0.3, img: true, sources: [["signalisten", "SIG-2026-04412"], ["bostadsformedlingen", "BF-771230"]], desc: "Ljus tvåa med balkong mot innergården. Hiss finns. Nyrenoverat kök 2024.", lat: 59.372, lon: 18.006 },
-  { addr: "Ringvägen 125", muni: "Stockholm", area: "Södermalm", postcode: "116 61", ll: "stockholmshem", rent: 7120, rooms: 1, size: 38, floor: 2, floorsTotal: 5, queue: "queue", deadlineDays: 1, moveInDays: 30, checkedMin: 14, firstSeenDays: 3, sources: [["stockholmshem", "STH-88213"]], lat: 59.312, lon: 18.076 },
+  { addr: "Ringvägen 125", muni: "Stockholm", area: "Södermalm", postcode: "116 61", ll: "stockholmshem", rent: 7120, rooms: 1, size: 38, floor: 2, floorsTotal: 5, queue: "queue", deadlineDays: 1, moveInDays: 30, checkedMin: 14, firstSeenDays: 3, img: true, sources: [["stockholmshem", "STH-88213"]], lat: 59.312, lon: 18.076 },
   { addr: "Sturegatan 26", muni: "Sundbyberg", area: "Centrala Sundbyberg", postcode: "172 31", ll: "forvaltaren", rent: 12450, rooms: 3, size: 78, floor: 3, floorsTotal: 6, queue: "queue", deadlineDays: 0, moveInDays: 26, checkedMin: 2, firstSeenDays: 6, img: true, sources: [["forvaltaren", "FV-2211"]], lat: 59.362, lon: 17.972 },
   { addr: "Vasavägen 8", muni: "Nacka", area: "Sickla", postcode: "131 40", ll: "heimstaden", rent: 16800, rooms: 4, size: 96, floor: 1, floorsTotal: 4, queue: "none", deadlineDays: 10, moveInDays: 40, checkedMin: 41, firstSeenDays: 2, img: true, sources: [["heimstaden", "HS-SE-40021"]], lat: 59.307, lon: 18.123 },
   // Missing rent, missing size, unknown queue, rolling deadline, no image.
@@ -266,49 +288,64 @@ const LISTINGS: L[] = [
   { addr: "Studentbacken 21", muni: "Stockholm", area: "Östermalm", postcode: "115 57", ll: "longname", rent: 4980, rooms: 1, size: 24, floor: 5, floorsTotal: 8, queue: "points", seg: "student", deadlineDays: null, moveInDays: 14, checkedMin: 8, firstSeenDays: 1, sources: [["longname", "SSSB-7781"]], lat: 59.347, lon: 18.11 },
   // Very long address, very high rent, checked yesterday.
   { addr: "Professorsslingan 12, lägenhet 1402, uppgång B", muni: "Stockholm", area: "Östermalm", postcode: "114 18", ll: "heimstaden", rent: 34900, rooms: 5, size: 148, floor: 14, floorsTotal: 16, queue: "none", deadlineDays: 17, moveInDays: 60, checkedMin: 1440, firstSeenDays: 9, img: true, sources: [["heimstaden", "HS-SE-40388"]], lat: 59.35, lon: 18.104 },
-  { addr: "Torsgatan 4", muni: "Stockholm", area: "Vasastan", postcode: "111 23", ll: "rikshem", rent: 11890, rooms: 2, size: 61, floor: 3, floorsTotal: 5, queue: "points", seg: "senior", deadlineDays: 7, moveInDays: 45, checkedMin: 22, firstSeenDays: 4, sources: [["rikshem", "RH-2026-5581"]], lat: 59.339, lon: 18.05 },
+  { addr: "Torsgatan 4", muni: "Stockholm", area: "Vasastan", postcode: "111 23", ll: "rikshem", rent: 11890, rooms: 2, size: 61, floor: 3, floorsTotal: 5, queue: "points", seg: "senior", deadlineDays: 7, moveInDays: 45, checkedMin: 22, firstSeenDays: 4, img: true, sources: [["rikshem", "RH-2026-5581"]], lat: 59.339, lon: 18.05 },
   // Duplicate candidate of the one above, listed by the agency with size 62.
-  { addr: "Torsgatan 4", muni: "Stockholm", area: "Vasastan", postcode: "111 23", ll: "bostadsformedlingen", rent: 11890, rooms: 2, size: 62, floor: 3, queue: "points", seg: "senior", deadlineDays: 7, moveInDays: 45, checkedMin: 22, firstSeenDays: 4, sources: [["bostadsformedlingen", "BF-771902"]], lat: 59.339, lon: 18.05 },
+  { addr: "Torsgatan 4", muni: "Stockholm", area: "Vasastan", postcode: "111 23", ll: "bostadsformedlingen", rent: 11890, rooms: 2, size: 62, floor: 3, queue: "points", seg: "senior", deadlineDays: 7, moveInDays: 45, checkedMin: 22, firstSeenDays: 4, img: true, sources: [["bostadsformedlingen", "BF-771902"]], lat: 59.339, lon: 18.05 },
 
   // --- Signalisten portal dashboard fixtures ------------------------------
   { addr: "Hagalundsgatan 17", muni: "Solna", area: "Hagalund", postcode: "169 63", ll: "signalisten", rent: 7890, rooms: 1, size: 41, floor: 6, floorsTotal: 9, queue: "points", deadlineDays: 7, moveInDays: 35, checkedMin: 6, firstSeenDays: 2, sources: [["signalisten", "SIG-2026-04401"]], lat: 59.358, lon: 17.997 },
   { addr: "Råsundavägen 102", muni: "Solna", area: "Råsunda", postcode: "169 57", ll: "signalisten", rent: 12100, rooms: 3, size: 76, floor: 2, floorsTotal: 4, queue: "points", deadlineDays: 10, moveInDays: 50, checkedMin: 6, firstSeenDays: 1.5, img: true, sources: [["signalisten", "SIG-2026-04418"]], lat: 59.366, lon: 17.992 },
-  { addr: "Bergshamravägen 4", muni: "Solna", area: "Bergshamra", postcode: "170 77", ll: "signalisten", rent: 15400, rooms: 4, size: 98, floor: 1, queue: "points", deadlineDays: null, checkedMin: 0, sources: [], status: "draft", lat: 59.382, lon: 18.041 },
-  { addr: "Frösundaleden 28", muni: "Solna", area: "Frösunda", postcode: "169 70", ll: "signalisten", rent: 10250, rooms: 2, size: 58, floor: 3, queue: "points", deadlineDays: 20, checkedMin: 0, sources: [], status: "draft", lat: 59.377, lon: 18.012 },
+  { addr: "Bergshamravägen 4", muni: "Solna", area: "Bergshamra", postcode: "170 77", ll: "signalisten", rent: 15400, rooms: 4, size: 98, floor: 1, queue: "points", deadlineDays: null, checkedMin: 0, img: true, sources: [], status: "draft", lat: 59.382, lon: 18.041 },
+  { addr: "Frösundaleden 28", muni: "Solna", area: "Frösunda", postcode: "169 70", ll: "signalisten", rent: 10250, rooms: 2, size: 58, floor: 3, queue: "points", deadlineDays: 20, checkedMin: 0, img: true, sources: [], status: "draft", lat: 59.377, lon: 18.012 },
   { addr: "Huvudstagatan 9", muni: "Solna", area: "Huvudsta", postcode: "171 58", ll: "signalisten", rent: 8640, rooms: 2, size: 49, floor: 2, queue: "points", deadlineDays: -8, moveInDays: 10, checkedMin: 0, firstSeenDays: 30, sources: [], status: "expired", lat: 59.351, lon: 17.98 },
   // Direct (portal) listing, published, with contact route instead of URL.
-  { addr: "Solnavägen 51", muni: "Solna", area: "Hagalund", postcode: "169 54", ll: "signalisten", rent: 9950, rooms: 2, size: 56, floor: 1, floorsTotal: 3, queue: "points", deadlineDays: 12, moveInDays: 40, checkedMin: 0, firstSeenDays: 1, sources: [], applyContact: "uthyrning@signalisten.se", desc: "Markplan med uteplats. Passar den som vill slippa trappor.", lat: 59.361, lon: 17.999 },
-  { addr: "Ekensbergsvägen 3", muni: "Solna", area: "Huvudsta", postcode: "171 41", ll: "signalisten", rent: 11300, rooms: 3, size: 71, queue: "points", deadlineDays: 5, checkedMin: 0, firstSeenDays: 12, sources: [], status: "unpublished", lat: 59.349, lon: 17.985 },
+  { addr: "Solnavägen 51", muni: "Solna", area: "Hagalund", postcode: "169 54", ll: "signalisten", rent: 9950, rooms: 2, size: 56, floor: 1, floorsTotal: 3, queue: "points", deadlineDays: 12, moveInDays: 40, checkedMin: 0, firstSeenDays: 1, img: true, sources: [], applyContact: "uthyrning@signalisten.se", desc: "Markplan med uteplats. Passar den som vill slippa trappor.", lat: 59.361, lon: 17.999 },
+  { addr: "Ekensbergsvägen 3", muni: "Solna", area: "Huvudsta", postcode: "171 41", ll: "signalisten", rent: 11300, rooms: 3, size: 71, queue: "points", deadlineDays: 5, checkedMin: 0, firstSeenDays: 12, img: true, sources: [], status: "unpublished", lat: 59.349, lon: 17.985 },
 
   // --- More Solna listings so the municipality page has volume ------------
   { addr: "Kolonnvägen 22", muni: "Solna", area: "Arenastaden", postcode: "169 71", ll: "wallenstam", rent: 13900, rooms: 3, size: 74, floor: 8, floorsTotal: 12, queue: "points", deadlineDays: 3, moveInDays: 30, checkedMin: 41, firstSeenDays: 0.5, img: true, sources: [["wallenstam", "WS-9902"]], lat: 59.37, lon: 18.002 },
   { addr: "Ankdammsgatan 15", muni: "Solna", area: "Huvudsta", postcode: "171 43", ll: "balder", rent: 8790, rooms: 1, size: 36, floor: 4, floorsTotal: 6, queue: "unknown", deadlineDays: 9, checkedMin: 82, firstSeenDays: 7, sources: [["balder", "BLD-3310"]], lat: 59.352, lon: 17.978 },
-  { addr: "Björnstigen 44", muni: "Solna", area: "Bergshamra", postcode: "170 73", ll: "rikshem", rent: 10480, rooms: 2, size: 60, floor: 2, floorsTotal: 3, queue: "queue", seg: "senior", deadlineDays: 6, moveInDays: 28, checkedMin: 61, firstSeenDays: 3, sources: [["rikshem", "RH-2026-5610"]], lat: 59.383, lon: 18.038 },
+  { addr: "Björnstigen 44", muni: "Solna", area: "Bergshamra", postcode: "170 73", ll: "rikshem", rent: 10480, rooms: 2, size: 60, floor: 2, floorsTotal: 3, queue: "queue", seg: "senior", deadlineDays: 6, moveInDays: 28, checkedMin: 61, firstSeenDays: 3, img: true, sources: [["rikshem", "RH-2026-5610"]], lat: 59.383, lon: 18.038 },
   { addr: "Tottvägen 8", muni: "Solna", area: "Råsunda", postcode: "169 54", ll: "heimstaden", rent: 14200, rooms: 3, size: 82, floor: 1, floorsTotal: 5, queue: "none", seg: "accessible", deadlineDays: null, moveInDays: 21, checkedMin: 38, firstSeenDays: 11, img: true, sources: [["heimstaden", "HS-SE-40510"]], lat: 59.364, lon: 17.988 },
-  { addr: "Fridensborgsvägen 2", muni: "Solna", area: "Frösunda", postcode: "169 70", ll: "bostadsformedlingen", rent: 9100, rooms: 2, size: 52, floor: 5, floorsTotal: 6, queue: "points", deadlineDays: 2, moveInDays: 33, checkedMin: 22, firstSeenDays: 2.5, sources: [["bostadsformedlingen", "BF-772001"]], lat: 59.378, lon: 18.014 },
+  { addr: "Fridensborgsvägen 2", muni: "Solna", area: "Frösunda", postcode: "169 70", ll: "bostadsformedlingen", rent: 9100, rooms: 2, size: 52, floor: 5, floorsTotal: 6, queue: "points", deadlineDays: 2, moveInDays: 33, checkedMin: 22, firstSeenDays: 2.5, img: true, sources: [["bostadsformedlingen", "BF-772001"]], lat: 59.378, lon: 18.014 },
   { addr: "Stråkvägen 5", muni: "Solna", area: "Råsunda", postcode: "169 51", ll: "longname", rent: 5320, rooms: 1, size: 27, floor: 3, queue: "points", seg: "youth", deadlineDays: 15, moveInDays: 20, checkedMin: 8, firstSeenDays: 0.2, sources: [["longname", "SSSB-7790"]], lat: 59.366, lon: 17.994 },
-  { addr: "Vireberg 3", muni: "Solna", area: "Hagalund", postcode: "169 65", ll: "balder", rent: 12750, rooms: 3, size: 70, queue: "unknown", deadlineDays: 8, checkedMin: 82, firstSeenDays: 4, sources: [["balder", "BLD-3322"]], lat: 59.356, lon: 17.994 },
+  { addr: "Vireberg 3", muni: "Solna", area: "Hagalund", postcode: "169 65", ll: "balder", rent: 12750, rooms: 3, size: 70, queue: "unknown", deadlineDays: 8, checkedMin: 82, firstSeenDays: 4, img: true, sources: [["balder", "BLD-3322"]], lat: 59.356, lon: 17.994 },
 
   // --- Stockholm and neighbours ------------------------------------------
   { addr: "Hornsgatan 152", muni: "Stockholm", area: "Södermalm", postcode: "117 28", ll: "stockholmshem", rent: 9870, rooms: 2, size: 55, floor: 4, floorsTotal: 6, queue: "queue", deadlineDays: 5, moveInDays: 30, checkedMin: 14, firstSeenDays: 1, img: true, sources: [["stockholmshem", "STH-88250"]], lat: 59.317, lon: 18.04 },
-  { addr: "Fleminggatan 61", muni: "Stockholm", area: "Kungsholmen", postcode: "112 32", ll: "familjebostader", rent: 11200, rooms: 2, size: 63, floor: 2, floorsTotal: 5, queue: "queue", deadlineDays: 6, checkedMin: 22, firstSeenDays: 2, sources: [["bostadsformedlingen", "BF-772115"]], lat: 59.334, lon: 18.035 },
+  { addr: "Fleminggatan 61", muni: "Stockholm", area: "Kungsholmen", postcode: "112 32", ll: "familjebostader", rent: 11200, rooms: 2, size: 63, floor: 2, floorsTotal: 5, queue: "queue", deadlineDays: 6, checkedMin: 22, firstSeenDays: 2, img: true, sources: [["bostadsformedlingen", "BF-772115"]], lat: 59.334, lon: 18.035 },
   { addr: "Lidingövägen 74", muni: "Stockholm", area: "Östermalm", postcode: "115 41", ll: "willhem", rent: 15900, rooms: 3, size: 88, floor: 6, floorsTotal: 8, queue: "queue", deadlineDays: 11, moveInDays: 45, checkedMin: 180, firstSeenDays: 6, sources: [["willhem", "WH-1120"]], lat: 59.345, lon: 18.1 },
   { addr: "Hammarby allé 120", muni: "Stockholm", area: "Hammarby sjöstad", postcode: "120 66", ll: "heimstaden", rent: 13650, rooms: 3, size: 79, floor: 3, floorsTotal: 7, queue: "none", deadlineDays: null, moveInDays: 15, checkedMin: 38, firstSeenDays: 8, img: true, sources: [["heimstaden", "HS-SE-40777"]], lat: 59.304, lon: 18.104 },
-  { addr: "Kista Torg 5", muni: "Stockholm", area: "Kista", postcode: "164 40", ll: "rikshem", rent: 8250, rooms: 1, size: 34, floor: 9, floorsTotal: 14, queue: "queue", seg: "youth", deadlineDays: 4, moveInDays: 25, checkedMin: 61, firstSeenDays: 3, sources: [["rikshem", "RH-2026-5640"]], lat: 59.403, lon: 17.945 },
-  { addr: "Farstavägen 3", muni: "Stockholm", area: "Farsta", postcode: "123 47", ll: "stadshus", rent: 7690, rooms: 2, size: 51, floor: 1, floorsTotal: 3, queue: "queue", deadlineDays: 3, moveInDays: 20, checkedMin: 192, firstSeenDays: 5, sources: [["stadshus", "STO-2098"]], lat: 59.243, lon: 18.095 },
+  { addr: "Kista Torg 5", muni: "Stockholm", area: "Kista", postcode: "164 40", ll: "rikshem", rent: 8250, rooms: 1, size: 34, floor: 9, floorsTotal: 14, queue: "queue", seg: "youth", deadlineDays: 4, moveInDays: 25, checkedMin: 61, firstSeenDays: 3, img: true, sources: [["rikshem", "RH-2026-5640"]], lat: 59.403, lon: 17.945 },
+  { addr: "Farstavägen 3", muni: "Stockholm", area: "Farsta", postcode: "123 47", ll: "stadshus", rent: 7690, rooms: 2, size: 51, floor: 1, floorsTotal: 3, queue: "queue", deadlineDays: 3, moveInDays: 20, checkedMin: 192, firstSeenDays: 5, img: true, sources: [["stadshus", "STO-2098"]], lat: 59.243, lon: 18.095 },
   { addr: "Drottningholmsvägen 310", muni: "Stockholm", area: "Bromma", postcode: "167 62", ll: "willhem", rent: null, rooms: 3, size: 74, floor: 2, queue: "queue", deadlineDays: 9, checkedMin: 180, firstSeenDays: 2, sources: [["willhem", "WH-1131"]], lat: 59.34, lon: 17.94 },
-  { addr: "Upplandsgatan 92", muni: "Stockholm", area: "Vasastan", postcode: "113 44", ll: "einarmattsson", rent: 12900, rooms: 2, size: 66, floor: 5, floorsTotal: 6, queue: "unknown", deadlineDays: 14, moveInDays: 50, checkedMin: 22, firstSeenDays: 1, sources: [["bostadsformedlingen", "BF-772140"]], lat: 59.344, lon: 18.05 },
+  { addr: "Upplandsgatan 92", muni: "Stockholm", area: "Vasastan", postcode: "113 44", ll: "einarmattsson", rent: 12900, rooms: 2, size: 66, floor: 5, floorsTotal: 6, queue: "unknown", deadlineDays: 14, moveInDays: 50, checkedMin: 22, firstSeenDays: 1, img: true, sources: [["bostadsformedlingen", "BF-772140"]], lat: 59.344, lon: 18.05 },
   { addr: "Sickla Kanalgata 12", muni: "Nacka", area: "Sickla", postcode: "120 68", ll: "heimstaden", rent: 15100, rooms: 3, size: 85, floor: 4, floorsTotal: 6, queue: "none", deadlineDays: 16, moveInDays: 35, checkedMin: 38, firstSeenDays: 4, img: true, sources: [["heimstaden", "HS-SE-40801"]], lat: 59.306, lon: 18.118 },
-  { addr: "Värmdövägen 200", muni: "Nacka", area: "Saltsjö-Boo", postcode: "131 37", ll: "bostadsformedlingen", rent: 9450, rooms: 2, size: 57, floor: 1, queue: "points", deadlineDays: 5, checkedMin: 22, firstSeenDays: 6, sources: [["bostadsformedlingen", "BF-772201"]], lat: 59.32, lon: 18.24 },
+  { addr: "Värmdövägen 200", muni: "Nacka", area: "Saltsjö-Boo", postcode: "131 37", ll: "bostadsformedlingen", rent: 9450, rooms: 2, size: 57, floor: 1, queue: "points", deadlineDays: 5, checkedMin: 22, firstSeenDays: 6, img: true, sources: [["bostadsformedlingen", "BF-772201"]], lat: 59.32, lon: 18.24 },
   { addr: "Landsvägen 40", muni: "Sundbyberg", area: "Centrala Sundbyberg", postcode: "172 63", ll: "forvaltaren", rent: 8990, rooms: 2, size: 50, floor: 3, floorsTotal: 5, queue: "queue", deadlineDays: 8, moveInDays: 30, checkedMin: 2, firstSeenDays: 0.8, sources: [["forvaltaren", "FV-2230"]], lat: 59.363, lon: 17.968 },
-  { addr: "Rissneleden 118", muni: "Sundbyberg", area: "Rissne", postcode: "174 57", ll: "forvaltaren", rent: 10700, rooms: 3, size: 77, floor: 2, floorsTotal: 8, queue: "queue", seg: "accessible", deadlineDays: 12, moveInDays: 45, checkedMin: 2, firstSeenDays: 3, sources: [["forvaltaren", "FV-2236"]], lat: 59.377, lon: 17.942 },
-  { addr: "Hallonbergsplan 8", muni: "Sundbyberg", area: "Hallonbergen", postcode: "174 52", ll: "bostadsformedlingen", rent: 7450, rooms: 1, size: 39, floor: 7, floorsTotal: 10, queue: "points", deadlineDays: 1, moveInDays: 22, checkedMin: 22, firstSeenDays: 9, sources: [["bostadsformedlingen", "BF-772230"]], lat: 59.376, lon: 17.966 },
+  { addr: "Rissneleden 118", muni: "Sundbyberg", area: "Rissne", postcode: "174 57", ll: "forvaltaren", rent: 10700, rooms: 3, size: 77, floor: 2, floorsTotal: 8, queue: "queue", seg: "accessible", deadlineDays: 12, moveInDays: 45, checkedMin: 2, firstSeenDays: 3, img: true, sources: [["forvaltaren", "FV-2236"]], lat: 59.377, lon: 17.942 },
+  { addr: "Hallonbergsplan 8", muni: "Sundbyberg", area: "Hallonbergen", postcode: "174 52", ll: "bostadsformedlingen", rent: 7450, rooms: 1, size: 39, floor: 7, floorsTotal: 10, queue: "points", deadlineDays: 1, moveInDays: 22, checkedMin: 22, firstSeenDays: 9, img: true, sources: [["bostadsformedlingen", "BF-772230"]], lat: 59.376, lon: 17.966 },
   { addr: "Sjödalsvägen 23", muni: "Huddinge", postcode: "141 47", ll: "bostadsformedlingen", rent: 8600, rooms: 2, size: 58, floor: 2, queue: "points", deadlineDays: 6, checkedMin: 22, firstSeenDays: 2, sources: [["bostadsformedlingen", "BF-772310"]], lat: 59.237, lon: 17.98 },
-  { addr: "Grindtorpsvägen 15", muni: "Täby", postcode: "183 47", ll: "bostadsformedlingen", rent: 11450, rooms: 3, size: 80, floor: 5, floorsTotal: 9, queue: "points", deadlineDays: 10, moveInDays: 40, checkedMin: 22, firstSeenDays: 5, sources: [["bostadsformedlingen", "BF-772402"]], lat: 59.443, lon: 18.06 },
-  { addr: "Malmvägen 6", muni: "Sollentuna", postcode: "191 61", ll: "bostadsformedlingen", rent: 9300, rooms: 2, size: 61, queue: "points", deadlineDays: 13, checkedMin: 22, firstSeenDays: 1, sources: [["bostadsformedlingen", "BF-772450"]], lat: 59.43, lon: 17.95 },
+  { addr: "Grindtorpsvägen 15", muni: "Täby", postcode: "183 47", ll: "bostadsformedlingen", rent: 11450, rooms: 3, size: 80, floor: 5, floorsTotal: 9, queue: "points", deadlineDays: 10, moveInDays: 40, checkedMin: 22, firstSeenDays: 5, img: true, sources: [["bostadsformedlingen", "BF-772402"]], lat: 59.443, lon: 18.06 },
+  { addr: "Malmvägen 6", muni: "Sollentuna", postcode: "191 61", ll: "bostadsformedlingen", rent: 9300, rooms: 2, size: 61, queue: "points", deadlineDays: 13, checkedMin: 22, firstSeenDays: 1, img: true, sources: [["bostadsformedlingen", "BF-772450"]], lat: 59.43, lon: 17.95 },
   // Removed at source: keeps its page.
   { addr: "Skolgatan 3", muni: "Solna", area: "Huvudsta", postcode: "171 63", ll: "signalisten", rent: 8100, rooms: 2, size: 47, floor: 1, queue: "points", deadlineDays: -2, checkedMin: 6, firstSeenDays: 14, sources: [["signalisten", "SIG-2026-04390"]], status: "removed", removedDays: 2, lat: 59.353, lon: 17.983 },
-  { addr: "Ringvägen 8", muni: "Solna", area: "Råsunda", postcode: "169 50", ll: "wallenstam", rent: 11900, rooms: 2, size: 64, floor: 2, queue: "points", deadlineDays: -1, checkedMin: 41, firstSeenDays: 20, sources: [["wallenstam", "WS-9880"]], status: "removed", removedDays: 1, lat: 59.367, lon: 17.99 },
+  { addr: "Ringvägen 8", muni: "Solna", area: "Råsunda", postcode: "169 50", ll: "wallenstam", rent: 11900, rooms: 2, size: 64, floor: 2, queue: "points", deadlineDays: -1, checkedMin: 41, firstSeenDays: 20, img: true, sources: [["wallenstam", "WS-9880"]], status: "removed", removedDays: 1, lat: 59.367, lon: 17.99 },
+  // --- Göteborg, Malmö and Uppsala ------------------------------------------
+  // The home page links to these three by name; without homes the pills led to
+  // an empty result page.
+  { addr: "Karl Johansgatan 41", muni: "Göteborg", area: "Majorna", postcode: "414 55", ll: "poseidon", rent: 8450, rooms: 2, size: 58, floor: 2, floorsTotal: 4, queue: "queue", deadlineDays: 5, moveInDays: 34, checkedMin: 17, firstSeenDays: 1, img: true, sources: [["poseidon", "PO-2026-1180"]], desc: "Tvåa med balkong i sekelskifteshus. Gemensam tvättstuga i källaren.", lat: 57.696, lon: 11.927 },
+  { addr: "Linnégatan 18", muni: "Göteborg", area: "Linnéstaden", postcode: "413 04", ll: "poseidon", rent: 11200, rooms: 3, size: 74, floor: 3, floorsTotal: 5, queue: "queue", deadlineDays: 12, moveInDays: 48, checkedMin: 17, firstSeenDays: 3, img: true, sources: [["poseidon", "PO-2026-1194"]], lat: 57.695, lon: 11.952 },
+  { addr: "Rymdtorget 7", muni: "Göteborg", area: "Angered", postcode: "424 36", ll: "poseidon", rent: 6980, rooms: 1, size: 36, floor: 6, floorsTotal: 9, queue: "queue", seg: "youth", deadlineDays: 2, moveInDays: 21, checkedMin: 17, firstSeenDays: 0.5, img: true, sources: [["poseidon", "PO-2026-1201"]], lat: 57.794, lon: 12.021 },
+  { addr: "Marconigatan 26", muni: "Göteborg", area: "Frölunda", postcode: "421 39", ll: "poseidon", rent: 9600, rooms: 4, size: 92, queue: "queue", deadlineDays: null, moveInDays: 60, checkedMin: 77, firstSeenDays: 7, sources: [["poseidon", "PO-2026-1150"]], lat: 57.653, lon: 11.913 },
+  { addr: "Bergsgatan 22", muni: "Malmö", area: "Möllevången", postcode: "214 22", ll: "mkb", rent: 7890, rooms: 2, size: 52, floor: 1, floorsTotal: 4, queue: "queue", deadlineDays: 6, moveInDays: 30, checkedMin: 33, firstSeenDays: 2, img: true, sources: [["mkb", "MKB-55120"]], desc: "Tvåa nära Möllevångstorget. Nyrenoverat badrum.", lat: 55.592, lon: 13.004 },
+  { addr: "Isbergs gata 9", muni: "Malmö", area: "Västra Hamnen", postcode: "211 19", ll: "mkb", rent: 14300, rooms: 3, size: 81, floor: 5, floorsTotal: 8, queue: "queue", deadlineDays: 9, moveInDays: 44, checkedMin: 33, firstSeenDays: 4, img: true, sources: [["mkb", "MKB-55142"]], lat: 55.614, lon: 12.981 },
+  { addr: "Ramels väg 88", muni: "Malmö", area: "Rosengård", postcode: "213 76", ll: "mkb", rent: 6540, rooms: 1, size: 33, floor: 3, floorsTotal: 5, queue: "queue", deadlineDays: 3, moveInDays: 18, checkedMin: 93, firstSeenDays: 6, img: true, sources: [["mkb", "MKB-55098"]], lat: 55.587, lon: 13.042 },
+  { addr: "Linnégatan 4", muni: "Malmö", area: "Limhamn", postcode: "216 14", ll: "mkb", rent: 10750, rooms: 3, size: 68, queue: "queue", seg: "senior", deadlineDays: null, moveInDays: 52, checkedMin: 93, firstSeenDays: 9, img: true, sources: [["mkb", "MKB-55061"]], lat: 55.577, lon: 12.926 },
+  { addr: "Sysslomansgatan 30", muni: "Uppsala", area: "Luthagen", postcode: "753 11", ll: "uppsalahem", rent: 9120, rooms: 2, size: 56, floor: 2, floorsTotal: 4, queue: "queue", deadlineDays: 8, moveInDays: 38, checkedMin: 51, firstSeenDays: 2, img: true, sources: [["uppsalahem", "UH-2026-771"]], desc: "Tvåa i Luthagen med gångavstånd till centrum och Fyrisån.", lat: 59.862, lon: 17.622 },
+  { addr: "Flogstavägen 65", muni: "Uppsala", area: "Flogsta", postcode: "752 73", ll: "uppsalahem", rent: 5240, rooms: 1, size: 26, floor: 7, floorsTotal: 8, queue: "points", seg: "student", deadlineDays: 1, moveInDays: 15, checkedMin: 51, firstSeenDays: 0.4, sources: [["uppsalahem", "UH-2026-802"]], lat: 59.851, lon: 17.593 },
+  { addr: "Gränbyvägen 14", muni: "Uppsala", area: "Gränby", postcode: "754 30", ll: "uppsalahem", rent: 11400, rooms: 4, size: 96, floor: 1, floorsTotal: 3, queue: "queue", deadlineDays: 14, moveInDays: 55, checkedMin: 111, firstSeenDays: 5, img: true, sources: [["uppsalahem", "UH-2026-745"]], lat: 59.879, lon: 17.661 },
+  { addr: "Bäcklösavägen 3", muni: "Uppsala", area: "Sävja", postcode: "757 55", ll: "uppsalahem", rent: 7650, rooms: 2, size: 49, queue: "queue", seg: "accessible", deadlineDays: null, moveInDays: 41, checkedMin: 111, firstSeenDays: 8, img: true, sources: [["uppsalahem", "UH-2026-712"]], lat: 59.798, lon: 17.689 },
 ];
 
 // ---------------------------------------------------------------------------

@@ -73,8 +73,10 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 
 ## D. Nice to have for MVP
 
-- [ ] **D1. Seed data polish.** More listings with photos, a few in Göteborg,
-  Malmö and Uppsala so the popular-search pills are not empty.
+- [x] **D1. Seed data polish.** Twelve homes across Göteborg, Malmö and
+  Uppsala with areas, landlords and sources of their own, so every
+  popular-search pill on the home page lands on real results. 36 of 47 active
+  homes now carry a photo, with the no-photo cases kept on purpose.
 - [x] **D2. Mobile map view.** Dedicated narrow layout (list under the map)
   instead of hiding the list.
 - [x] **D3. Portal statistics: saves.** Count saves via the metrics endpoint
