@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { invalidateListingCaches } from "@/lib/listing-cache";
 import { z } from "zod";
 import { db, schema } from "@/db";
-import { requireStaff } from "@/lib/access";
+import { isLead, requireStaff } from "@/lib/access";
 import { enqueueAllSyncs, enqueueSourceSync } from "@/lib/jobs";
 import { sendEmail } from "@/lib/email";
 import { renderEmail } from "@/lib/email-templates";
@@ -31,8 +31,10 @@ function revalidateAdmin() {
 // ---------------------------------------------------------------------------
 
 export async function runSourceSync(locale: Locale, sourceId: string): Promise<ActionResult> {
-  await requireStaff(locale, "support");
-  await enqueueSourceSync(sourceId, true, true);
+  const me = await requireStaff(locale, "support");
+  // Only a lead may force: forcing is what runs a source a lead disabled, and
+  // disabling one requires lead. Support can still run everything else.
+  await enqueueSourceSync(sourceId, true, isLead(me));
   revalidateAdmin();
   return OK;
 }

@@ -17,7 +17,10 @@ export function productionConfigProblems(env: Record<string, string | undefined>
   const secret = env.BETTER_AUTH_SECRET ?? "";
   if (!siteUrl) problems.push("NEXT_PUBLIC_SITE_URL must be set (canonicals, hreflang, sitemap and share cards use it)");
   if (secret.length < 32 || /change-me/i.test(secret)) problems.push("BETTER_AUTH_SECRET must be a random string of at least 32 characters");
-  if (authUrl && LOCAL.test(authUrl)) return problems;
+  // Both URLs have to say localhost. A real site URL beside a leftover localhost
+  // auth URL is a misconfigured deploy, not a test server, and skipping the rest
+  // of these checks for it would hide a missing email key that logs reset links.
+  if (siteUrl && authUrl && LOCAL.test(siteUrl) && LOCAL.test(authUrl)) return problems;
   if (!authUrl?.startsWith("https://")) problems.push("BETTER_AUTH_URL must be the https origin (it decides Secure cookies and the origin check)");
   if (!env.RESEND_API_KEY) problems.push("RESEND_API_KEY must be set: without it emails, including reset links, would be written to the log");
   // Uploads on local disk do not survive a redeploy on most hosts, so the choice has to be deliberate.

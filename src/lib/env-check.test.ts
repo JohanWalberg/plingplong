@@ -22,9 +22,18 @@ describe("production config check", () => {
     expect(productionConfigProblems({ ...good, STORAGE_DRIVER: "disk", S3_BUCKET: undefined })).toEqual([]);
   });
 
+  it("does not treat a real site URL with a leftover localhost auth URL as a test server", () => {
+    const p = productionConfigProblems({ ...good, BETTER_AUTH_URL: "http://localhost:3000", RESEND_API_KEY: undefined });
+    expect(p.join("\n")).toMatch(/https/);
+    expect(p.join("\n")).toMatch(/RESEND_API_KEY/);
+  });
+
   it("lets a localhost production build run without https or email, but still wants the secret and site URL", () => {
     expect(productionConfigProblems({ NEXT_PUBLIC_SITE_URL: "http://localhost:3000", BETTER_AUTH_URL: "http://localhost:3000", BETTER_AUTH_SECRET: "x".repeat(40) })).toEqual([]);
-    expect(productionConfigProblems({ BETTER_AUTH_URL: "http://localhost:3000", BETTER_AUTH_SECRET: "short" })).toHaveLength(2);
+    // With no site URL there is no evidence this is a test server, so everything is reported.
+    const p = productionConfigProblems({ BETTER_AUTH_URL: "http://localhost:3000", BETTER_AUTH_SECRET: "short" });
+    expect(p.join("\n")).toMatch(/NEXT_PUBLIC_SITE_URL/);
+    expect(p.join("\n")).toMatch(/BETTER_AUTH_SECRET/);
   });
 
   it("only throws for a running production server, never during the build", () => {
