@@ -1,6 +1,8 @@
 import robotsParser from "robots-parser";
+import { isIP } from "node:net";
+import { Agent, fetch, type Dispatcher } from "undici";
 import { AdapterError, type FetchContext } from "./adapters/types";
-import { assertPublicUrl, BlockedUrlError } from "@/lib/net-guard";
+import { resolvePublicUrl, BlockedUrlError } from "@/lib/net-guard";
 
 const USER_AGENT = process.env.CRAWLER_USER_AGENT ?? "Hyrabostad/1.0 (+https://hyrabostad.se/om-insamling)";
 const ROBOTS_UA = USER_AGENT.split("/")[0];
@@ -42,6 +44,41 @@ class HostQueue {
 }
 
 const hosts = new Map<string, HostQueue>();
+
+/**
+ * One agent per checked address: its sockets connect to exactly that address
+ * while TLS still verifies the certificate against the hostname, so the
+ * address the guard approved is the address that gets the request.
+ */
+const agents = new Map<string, Dispatcher>();
+function pinnedTo(address: string | null): Dispatcher | undefined {
+  if (!address) return undefined;
+  let agent = agents.get(address);
+  if (!agent) {
+    if (agents.size > 200) agents.clear();
+    const family = isIP(address);
+    agent = new Agent({
+      connect: {
+        lookup: (_hostname, options, callback) => {
+          if (options.all) callback(null, [{ address, family }]);
+          else (callback as (err: Error | null, address: string, family: number) => void)(null, address, family);
+        },
+      },
+    });
+    agents.set(address, agent);
+  }
+  return agent;
+}
+
+/** The guard's result for one URL, mapped to the adapter error the caller expects. */
+async function checkedUrl(raw: string, what = ""): Promise<{ url: URL; address: string | null }> {
+  try {
+    return await resolvePublicUrl(raw);
+  } catch (e) {
+    if (e instanceof BlockedUrlError) throw new AdapterError("unreachable", `${what}${e.message}`);
+    throw e;
+  }
+}
 const robotsCache = new Map<string, { at: number; robots: ReturnType<typeof robotsParser> | null }>();
 
 function hostQueue(host: string) {
@@ -58,9 +95,9 @@ async function robotsAllows(url: string): Promise<boolean> {
   if (!entry) {
     let robots: ReturnType<typeof robotsParser> | null = null;
     try {
-      await assertPublicUrl(`${origin}/robots.txt`);
+      const { address } = await checkedUrl(`${origin}/robots.txt`);
       // Through the same per-host queue as the page fetches, so robots.txt counts towards the gap too.
-      const res = await hostQueue(u.host).run(() => fetch(`${origin}/robots.txt`, { headers: { "user-agent": USER_AGENT }, signal: AbortSignal.timeout(10_000), redirect: "manual" }));
+      const res = await hostQueue(u.host).run(() => fetch(`${origin}/robots.txt`, { headers: { "user-agent": USER_AGENT }, signal: AbortSignal.timeout(10_000), redirect: "manual", dispatcher: pinnedTo(address) }));
       if (res.ok) robots = robotsParser(`${origin}/robots.txt`, await readCapped(res, 512 * 1024));
     } catch {
       robots = null; // unreachable robots.txt: treat as allow
@@ -79,7 +116,7 @@ async function robotsAllows(url: string): Promise<boolean> {
  * host, and times out. Used by every adapter through FetchContext.
  */
 /** Reads a body up to `limit` bytes after decompression; beyond that the source is treated as broken. */
-async function readCapped(res: Response, limit: number): Promise<string> {
+async function readCapped(res: Awaited<ReturnType<typeof fetch>>, limit: number): Promise<string> {
   const declared = Number(res.headers.get("content-length") ?? 0);
   if (declared > limit) throw new AdapterError("parse_error", `response too large (${declared} bytes)`);
   if (!res.body) return "";
@@ -108,21 +145,16 @@ const REDIRECT = new Set([301, 302, 303, 307, 308]);
  */
 export const politeFetch: FetchContext = {
   async fetchText(url, init) {
-    try {
-      await assertPublicUrl(url);
-    } catch (e) {
-      if (e instanceof BlockedUrlError) throw new AdapterError("unreachable", e.message);
-      throw e;
-    }
+    let { address } = await checkedUrl(url);
     if (!(await robotsAllows(url))) throw new AdapterError("robots", `robots.txt disallows ${url}`);
     const host = new URL(url).host;
     return hostQueue(host).run(async () => {
       let current = url;
       let headers: Record<string, string> = { "user-agent": USER_AGENT, accept: "application/xml, application/json, text/html;q=0.9, */*;q=0.5", ...(init?.headers ?? {}) };
-      let res: Response | null = null;
+      let res: Awaited<ReturnType<typeof fetch>> | null = null;
       for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
         try {
-          res = await fetch(current, { headers, signal: AbortSignal.timeout(TIMEOUT_MS), redirect: "manual" });
+          res = await fetch(current, { headers, signal: AbortSignal.timeout(TIMEOUT_MS), redirect: "manual", dispatcher: pinnedTo(address) });
         } catch (e) {
           throw new AdapterError("unreachable", (e as Error).message);
         }
@@ -130,12 +162,7 @@ export const politeFetch: FetchContext = {
         if (!REDIRECT.has(res.status) || !location) break;
         if (hop === MAX_REDIRECTS) throw new AdapterError("unreachable", "too many redirects");
         const next = new URL(location, current);
-        try {
-          await assertPublicUrl(next.toString());
-        } catch (e) {
-          if (e instanceof BlockedUrlError) throw new AdapterError("unreachable", `redirect blocked: ${e.message}`);
-          throw e;
-        }
+        ({ address } = await checkedUrl(next.toString(), "redirect blocked: "));
         // Credentials never travel to another origin.
         if (next.origin !== new URL(current).origin) headers = Object.fromEntries(Object.entries(headers).filter(([k]) => k.toLowerCase() !== "authorization"));
         await res.body?.cancel();

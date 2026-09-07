@@ -33,8 +33,14 @@ export class BlockedUrlError extends Error {}
 
 const allowPrivate = () => process.env.ALLOW_PRIVATE_FETCH === "1" && process.env.NODE_ENV !== "production";
 
-/** Parses, checks scheme and port, resolves the host and requires every address to be public. */
-export async function assertPublicUrl(raw: string): Promise<URL> {
+/**
+ * Parses, checks scheme and port, resolves the host and requires every address
+ * to be public. Returns the address the caller must connect to: checking one
+ * answer and letting the socket resolve again would let a rebinding DNS name
+ * pass the check with a public address and connect to a private one.
+ * `address` is null only in development with ALLOW_PRIVATE_FETCH=1.
+ */
+export async function resolvePublicUrl(raw: string): Promise<{ url: URL; address: string | null }> {
   let u: URL;
   try {
     u = new URL(raw);
@@ -43,11 +49,15 @@ export async function assertPublicUrl(raw: string): Promise<URL> {
   }
   if (u.protocol !== "http:" && u.protocol !== "https:") throw new BlockedUrlError(`scheme not allowed: ${u.protocol}`);
   if (u.username || u.password) throw new BlockedUrlError("credentials in URL are not allowed");
-  if (allowPrivate()) return u; // development: local fixture servers on any port
+  if (allowPrivate()) return { url: u, address: null }; // development: local fixture servers on any port
   if (u.port && u.port !== "80" && u.port !== "443") throw new BlockedUrlError(`port not allowed: ${u.port}`);
   const host = u.hostname.replace(/^\[|\]$/g, "");
   const addresses = isIP(host) ? [host] : (await lookup(host, { all: true }).catch(() => [])).map((a) => a.address);
   if (!addresses.length) throw new BlockedUrlError(`host does not resolve: ${host}`);
   for (const a of addresses) if (!isPublicIp(a)) throw new BlockedUrlError(`host resolves to a non-public address: ${host}`);
-  return u;
+  return { url: u, address: addresses[0] };
+}
+
+export async function assertPublicUrl(raw: string): Promise<URL> {
+  return (await resolvePublicUrl(raw)).url;
 }

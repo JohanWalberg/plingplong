@@ -1,8 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/net-guard", () => ({
-  assertPublicUrl: async () => {},
+  resolvePublicUrl: async (raw: string) => ({ url: new URL(raw), address: "93.184.216.34" }),
   BlockedUrlError: class BlockedUrlError extends Error {},
+}));
+// The pinned agent is exercised against real sockets only; here undici's fetch is the stubbed global.
+vi.mock("undici", () => ({
+  fetch: (input: RequestInfo | URL, init?: RequestInit) => globalThis.fetch(input, init),
+  Agent: class Agent {},
 }));
 
 const { politeFetch } = await import("./fetch");
