@@ -25,6 +25,12 @@ type Props = {
   attribution?: string;
   /** When set, the map eases to this point (used when a list item is chosen). */
   focus?: { lon: number; lat: number; zoom?: number; key: number } | null;
+  /**
+   * Refit the viewport to these bounds whenever `key` changes. `bounds` is
+   * fitted once and then the visitor owns the viewport; this is the escape
+   * hatch for the times they asked to be moved, such as searching a place.
+   */
+  fitTo?: { bounds: [number, number, number, number]; key: string } | null;
   /** Never start further out than this, even if the results are spread wide. */
   minInitialZoom?: number;
 };
@@ -36,6 +42,15 @@ function markerClass(active: boolean, hovered: boolean) {
   return `${base} border-line-strong bg-surface text-ink hover:border-ink`;
 }
 
+/** How long the map takes to glide to a searched place. */
+const FIT_MS = 600;
+
+/** Stands in for "the view is not a place", which no place key can equal. */
+const NO_PLACE = "";
+
+/** Rides along on the camera moves the code triggers, marking them as not the visitor's. */
+const FIT = { hbFit: true };
+
 // OpenFreeMap: free OSM-based vector tiles, no key. Swap for Protomaps/MapTiler via NEXT_PUBLIC_MAP_STYLE_URL.
 const DEFAULT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 
@@ -44,7 +59,7 @@ const DEFAULT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
  * The style URL comes from NEXT_PUBLIC_MAP_STYLE_URL (self-hosted or metered
  * tiles); the MapLibre demo style is the zero-config fallback.
  */
-export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, interactive = true, onSelect, onMoveEnd, selectedId, hoveredId = null, onHover, attribution, focus, minInitialZoom = 13 }: Props) {
+export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, interactive = true, onSelect, onMoveEnd, selectedId, hoveredId = null, onHover, attribution, focus, fitTo, minInitialZoom = 13 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
   const markerEls = useRef<maplibregl.Marker[]>([]);
@@ -53,6 +68,7 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
   const onMoveEndRef = useRef(onMoveEnd);
   const onHoverRef = useRef(onHover);
   const elsById = useRef(new Map<string, HTMLButtonElement>());
+  const fitKey = useRef<string | null>(null); // null until the first fit is accounted for
   onSelectRef.current = onSelect;
   onMoveEndRef.current = onMoveEnd;
   onHoverRef.current = onHover;
@@ -72,20 +88,16 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: attribution }), "bottom-right");
     if (interactive) map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     if (bounds) {
-      map.fitBounds(bounds, { padding: 40, duration: 0, maxZoom: 15 });
-      if (map.getZoom() < minInitialZoom) map.setZoom(minInitialZoom);
+      map.fitBounds(bounds, { padding: 40, duration: 0, maxZoom: 15 }, FIT);
+      if (map.getZoom() < minInitialZoom) map.setZoom(minInitialZoom, FIT);
     }
     map.on("load", () => setReady(true));
-    // Only the opening fit is discounted, and only for the tick it happens in.
-    // fitBounds runs with duration 0, so any moveend it causes lands before this
-    // clears; anything later is a real movement, whether dragged or eased.
-    let openingFit = Boolean(bounds);
-    if (openingFit) setTimeout(() => (openingFit = false), 0);
-    map.on("moveend", () => {
-      const fromFit = openingFit;
-      openingFit = false;
+    // Fits the code asked for carry a marker on the event itself, so telling them
+    // from a drag needs no guessing. A flag with a timer around it was the old
+    // way, and it mistook whichever movement it happened to be racing.
+    map.on("moveend", (e) => {
       const b = map.getBounds();
-      onMoveEndRef.current?.([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()], !fromFit);
+      onMoveEndRef.current?.([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()], !("hbFit" in e));
     });
     map.on("click", () => onSelectRef.current?.(null));
     mapRef.current = map;
@@ -157,7 +169,25 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
   }, [hoveredId, selectedId, markers]);
 
   // Bounds are fitted once at creation. After that the user owns the viewport:
-  // refitting on every prop change would fight their zoom and pan.
+  // refitting on every prop change would fight their zoom and pan. `fitTo` is
+  // the exception, and only when its key changes — one refit per place searched.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (!fitTo) {
+      // The view is a rectangle now, so whatever place comes next is a new one.
+      // Remembering the last place here would leave a search for it doing nothing.
+      fitKey.current = NO_PLACE;
+      return;
+    }
+    if (fitKey.current === null) {
+      fitKey.current = fitTo.key; // the opening fit already used these bounds
+      return;
+    }
+    if (fitKey.current === fitTo.key) return;
+    fitKey.current = fitTo.key;
+    map.fitBounds(fitTo.bounds, { padding: 40, duration: FIT_MS, maxZoom: 15 }, FIT);
+  }, [fitTo]);
 
   useEffect(() => {
     const map = mapRef.current;

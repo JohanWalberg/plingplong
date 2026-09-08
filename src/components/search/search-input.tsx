@@ -12,8 +12,28 @@ import type { SuggestItem } from "@/app/api/suggest/route";
  * pattern: arrow keys move through the list, Enter picks the active option or
  * submits the plain form when nothing is active, Escape closes. Without JS the
  * form still submits `q` to the results page.
+ *
+ * `target` decides where a pick lands. On the map it must stay on the map:
+ * sending the visitor to the list was the whole reason searching there felt
+ * broken. `keepQuery` carries the filters already in the URL across the jump.
  */
-export function SearchInput({ locale, defaultValue = "", placeholder, label, className }: { locale: Locale; defaultValue?: string; placeholder: string; label: string; className: string }) {
+export function SearchInput({
+  locale,
+  defaultValue = "",
+  placeholder,
+  label,
+  className,
+  target = "list",
+  keepQuery,
+}: {
+  locale: Locale;
+  defaultValue?: string;
+  placeholder: string;
+  label: string;
+  className: string;
+  target?: "list" | "map";
+  keepQuery?: Record<string, string>;
+}) {
   const t = useTranslations("home");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -58,7 +78,16 @@ export function SearchInput({ locale, defaultValue = "", placeholder, label, cla
   function choose(item: SuggestItem) {
     setOpen(false);
     setValue(item.name);
-    router.push(item.href);
+    if (target !== "map") {
+      router.push(item.href);
+      return;
+    }
+    // The place replaces any bbox: the visitor asked for a place, not for the
+    // rectangle they happened to be looking at.
+    const [path, search] = item.mapHref.split("?");
+    const params = new URLSearchParams(search);
+    for (const [k, v] of Object.entries(keepQuery ?? {})) if (!params.has(k)) params.set(k, v);
+    router.push(`${path}?${params.toString()}`);
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {

@@ -3,7 +3,7 @@ import { Link, redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
-import { ActiveChips, FilterPanel, MobileFilters, SortSelect } from "@/components/search/filter-panel";
+import { ActiveChips, FilterPanel, FilterSheet, SortSelect } from "@/components/search/filter-panel";
 import { SaveSearchButton } from "@/components/search/save-search-button";
 import { ResultsRegion, SearchTransitionProvider } from "@/components/search/search-transition";
 import { ListingCard } from "@/components/listing/listing-card";
@@ -105,7 +105,7 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
               </div>
               <div className="flex items-center gap-2">
                 <div className="lg:hidden">
-                  <MobileFilters filters={filters} landlords={landlords} total={result.total} />
+                  <FilterSheet filters={filters} landlords={landlords} total={result.total} />
                 </div>
                 <SaveSearchButton label={heading} />
                 <div className="hidden sm:block">
@@ -116,7 +116,7 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
                     {t("list")}
                   </span>
                   <Link
-                    href={{ pathname: "/map", query: { ...toQuery(filters), ...(muni ? { place: municipalitySlug(muni, locale) } : {}) } }}
+                    href={{ pathname: "/map", query: { ...toQuery(filters), ...(muni ? { place: municipalitySlug(muni, locale) } : {}), ...(area ? { area: area.slug } : {}) } }}
                     className="flex min-h-10 items-center gap-1.5 px-3 text-[13.5px] font-[650] text-ink-2 hover:bg-bg hover:no-underline"
                   >
                     {icons.pin}

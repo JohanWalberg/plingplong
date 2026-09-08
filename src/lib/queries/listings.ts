@@ -110,7 +110,11 @@ export async function searchListings(locale: Locale, scope: SearchScope, f: Sear
   return { items: rows as SearchResultItem[], total: count, pageSize, page: f.page, pages: Math.max(1, Math.ceil(count / pageSize)) };
 }
 
-/** All matching listings with coordinates for the map (capped). */
+/**
+ * All matching listings with coordinates for the map, capped so a country-wide
+ * view cannot pull everything. One row past the cap is fetched so the caller can say "500+" instead of
+ * printing the cap as if it were the count.
+ */
 export async function searchListingsForMap(locale: Locale, scope: SearchScope, f: SearchFilters, cap = 500) {
   const where = and(...whereClauses(scope, f), sql`${listing.location} is not null`);
   const rows = await db
@@ -120,8 +124,9 @@ export async function searchListingsForMap(locale: Locale, scope: SearchScope, f
     .innerJoin(municipality, eq(listing.municipalityId, municipality.id))
     .where(where)
     .orderBy(...orderBy(f.sort))
-    .limit(cap);
-  return rows as SearchResultItem[];
+    .limit(cap + 1);
+  const capped = rows.length > cap;
+  return { items: (capped ? rows.slice(0, cap) : rows) as SearchResultItem[], capped };
 }
 
 /** Landlord facet: active listing counts per landlord inside the scope (ignores the landlord filter itself). */

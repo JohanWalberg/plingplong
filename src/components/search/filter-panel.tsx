@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -34,15 +34,28 @@ type Props = {
 
 const SEGMENT_KEYS = { student: "segmentStudent", youth: "segmentYouth", senior: "segmentSenior", accessible: "segmentAccessible" } as const satisfies Record<SegmentFilter, string>;
 
+/**
+ * Query params the filters must carry along but do not own. On the list page the
+ * place lives in the path, so this is empty; on the map it holds `place`/`area`
+ * or `bbox`, and without it changing a filter would silently reset the view to
+ * the whole country.
+ */
+const FilterQueryExtras = createContext<Record<string, string>>({});
+
+export function FilterQueryExtrasProvider({ value, children }: { value: Record<string, string>; children: ReactNode }) {
+  return <FilterQueryExtras.Provider value={value}>{children}</FilterQueryExtras.Provider>;
+}
+
 function useFilterNavigation(filters: SearchFilters) {
   const router = useRouter();
   const pathname = usePathname(); // the real URL path, locale prefix included: filters never change the page, only its query
   const { pending, start: startTransition } = useSearchTransition();
+  const extras = useContext(FilterQueryExtras);
 
   function apply(next: Partial<SearchFilters>, resetPage = true) {
     const merged = { ...filters, ...next, page: resetPage ? 1 : (next.page ?? filters.page) };
     startTransition(() => {
-      const qs = new URLSearchParams(toQuery(merged)).toString();
+      const qs = new URLSearchParams({ ...extras, ...toQuery(merged) }).toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     });
   }
@@ -306,8 +319,8 @@ export function SortSelect({ filters }: { filters: SearchFilters }) {
   );
 }
 
-/** Mobile filter button + bottom sheet. */
-export function MobileFilters({ filters, landlords, total }: Props) {
+/** Filter button plus a bottom sheet. The map uses it at every width; the list only below lg. */
+export function FilterSheet({ filters, landlords, total }: Props) {
   const t = useTranslations("results");
   const tf = useTranslations("filters");
   const [open, setOpen] = useState(false);
