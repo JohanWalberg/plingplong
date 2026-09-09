@@ -34,9 +34,12 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 
 ## B. Operations (blocks a public deploy)
 
-- [?] **B1. Hosting choice and Dockerfile.** Fly.io or Railway for web +
-  worker + Postgres/PostGIS in an EU region, or Vercel + Neon + Fly worker.
-  Add Dockerfile, provider config, deploy checklist, migration step on deploy.
+- [x] **B1. Hosting.** Render, in Frankfurt: `render.yaml` describes the web
+  service, the pg-boss worker and Postgres, with migrations as the pre-deploy
+  command and PostGIS created on first boot. No Dockerfile — Render's Node
+  runtime builds it directly. `docs/DEPLOY.md` has the checklist, what the
+  startup check refuses and why, and the one-instance constraint. Still needs
+  the accounts in B3 and a private bucket for B2.
 - [x] **B2. Object storage for uploads.** S3-compatible adapter (AWS S3,
   Cloudflare R2, MinIO) behind the storage interface, selected by
   `STORAGE_DRIVER`. Both drivers serve through `/api/uploads`, so the bucket

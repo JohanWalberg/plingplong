@@ -139,6 +139,56 @@ sign-up, unvalidated URL schemes from feeds, missing security headers,
 publish-before-image-validation, no transactions, unguarded seed) should be
 fixed before any public deploy.
 
+## Audit and fixes, 2026-09-09
+
+A full pass over status, security, data correctness and code health, then every
+finding fixed, one commit each. The audit itself is in the session; what it
+changed:
+
+**Data correctness.** Every coordinate in the database sat at SRID 0 under a
+column that claimed 4326, because Drizzle's `geometry` column ignores its own
+`srid` option twice over — in the DDL and in what it writes. `src/db/point.ts`
+replaces it; `drizzle/0005` converts the rows.
+
+**A takedown could be undone by the crawler.** A home staff removed keeps
+`taken_down_at` set, but the landlord's feed still carries it, so the next run
+rewrote every field and flipped the status back to active — the takedown
+reverted within the hour, including whatever it was for. Search then listed the
+home while its own page answered 404, because the predicate only asked for
+status "active". Both halves fixed, both covered.
+
+**Sign-in brute-force protection did not work.** Better Auth takes the left-most
+X-Forwarded-For entry, which the caller writes, so a new forged value per
+request was a new bucket. Verified against a production build: seven attempts
+past the lockout, all 401, never 429. The address is now resolved once in the
+proxy and passed on in a header that cannot be forged, and production refuses to
+start until the deploy says how many proxies are in front.
+
+**The end-to-end suite had never run against the production build.** Five
+sign-ins a minute is right for the internet and wrong for a suite that signs in
+twenty times, so the run CI does against the built artefact had always failed
+part-way through. It passes now, with the Content-Security-Policy enforced.
+
+**The search predicate had no tests at all** — the code deciding what every
+seeker sees. `src/lib/queries/search.dbtest.ts` covers status visibility,
+takedowns, rent (including the unknown-rent rule), rooms, size, queue, segment,
+move-in, combinations, all four value sorts, paging and scope.
+
+Also: the CSP is enforced rather than report-only and the stricter policy
+reports to `/api/csp-report`; a 79-character landlord name no longer pushes the
+home page sideways on a phone; the invitation password check is metered; a user
+in two organisations gets the same one every time; and a map pin says whether it
+is the address or the middle of an area, which is what the missing geocoder
+actually costs today.
+
+Deployment: `render.yaml` and `docs/DEPLOY.md`. Web, worker and Postgres in
+Frankfurt, migrations as the pre-deploy command.
+
+Known and deliberate: the rate limiter and the query memo live in the web
+process, so the web service must stay at one instance until they move to
+Postgres or Redis. The enforced CSP still allows inline scripts, because nonces
+would force every prerendered page to render dynamically.
+
 ## Pending
 
 Items the brief or the design call for that are not built yet, in rough
@@ -170,8 +220,9 @@ priority order.
     activates with `SENTRY_DSN`; the account and DSN are still needed. No
     structured log shipping. Source health stays in the database as the brief
     asks.
-11. **Deployment.** CI runs on every push and pull request; there is still no
-    Vercel or Fly.io configuration and no Dockerfile.
+11. ~~**Deployment.**~~ Done: `render.yaml` plus `docs/DEPLOY.md`. What remains
+    is the accounts it needs — a private bucket, a Resend key and sender domain,
+    and optionally a Sentry DSN.
 12. **Takedown SLA process.** Staff can now remove a listing with a logged
     reason from the admin listing page; there is still no ticket flow.
 13. **Entity 404 shell.** Unmatched URLs get the styled global 404. Pages
