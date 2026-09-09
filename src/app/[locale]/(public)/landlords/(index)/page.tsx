@@ -43,7 +43,7 @@ export default async function LandlordsPage({ params }: Props) {
         <p className="mt-2 max-w-[60ch] text-ink-2">{t("indexIntro")}</p>
         <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map(({ l, count }) => (
-            <li key={l.id} className="list-none">
+            <li key={l.id} className="min-w-0 list-none">
               <Link
                 href={{ pathname: "/landlords/[slug]", params: { slug: l.slug } }}
                 className="flex h-full flex-col gap-2 rounded-md border border-line bg-surface p-4 text-ink hover:border-line-strong hover:no-underline"

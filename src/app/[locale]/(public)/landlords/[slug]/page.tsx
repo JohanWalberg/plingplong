@@ -100,7 +100,7 @@ export default async function LandlordPage({ params }: Props) {
             {listings.length ? (
               <ul className="mt-4 flex flex-col gap-3">
                 {listings.map((x) => (
-                  <li key={x.id} className="list-none">
+                  <li key={x.id} className="min-w-0 list-none">
                     <ListingCard listing={x} />
                   </li>
                 ))}
@@ -128,7 +128,7 @@ export default async function LandlordPage({ params }: Props) {
               <h2 className="text-h3">{t("municipalitiesTitle")}</h2>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {l.municipalities.map((m) => (
-                  <li key={m.municipalityId} className="list-none">
+                  <li key={m.municipalityId} className="min-w-0 list-none">
                     <Link
                       href={{ pathname: "/municipalities/[slug]", params: { slug: municipalitySlug(m.municipality, locale) } }}
                       className="inline-flex min-h-9 items-center rounded-full border border-line-strong bg-surface px-3 text-[13.5px] font-[600] text-ink hover:bg-bg hover:no-underline"

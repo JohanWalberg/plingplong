@@ -80,7 +80,10 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
     return (
       <article className="group relative flex flex-col overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)]">
         <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[132px] w-full" sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" />
-        <div className="flex flex-1 flex-col gap-2 p-4">
+        {/* min-w-0 all the way down, or the truncated landlord name below sets the
+            card's width instead of being cut: a flex item will not shrink past
+            its content without it, and one long name widened the whole grid. */}
+        <div className="flex min-w-0 flex-1 flex-col gap-2 p-4">
           <div className="flex items-baseline justify-between gap-3">
             <p className="text-[20px] font-[700] leading-none tabular text-ink">{rent}</p>
             <p className="text-meta text-muted">{roomsSize}</p>
@@ -92,8 +95,8 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
           </h3>
           <p className="text-meta text-muted">{place}</p>
           <BadgeList badges={badges} />
-          <div className="mt-auto flex items-center justify-between gap-3 pt-2 text-meta text-muted">
-            <span className="truncate">{listing.landlordName}</span>
+          <div className="mt-auto flex min-w-0 items-center justify-between gap-3 pt-2 text-meta text-muted">
+            <span className="min-w-0 truncate">{listing.landlordName}</span>
             <Freshness lastCheckedAt={listing.lastCheckedAt} />
           </div>
         </div>

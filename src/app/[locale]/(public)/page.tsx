@@ -80,9 +80,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {t("seeAll")}
             </Link>
           </div>
+          {/* min-w-0 on the items: a grid item defaults to min-width:auto, so the
+              widest card sizes the whole column. A landlord with a long name
+              pushed the home page sideways on a phone. */}
           <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {latest.map((l) => (
-              <li key={l.id} className="list-none">
+              <li key={l.id} className="min-w-0 list-none">
                 <ListingCard listing={l} variant="home" />
               </li>
             ))}

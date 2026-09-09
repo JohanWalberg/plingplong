@@ -72,7 +72,7 @@ export default async function SavedPage({ params }: Props) {
     const days = "days" in d ? d.days : undefined;
     const showDays = l.status === "active" && days !== undefined && days >= 0 && days <= 14;
     return (
-      <li key={l.id} className="list-none">
+      <li key={l.id} className="min-w-0 list-none">
         <div className="mb-1.5 flex items-center justify-between gap-3">
           {showDays ? (
             <Badge tone={d.tone} icon={d.tone === "urgent" ? "warn" : "clock"}>

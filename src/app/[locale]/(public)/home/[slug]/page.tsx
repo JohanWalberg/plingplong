@@ -234,7 +234,7 @@ export default async function ListingPage({ params }: Props) {
                   </h2>
                   <ul className={`mt-4 grid gap-4 sm:grid-cols-2 ${gone ? "" : "lg:grid-cols-3"}`}>
                     {similar.map((s) => (
-                      <li key={s.id} className="list-none">
+                      <li key={s.id} className="min-w-0 list-none">
                         <ListingCard listing={s} variant="compact" />
                       </li>
                     ))}

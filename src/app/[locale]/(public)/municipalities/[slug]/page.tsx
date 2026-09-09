@@ -103,7 +103,7 @@ export default async function MunicipalityPage({ params }: Props) {
                   {areas
                     .filter((a) => a.count > 0)
                     .map((a) => (
-                      <li key={a.id} className="list-none">
+                      <li key={a.id} className="min-w-0 list-none">
                         <Link
                           href={{ pathname: "/homes/[place]/[area]", params: { place: placeSlug, area: a.slug } }}
                           className="inline-flex min-h-touch items-center gap-2 rounded-full border border-line-strong bg-surface px-4 text-[14px] font-[600] text-ink hover:bg-bg hover:no-underline"
@@ -124,7 +124,7 @@ export default async function MunicipalityPage({ params }: Props) {
               {listings.items.length ? (
                 <ul className="mt-4 flex flex-col gap-3">
                   {listings.items.map((l) => (
-                    <li key={l.id} className="list-none">
+                    <li key={l.id} className="min-w-0 list-none">
                       <ListingCard listing={l} />
                     </li>
                   ))}

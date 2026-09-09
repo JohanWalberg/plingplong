@@ -50,7 +50,7 @@ export default async function MunicipalitiesPage({ params }: Props) {
             </h2>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {list.map((r) => (
-                <li key={r.m.id} className="list-none">
+                <li key={r.m.id} className="min-w-0 list-none">
                   <Link
                     href={{ pathname: "/municipalities/[slug]", params: { slug: municipalitySlug(r.m, locale) } }}
                     className="flex min-h-touch items-center justify-between rounded-md border border-line bg-surface px-4 text-[14.5px] font-[600] text-ink hover:border-line-strong hover:no-underline"

@@ -144,7 +144,7 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
             {result.items.length ? (
               <ul className="flex flex-col gap-3">
                 {result.items.map((l) => (
-                  <li key={l.id} className="list-none">
+                  <li key={l.id} className="min-w-0 list-none">
                     <ListingCard listing={l} />
                   </li>
                 ))}
@@ -180,7 +180,7 @@ async function NoPlace({ locale, query }: { locale: Locale; query: string }) {
             <h2 className="mt-6 text-label font-[650] uppercase tracking-wide text-muted">{t("suggestions")}</h2>
             <ul className="mt-2 flex flex-wrap gap-2">
               {matches.map((m) => (
-                <li key={m.kind === "area" ? m.area.id : m.municipality.id} className="list-none">
+                <li key={m.kind === "area" ? m.area.id : m.municipality.id} className="min-w-0 list-none">
                   <Link
                     href={
                       m.kind === "area"
@@ -242,7 +242,7 @@ async function EmptyState({ locale, filters, muni, area }: { locale: Locale; fil
       <p className="mx-auto mt-2 max-w-[44ch] text-ink-2">{t("noResultsBody")}</p>
       <ul className="mx-auto mt-6 flex max-w-[360px] flex-col gap-2">
         {actions.slice(0, 3).map((a) => (
-          <li key={a.label} className="list-none">
+          <li key={a.label} className="min-w-0 list-none">
             <Link href={a.href} className={buttonClasses("secondary", "md", "w-full justify-between")}>
               {a.label}
               {icons.arrowRight}
@@ -278,7 +278,7 @@ async function Pagination({ locale, filters, page, pages, muni, area }: { locale
               …
             </li>
           ) : (
-            <li key={p} className="list-none">
+            <li key={p} className="min-w-0 list-none">
               {p === page ? (
                 <span aria-current="page" className="flex h-10 min-w-10 items-center justify-center rounded-md bg-ink px-2 text-[14px] font-[700] tabular text-white">
                   {p}
