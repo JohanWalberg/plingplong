@@ -1,0 +1,116 @@
+# Render blueprint: web, worker and Postgres, all in Frankfurt because the data
+# is Swedish rental listings and personal data should stay in the EU.
+#
+# Read docs/DEPLOY.md before the first deploy: three values have to be supplied
+# by hand (sync: false) and the object storage bucket has to exist first.
+
+databases:
+  - name: hyrabostad-db
+    plan: basic-1gb
+    region: frankfurt
+    postgresMajorVersion: "17"
+    # PostGIS is created by src/db/migrate.ts on the first migration, which the
+    # web service runs before it starts. Render supports the extension on 13+.
+
+services:
+  - type: web
+    name: hyrabostad
+    runtime: node
+    region: frankfurt
+    plan: starter
+    # --prod=false because the worker and the migration runner need tsx, and the
+    # Next build needs typescript and tailwind, all of which are devDependencies.
+    # Render sets NODE_ENV=production, which would otherwise skip them.
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm build
+    # Runs after the build and before the new instance takes traffic, so the
+    # schema is never behind the code serving it. Paid instance types only; on
+    # the free tier run `pnpm db:migrate` from a shell instead.
+    preDeployCommand: pnpm db:migrate
+    startCommand: pnpm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: hyrabostad-db, property: connectionString }
+      - key: BETTER_AUTH_SECRET
+        generateValue: true
+      # Both of these are baked into the build (NEXT_PUBLIC_*) and decide
+      # canonicals, hreflang, the sitemap, share cards and Secure cookies, so
+      # they have to be the real public origin. Set them to the custom domain
+      # once it is attached, and redeploy — a stale value here is silent.
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: BETTER_AUTH_URL
+        sync: false
+      # Render terminates TLS at its edge and appends the caller's address, so
+      # exactly one hop is trustworthy. Every rate limit is keyed on what this
+      # resolves; see src/lib/rate-limit.ts.
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+      # Render's disk is ephemeral and per-instance, so uploads go to a bucket.
+      - key: STORAGE_DRIVER
+        value: s3
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      # Lets a listing change flush the prerendered pages it affects instead of
+      # waiting out their revalidate window. Shared with the worker below.
+      - key: REVALIDATE_SECRET
+        generateValue: true
+      - key: SOURCE_SECRET_KEY
+        generateValue: true
+
+  - type: worker
+    name: hyrabostad-worker
+    runtime: node
+    region: frankfurt
+    plan: starter
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false
+    startCommand: pnpm worker
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: hyrabostad-db, property: connectionString }
+      # The worker asks the web service to flush pages after a crawl, so it needs
+      # the same origin and the same secret the web service generated.
+      - key: NEXT_PUBLIC_SITE_URL
+        fromService: { type: web, name: hyrabostad, envVarKey: NEXT_PUBLIC_SITE_URL }
+      - key: REVALIDATE_SECRET
+        fromService: { type: web, name: hyrabostad, envVarKey: REVALIDATE_SECRET }
+      - key: SOURCE_SECRET_KEY
+        fromService: { type: web, name: hyrabostad, envVarKey: SOURCE_SECRET_KEY }
+      - key: BETTER_AUTH_SECRET
+        fromService: { type: web, name: hyrabostad, envVarKey: BETTER_AUTH_SECRET }
+      - key: BETTER_AUTH_URL
+        fromService: { type: web, name: hyrabostad, envVarKey: BETTER_AUTH_URL }
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+      - key: STORAGE_DRIVER
+        value: s3
+      - key: S3_BUCKET
+        fromService: { type: web, name: hyrabostad, envVarKey: S3_BUCKET }
+      - key: S3_REGION
+        fromService: { type: web, name: hyrabostad, envVarKey: S3_REGION }
+      - key: S3_ENDPOINT
+        fromService: { type: web, name: hyrabostad, envVarKey: S3_ENDPOINT }
+      - key: S3_ACCESS_KEY_ID
+        fromService: { type: web, name: hyrabostad, envVarKey: S3_ACCESS_KEY_ID }
+      - key: S3_SECRET_ACCESS_KEY
+        fromService: { type: web, name: hyrabostad, envVarKey: S3_SECRET_ACCESS_KEY }
+      - key: RESEND_API_KEY
+        fromService: { type: web, name: hyrabostad, envVarKey: RESEND_API_KEY }
+      - key: EMAIL_FROM
+        fromService: { type: web, name: hyrabostad, envVarKey: EMAIL_FROM }
+      - key: SENTRY_DSN
+        fromService: { type: web, name: hyrabostad, envVarKey: SENTRY_DSN }
