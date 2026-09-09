@@ -98,6 +98,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
         moveInDate: listing.moveInDate,
         address: listing.address,
         queueRequirement: listing.queueRequirement,
+        takenDownAt: listing.takenDownAt,
       },
     })
     .from(listingSource)
@@ -107,8 +108,11 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
 
   // Every listing of this landlord, so an item new to this source attaches to the same home seen through another source without a query per item.
   const siblingKey = (municipalityId: string, address: string) => `${municipalityId}|${address.toLowerCase()}`;
-  const siblings = new Map<string, Array<{ id: string; status: string; rooms: number | null }>>();
-  for (const row of await db.select({ id: listing.id, status: listing.status, municipalityId: listing.municipalityId, address: listing.address, rooms: listing.rooms }).from(listing).where(eq(listing.landlordId, src.landlordId))) {
+  const siblings = new Map<string, Array<{ id: string; status: string; takenDownAt: Date | null; rooms: number | null }>>();
+  for (const row of await db
+    .select({ id: listing.id, status: listing.status, takenDownAt: listing.takenDownAt, municipalityId: listing.municipalityId, address: listing.address, rooms: listing.rooms })
+    .from(listing)
+    .where(eq(listing.landlordId, src.landlordId))) {
     const key = siblingKey(row.municipalityId, row.address);
     siblings.set(key, [...(siblings.get(key) ?? []), row]);
   }
@@ -128,6 +132,9 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
   // recorded failure, not an unhandled rejection that leaves the run open. The
   // whole run is one transaction so a failure leaves the previous state intact.
   let gone = 0;
+  // Homes staff took down that this feed still offers. Counted so a source that
+  // keeps re-offering one is visible rather than silently ignored every hour.
+  let skippedTakenDown = 0;
   try {
     await db.transaction(async (tx) => {
       const revisions: RevisionRow[] = [];
@@ -147,6 +154,19 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
         const lon = n.lon ?? matchedArea?.lon ?? null;
 
         const found = byExternalId.get(n.externalId);
+        if (found?.l.takenDownAt) {
+          // Staff took this home down and the feed still carries it. Writing the
+          // item back would restore every field and flip the status to active,
+          // undoing the takedown within the hour while the home's own page kept
+          // answering 404. Only the source bookkeeping is updated: the feed does
+          // still offer it, and pretending otherwise would churn removals.
+          await tx
+            .update(listingSource)
+            .set({ lastSeenAt: now, lastCheckedAt: now, presentAtLastCheck: true })
+            .where(and(eq(listingSource.listingId, found.l.id), eq(listingSource.sourceId, src.id)));
+          skippedTakenDown++;
+          continue;
+        }
         if (found) {
           const changes = diffFields(found.l, { ...n, queueRequirement });
           const wasGone = found.l.status === "removed";
@@ -194,6 +214,13 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
         let listingId: string;
         if (sibling) {
           listingId = sibling.id;
+          if (sibling.takenDownAt) {
+            // Staff took this home down. The feed still carries it, and without
+            // this the next crawl would put it back into search while its own
+            // page kept answering 404 — the takedown undone, and half-undone.
+            skippedTakenDown++;
+            continue;
+          }
           if (sibling.status === "removed") {
             await tx.update(listing).set({ status: "active", removedAt: null, lastSeenAt: now, lastCheckedAt: now }).where(eq(listing.id, listingId));
             revisions.push({ listingId, field: "status", oldValue: "removed", newValue: "active", origin: "crawl", changedAt: now });
@@ -240,7 +267,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
           listingId = row.id;
           created++;
           newListingIds.push(listingId);
-          siblings.set(key, [...(siblings.get(key) ?? []), { id: listingId, status: "active", rooms: n.rooms }]);
+          siblings.set(key, [...(siblings.get(key) ?? []), { id: listingId, status: "active", takenDownAt: null, rooms: n.rooms }]);
         }
         links.push({ listingId, sourceId: src.id, externalId: n.externalId, sourceUrl: n.sourceUrl, firstSeenAt: now, lastSeenAt: now, lastCheckedAt: now, presentAtLastCheck: true, rawPayload: n.raw as object, rawPayloadAt: now });
       }
@@ -299,6 +326,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
     }
   }
 
+  if (skippedTakenDown) console.warn(`[sync] source ${src.id}: ${skippedTakenDown} home(s) still offered after a staff takedown; left down`);
   return { ok: true, found, created, updated, gone, anomaly, landlordId: src.landlordId, municipalityIds: [...touchedMunicipalities] };
 }
 

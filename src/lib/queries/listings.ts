@@ -13,7 +13,10 @@ const { listing, landlord, municipality, area, source, listingSource, landlordMu
 export type SearchScope = { municipalityId?: string; areaId?: string; bounds?: [west: number, south: number, east: number, north: number] };
 
 function whereClauses(scope: SearchScope, f: SearchFilters): SQL[] {
-  const w: SQL[] = [eq(listing.status, "active")];
+  // A staff takedown must hold whatever else happens to the status. The detail
+  // page has always checked this; search had not, so a home that came back to
+  // "active" by any route would have been listed while its own page 404'd.
+  const w: SQL[] = [eq(listing.status, "active"), isNull(listing.takenDownAt)];
   if (scope.municipalityId) w.push(eq(listing.municipalityId, scope.municipalityId));
   if (scope.areaId) w.push(eq(listing.areaId, scope.areaId));
   if (scope.bounds) {

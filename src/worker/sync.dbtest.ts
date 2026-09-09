@@ -137,3 +137,28 @@ describe("a source staff put in review", () => {
     expect((await db.query.source.findFirst({ where: eq(source.id, sid) }))?.status).toBe("needs_review");
   });
 });
+
+describe("a home staff took down", () => {
+  it("stays down when the landlord's feed still offers it", async () => {
+    const lid = await makeLandlord("Nedtagning AB");
+    landlords.push(lid);
+    const sid = await makeSource(lid);
+
+    // The home arrives normally, then staff take it down.
+    feed([item("T")]);
+    expect(await syncSource(sid)).toMatchObject({ ok: true, created: 1 });
+    const [row] = await db.select({ id: listing.id }).from(listingSource).innerJoin(listing, eq(listing.id, listingSource.listingId)).where(eq(listingSource.sourceId, sid));
+    const now = new Date();
+    await db.update(listing).set({ status: "removed", removedAt: now, takenDownAt: now }).where(eq(listing.id, row.id));
+
+    // The feed has not changed, so the next crawl sees it again. It must not
+    // undo the takedown: that would put the home back into search while its own
+    // page kept answering 404.
+    feed([item("T")]);
+    await syncSource(sid);
+
+    const after = await db.query.listing.findFirst({ where: eq(listing.id, row.id), columns: { status: true, takenDownAt: true } });
+    expect(after?.status).toBe("removed");
+    expect(after?.takenDownAt).not.toBeNull();
+  });
+});
