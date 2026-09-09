@@ -3,8 +3,10 @@ import { isIP } from "node:net";
 import { Agent, fetch, type Dispatcher } from "undici";
 import { AdapterError, type FetchContext } from "./adapters/types";
 import { resolvePublicUrl, BlockedUrlError } from "@/lib/net-guard";
+import { SITE_URL } from "@/lib/site";
 
-const USER_AGENT = process.env.CRAWLER_USER_AGENT ?? "Hyrabostad/1.0 (+https://hyrabostad.se/om-insamling)";
+// The URL in the agent string is where a landlord's webmaster lands to read who is crawling them and why.
+const USER_AGENT = process.env.CRAWLER_USER_AGENT ?? `Hyrabostad/1.0 (+${SITE_URL}/sv/om-insamling)`;
 const ROBOTS_UA = USER_AGENT.split("/")[0];
 const TIMEOUT_MS = 30_000;
 const MAX_BODY_BYTES = 10 * 1024 * 1024; // decompressed

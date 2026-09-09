@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { getPathname } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 
-// A missing NEXT_PUBLIC_SITE_URL in production is refused at server start (src/lib/env-check.ts).
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { SITE_URL } from "./site";
+
+export { SITE_HOST, SITE_URL } from "./site";
 
 type Href = Parameters<typeof getPathname>[0]["href"];
 

@@ -21,7 +21,7 @@ key pair scoped to that bucket alone.
 start in production without `RESEND_API_KEY`, deliberately: without it, password
 reset links are written to the log.
 
-**3. Decide the public origin.** `NEXT_PUBLIC_SITE_URL` is baked into the build,
+**3. The public origin is `https://plingplong.se`.** `NEXT_PUBLIC_SITE_URL` is baked into the build,
 so it decides canonicals, hreflang, the sitemap, share cards and whether cookies
 get `Secure`. On the first deploy it is `https://hyrabostad.onrender.com`; when
 you attach a custom domain, change it **and redeploy**, because a stale value
@@ -35,7 +35,7 @@ here fails quietly rather than loudly.
 
    | Variable | Value |
    |---|---|
-   | `NEXT_PUBLIC_SITE_URL` | `https://hyrabostad.onrender.com` (or the custom domain) |
+   | `NEXT_PUBLIC_SITE_URL` | `https://plingplong.se` once the domain is attached; `https://hyrabostad.onrender.com` before |
    | `BETTER_AUTH_URL` | the same origin |
    | `S3_BUCKET`, `S3_REGION` or `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | from step 1 |
    | `RESEND_API_KEY`, `EMAIL_FROM` | from step 2 |

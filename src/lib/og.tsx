@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { SITE_HOST } from "./site";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
@@ -42,7 +43,7 @@ export function ogCard({ kicker, title, subtitle, facts = [], footer }: { kicker
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: `2px solid ${LINE}`, paddingTop: 24, fontSize: 24, color: MUTED }}>
           <div>{footer ?? ""}</div>
-          <div style={{ color: PRIMARY, fontWeight: 600 }}>hyrabostad.se</div>
+          <div style={{ color: PRIMARY, fontWeight: 600 }}>{SITE_HOST}</div>
         </div>
       </div>
     ),

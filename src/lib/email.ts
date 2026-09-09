@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { SITE_HOST } from "./site";
 
 export type Email = { to: string; subject: string; text: string };
 
@@ -8,7 +9,7 @@ export type Email = { to: string; subject: string; text: string };
  */
 export async function sendEmail(email: Email): Promise<void> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "Hyrabostad <no-reply@hyrabostad.se>";
+  const from = process.env.EMAIL_FROM ?? `Hyrabostad <no-reply@${SITE_HOST}>`;
   if (!key) {
     console.log(`\n[email] to: ${email.to}\n[email] subject: ${email.subject}\n${email.text}\n`);
     return;
