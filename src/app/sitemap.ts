@@ -4,6 +4,7 @@ import { db, schema } from "@/db";
 import { routing, type Locale } from "@/i18n/routing";
 import { absoluteUrl } from "@/lib/seo";
 import { municipalitySlug } from "@/lib/queries/places";
+import { publiclyVisible } from "@/lib/queries/listings";
 
 export const revalidate = 3600;
 
@@ -27,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const landlords = await db.query.landlord.findMany({ columns: { slug: true, updatedAt: true }, where: eq(schema.landlord.isKnown, true) });
   for (const l of landlords) push(() => ({ pathname: "/landlords/[slug]", params: { slug: l.slug } }), l.updatedAt, 0.6);
 
-  const listings = await db.query.listing.findMany({ columns: { slug: true, updatedAt: true }, where: eq(schema.listing.status, "active") });
+  const listings = await db.query.listing.findMany({ columns: { slug: true, updatedAt: true }, where: publiclyVisible() });
   for (const l of listings) push(() => ({ pathname: "/home/[slug]", params: { slug: l.slug } }), l.updatedAt, 0.8);
 
   return out;

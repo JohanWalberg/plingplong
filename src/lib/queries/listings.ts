@@ -12,11 +12,17 @@ const { listing, landlord, municipality, area, source, listingSource, landlordMu
 
 export type SearchScope = { municipalityId?: string; areaId?: string; bounds?: [west: number, south: number, east: number, north: number] };
 
+/**
+ * What the public may see: active, and not taken down. A staff takedown must
+ * hold whatever else happens to the status — the detail page always checked
+ * this, search did not, and eight more queries (totals, latest, similar, the
+ * sitemap, per-area and per-landlord counts) each carried their own copy of
+ * "active" alone. One fragment, so the rule cannot drift again.
+ */
+export const publiclyVisible = (): SQL => and(eq(listing.status, "active"), isNull(listing.takenDownAt))!;
+
 function whereClauses(scope: SearchScope, f: SearchFilters): SQL[] {
-  // A staff takedown must hold whatever else happens to the status. The detail
-  // page has always checked this; search had not, so a home that came back to
-  // "active" by any route would have been listed while its own page 404'd.
-  const w: SQL[] = [eq(listing.status, "active"), isNull(listing.takenDownAt)];
+  const w: SQL[] = [publiclyVisible()];
   if (scope.municipalityId) w.push(eq(listing.municipalityId, scope.municipalityId));
   if (scope.areaId) w.push(eq(listing.areaId, scope.areaId));
   if (scope.bounds) {
@@ -190,14 +196,14 @@ export const failingSourcesFor = memoize(LISTINGS_NS, failingSourcesForQuery);
  * it lives on the coverage page.
  */
 async function siteTotalsQuery() {
-  const [homes] = await db.select({ n: sql<number>`count(*)::int` }).from(listing).where(eq(listing.status, "active"));
+  const [homes] = await db.select({ n: sql<number>`count(*)::int` }).from(listing).where(publiclyVisible());
   const [rest] = await db
     .select({
       landlords: sql<number>`count(distinct ${listing.landlordId})::int`,
       municipalities: sql<number>`count(distinct ${listing.municipalityId})::int`,
     })
     .from(listing)
-    .where(eq(listing.status, "active"));
+    .where(publiclyVisible());
   return { homes: homes?.n ?? 0, landlords: rest?.landlords ?? 0, municipalities: rest?.municipalities ?? 0 };
 }
 /** Memoized for CACHE_TTL_SECONDS; the home page itself revalidates every five minutes. */
@@ -239,7 +245,7 @@ export async function latestListings(locale: Locale, limit = 3) {
     .from(listing)
     .innerJoin(landlord, eq(listing.landlordId, landlord.id))
     .innerJoin(municipality, eq(listing.municipalityId, municipality.id))
-    .where(eq(listing.status, "active"))
+    .where(publiclyVisible())
     .orderBy(desc(listing.firstSeenAt))
     .limit(limit);
   return rows as SearchResultItem[];
@@ -256,7 +262,7 @@ export async function listingsForLandlord(locale: Locale, landlordId: string, li
     .from(listing)
     .innerJoin(landlord, eq(listing.landlordId, landlord.id))
     .innerJoin(municipality, eq(listing.municipalityId, municipality.id))
-    .where(and(eq(listing.status, "active"), eq(listing.landlordId, landlordId)))
+    .where(and(publiclyVisible(), eq(listing.landlordId, landlordId)))
     .orderBy(desc(listing.firstSeenAt))
     .limit(limit);
   return rows as SearchResultItem[];
@@ -268,7 +274,7 @@ export async function similarListings(locale: Locale, ref: { id: string; municip
     .from(listing)
     .innerJoin(landlord, eq(listing.landlordId, landlord.id))
     .innerJoin(municipality, eq(listing.municipalityId, municipality.id))
-    .where(and(eq(listing.status, "active"), eq(listing.municipalityId, ref.municipalityId), ne(listing.id, ref.id)))
+    .where(and(publiclyVisible(), eq(listing.municipalityId, ref.municipalityId), ne(listing.id, ref.id)))
     .orderBy(ref.rooms === null ? desc(listing.firstSeenAt) : sql`abs(coalesce(${listing.rooms}, 0) - ${ref.rooms})`, desc(listing.firstSeenAt))
     .limit(limit);
   return rows as SearchResultItem[];
@@ -324,7 +330,7 @@ export async function areaCounts(municipalityId: string) {
   return db
     .select({ id: area.id, name: area.name, slug: area.slug, count: sql<number>`count(${listing.id})::int` })
     .from(area)
-    .leftJoin(listing, and(eq(listing.areaId, area.id), eq(listing.status, "active")))
+    .leftJoin(listing, and(eq(listing.areaId, area.id), publiclyVisible()))
     .where(eq(area.municipalityId, municipalityId))
     .groupBy(area.id, area.name, area.slug)
     .orderBy(desc(sql`count(${listing.id})`), asc(area.name));
@@ -336,7 +342,7 @@ export async function landlordCountsFor(municipalityId: string) {
     .select({ id: landlord.id, name: landlord.name, slug: landlord.slug, isMonitored: landlord.isMonitored, count: sql<number>`count(${listing.id})::int` })
     .from(landlordMunicipality)
     .innerJoin(landlord, eq(landlordMunicipality.landlordId, landlord.id))
-    .leftJoin(listing, and(eq(listing.landlordId, landlord.id), eq(listing.municipalityId, municipalityId), eq(listing.status, "active")))
+    .leftJoin(listing, and(eq(listing.landlordId, landlord.id), eq(listing.municipalityId, municipalityId), publiclyVisible()))
     .where(eq(landlordMunicipality.municipalityId, municipalityId))
     .groupBy(landlord.id, landlord.name, landlord.slug, landlord.isMonitored)
     .orderBy(desc(sql`count(${listing.id})`), asc(landlord.name));
@@ -349,7 +355,7 @@ export async function municipalityStats(municipalityId: string) {
       medianRent2: sql<number | null>`percentile_cont(0.5) within group (order by ${listing.rentMonthly}) filter (where floor(${listing.rooms}) = 2 and ${listing.rentMonthly} is not null)`,
     })
     .from(listing)
-    .where(and(eq(listing.status, "active"), eq(listing.municipalityId, municipalityId)));
+    .where(and(publiclyVisible(), eq(listing.municipalityId, municipalityId)));
   return row;
 }
 
