@@ -3,7 +3,6 @@ import {
   boolean,
   customType,
   date,
-  geometry,
   index,
   integer,
   jsonb,
@@ -16,6 +15,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { point4326 } from "./point";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -89,7 +89,7 @@ export const municipality = pgTable(
     county: text("county").notNull(),
     countySv: text("county_sv").notNull(),
     countyEn: text("county_en").notNull(),
-    centroid: geometry("centroid", { type: "point", mode: "xy", srid: 4326 }),
+    centroid: point4326("centroid"),
     geom: geomArea("geom"),
     createdAt: createdAt(),
   },
@@ -105,7 +105,7 @@ export const area = pgTable(
       .references(() => municipality.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     slug: text("slug").notNull(),
-    centroid: geometry("centroid", { type: "point", mode: "xy", srid: 4326 }),
+    centroid: point4326("centroid"),
     geom: geomArea("geom"),
     createdAt: createdAt(),
   },
@@ -224,14 +224,8 @@ export const listing = pgTable(
     address: text("address").notNull(),
     postcode: text("postcode"),
     areaName: text("area_name"),
-    /**
-     * Coordinates are WGS 84, but the column and every row carry SRID 0: the
-     * generated DDL left the constraint off and inserts do not set one. Bounding
-     * box operators ignore SRID so search works, but anything doing real spatial
-     * maths must say ST_SetSRID(location, 4326) explicitly. Same for the centroid
-     * columns above.
-     */
-    location: geometry("location", { type: "point", mode: "xy", srid: 4326 }),
+    /** WGS 84. The column enforces SRID 4326; see src/db/point.ts for why it has to. */
+    location: point4326("location"),
     rentMonthly: integer("rent_monthly"),
     rooms: real("rooms"),
     sizeSqm: real("size_sqm"),

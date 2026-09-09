@@ -206,12 +206,11 @@ export const siteTotals = memoize(LISTINGS_NS, siteTotalsQuery);
  * with distances rather than an empty panel.
  */
 export async function nearestListings(locale: Locale, from: { lat: number; lon: number }, f: SearchFilters, limit = 5) {
-  // Stored geometry carries SRID 0 (see the note on `location` in the schema), so
-  // the ordering runs in that space to keep the GiST index, and the distance we
-  // show is computed separately with an explicit SRID. Degrees rank differently
-  // from metres at this latitude, so a wider set is ordered properly afterwards.
-  const plain = sql`ST_MakePoint(${from.lon}, ${from.lat})`;
-  const metres = sql<number>`ST_Distance(ST_SetSRID(${listing.location}, 4326)::geography, ST_SetSRID(${plain}, 4326)::geography)`;
+  // Ordering runs on the raw geometry so the GiST index is used; that ranks in
+  // degrees, which is not the same order as metres at this latitude, so a wider
+  // set is pulled and sorted by true distance afterwards.
+  const here = sql`ST_SetSRID(ST_MakePoint(${from.lon}, ${from.lat}), 4326)`;
+  const metres = sql<number>`ST_Distance(${listing.location}::geography, ${here}::geography)`;
   const rows = await db
     .select({ ...cardSelect(locale), distanceM: metres })
     .from(listing)
@@ -219,7 +218,7 @@ export async function nearestListings(locale: Locale, from: { lat: number; lon: 
     .innerJoin(municipality, eq(listing.municipalityId, municipality.id))
     // The scope is deliberately empty: these are the homes the current view is missing.
     .where(and(...whereClauses({}, f), isNotNull(listing.location)))
-    .orderBy(sql`${listing.location} <-> ${plain}`)
+    .orderBy(sql`${listing.location} <-> ${here}`)
     .limit(limit * 4);
   const byDistance = (rows as Array<SearchResultItem & { distanceM: number }>).sort((a, b) => a.distanceM - b.distanceM);
   return byDistance.slice(0, limit);
