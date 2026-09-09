@@ -53,13 +53,27 @@ export function rateLimit(key: string, max: number, windowSeconds: number, now =
 }
 
 /**
+ * Where the proxy puts the address it resolved, for code that must not repeat
+ * the guesswork — Better Auth reads only this. Anything arriving under this name
+ * from outside is overwritten in src/proxy.ts before it can be believed.
+ */
+export const CLIENT_IP_HEADER = "x-hb-client-ip";
+
+/**
  * The client address as the first trusted proxy saw it. Proxies append to
  * X-Forwarded-For, so with N trusted hops the client is the N-th entry from
  * the right; anything further left was supplied by the client and is ignored.
- * TRUSTED_PROXY_HOPS defaults to 1 (one load balancer or CDN in front).
+ * TRUSTED_PROXY_HOPS says how many: 1 for a single load balancer or CDN
+ * (Render, Fly, Vercel), 0 when the server is reached directly. It defaults to
+ * 1, and anything unparseable is read as 0 so a typo fails closed.
  */
 export function clientIp(headers: Headers): string {
-  const hops = Math.max(1, Number(process.env.TRUSTED_PROXY_HOPS ?? 1) || 1);
+  // 0 means nothing trustworthy sits in front, so the forwarded headers are the
+  // caller's own writing and believing them hands out a fresh bucket per
+  // request. One shared bucket is the honest answer there; the number has to be
+  // declared in production (see lib/env-check.ts) so it is never a guess.
+  const hops = Math.max(0, Math.trunc(Number(process.env.TRUSTED_PROXY_HOPS ?? 1)) || 0);
+  if (hops === 0) return "unproxied";
   const fwd = headers.get("x-forwarded-for");
   if (fwd) {
     const parts = fwd.split(",").map((s) => s.trim()).filter(Boolean);

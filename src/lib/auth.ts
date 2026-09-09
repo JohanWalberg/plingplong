@@ -4,6 +4,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db, schema } from "@/db";
 import { sendEmail } from "./email";
 import { renderEmail } from "./email-templates";
+import { CLIENT_IP_HEADER } from "./rate-limit";
+import { isLocalTestServer } from "./env-check";
 
 // Production configuration (secret strength, https origin, email key) is checked once at server start in src/lib/env-check.ts.
 
@@ -45,7 +47,11 @@ export const auth = betterAuth({
     },
   },
   rateLimit: {
-    enabled: process.env.NODE_ENV === "production" || process.env.RATE_LIMIT === "on",
+    // On everywhere real. Off for a production build answering on localhost,
+    // which is the end-to-end suite: five sign-ins a minute is the right limit
+    // for the internet and the wrong one for a run that signs in twenty times,
+    // and without this the suite cannot exercise the artefact we actually ship.
+    enabled: !isLocalTestServer() && (process.env.NODE_ENV === "production" || process.env.RATE_LIMIT === "on"),
     window: 60,
     max: 30,
     customRules: {
@@ -65,6 +71,10 @@ export const auth = betterAuth({
   },
   advanced: {
     database: { generateId: () => crypto.randomUUID() },
+    // Only the address src/proxy.ts resolved, never a header the caller wrote.
+    // Left to itself Better Auth trusts the left-most X-Forwarded-For entry, and
+    // its brute-force limits could be stepped around one fake address at a time.
+    ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
   },
   // BankID (OIDC broker) and staff SSO providers are added here later.
 });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { assertProductionConfig, productionConfigProblems } from "./env-check";
 
-const good = { NEXT_PUBLIC_SITE_URL: "https://hyrabostad.se", BETTER_AUTH_URL: "https://hyrabostad.se", BETTER_AUTH_SECRET: "x".repeat(40), RESEND_API_KEY: "re_123", STORAGE_DRIVER: "s3", S3_BUCKET: "uploads" };
+const good = { NEXT_PUBLIC_SITE_URL: "https://hyrabostad.se", BETTER_AUTH_URL: "https://hyrabostad.se", BETTER_AUTH_SECRET: "x".repeat(40), RESEND_API_KEY: "re_123", STORAGE_DRIVER: "s3", S3_BUCKET: "uploads", TRUSTED_PROXY_HOPS: "1" };
 
 describe("production config check", () => {
   it("accepts a complete deploy", () => {
@@ -20,6 +20,13 @@ describe("production config check", () => {
     expect(productionConfigProblems({ ...good, S3_BUCKET: undefined }).join("\n")).toMatch(/S3_BUCKET/);
     // Disk is allowed, for a host with a volume mounted at UPLOAD_DIR.
     expect(productionConfigProblems({ ...good, STORAGE_DRIVER: "disk", S3_BUCKET: undefined })).toEqual([]);
+  });
+
+  it("makes the proxy depth explicit, because every rate limit is keyed on it", () => {
+    expect(productionConfigProblems({ ...good, TRUSTED_PROXY_HOPS: undefined }).join("\n")).toMatch(/TRUSTED_PROXY_HOPS/);
+    expect(productionConfigProblems({ ...good, TRUSTED_PROXY_HOPS: "one" }).join("\n")).toMatch(/TRUSTED_PROXY_HOPS/);
+    // Zero is a real answer: reached directly, so no forwarded header is trusted.
+    expect(productionConfigProblems({ ...good, TRUSTED_PROXY_HOPS: "0" })).toEqual([]);
   });
 
   it("does not treat a real site URL with a leftover localhost auth URL as a test server", () => {
