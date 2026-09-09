@@ -19,17 +19,20 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
   async headers() {
-    // Fonts are self-hosted by next/font; MapLibre fetches styles and tiles from
-    // OpenFreeMap and runs blob workers; landlord photos are hotlinked from any
-    // https host. The CSP starts in report-only mode; enforce once reports are clean.
-    const csp = [
+    // Fonts are self-hosted by next/font; MapLibre fetches its style, tiles,
+    // glyphs and sprites from one OpenFreeMap origin and runs a worker served
+    // from /public; landlord photos are hotlinked from any https host. Sentry is
+    // server-side only, so nothing here has to reach an ingest host.
+    //
+    // Only the tile host actually configured: listing a provider we no longer
+    // use would keep it allowed.
+    const tiles = process.env.NEXT_PUBLIC_MAP_STYLE_URL ? new URL(process.env.NEXT_PUBLIC_MAP_STYLE_URL).origin : "https://tiles.openfreemap.org";
+    const base = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self'",
-      // Only the tile host actually configured: listing a provider we no longer use would keep it allowed.
-      `connect-src 'self' ${process.env.NEXT_PUBLIC_MAP_STYLE_URL ? new URL(process.env.NEXT_PUBLIC_MAP_STYLE_URL).origin : "https://tiles.openfreemap.org"}`,
+      `connect-src 'self' ${tiles}`,
       "worker-src 'self' blob:",
       "child-src blob:",
       "frame-ancestors 'none'",
@@ -37,7 +40,22 @@ const nextConfig: NextConfig = {
       "form-action 'self'",
       "object-src 'none'",
       "upgrade-insecure-requests",
-    ].join("; ");
+    ];
+    /**
+     * Enforced. `script-src 'self' 'unsafe-inline'` is the concession: Next
+     * inlines its bootstrap, and the nonce that would replace it forces every
+     * prerendered page to render dynamically, which would undo the caching work.
+     * It still confines scripts to this origin, and nothing here renders HTML
+     * from data (no dangerouslySetInnerHTML anywhere in the tree).
+     */
+    const enforced = [...base, "script-src 'self' 'unsafe-inline'"].join("; ");
+    /**
+     * The policy we want, reported on but not enforced, so the violations that
+     * a move to nonces or hashes would have to answer show up in the log first.
+     * Without a report endpoint the old report-only header produced no signal at
+     * all, which is why it sat untouched.
+     */
+    const target = [...base, "script-src 'self'", "report-uri /api/csp-report"].join("; ");
     return [
       {
         source: "/(.*)",
@@ -47,7 +65,8 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
-          { key: "Content-Security-Policy-Report-Only", value: csp },
+          { key: "Content-Security-Policy", value: enforced },
+          { key: "Content-Security-Policy-Report-Only", value: target },
         ],
       },
       {
