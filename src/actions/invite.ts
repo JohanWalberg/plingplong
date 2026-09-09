@@ -68,6 +68,11 @@ export async function acceptInvitation(token: string, locale: Locale, formData: 
     // existing account: they must be signed in as it, or prove the password.
     const viewer = await getViewer();
     if (viewer?.userId !== existing.id) {
+      // Better Auth's own limits cover its HTTP endpoints, not this server-side
+      // call, so without one this is an unmetered password oracle for anyone
+      // holding the token. Keyed on the invitation, not the caller's address.
+      const guess = rateLimit(`invite-accept:${inv.id}`, 5, 3600);
+      if (!guess.ok) return { ok: false, error: "invalid" };
       try {
         await auth.api.signInEmail({ body: { email: inv.email, password: parsed.data.password } });
       } catch (e) {
