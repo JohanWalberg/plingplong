@@ -57,14 +57,22 @@ export const isEngineer = (s: StaffViewer) => s.role === "engineer" || s.role ==
 
 export type LandlordViewer = Viewer & { landlordId: string; landlordName: string; landlordSlug: string; role: LandlordRole };
 
+
 /**
  * Landlord guard. Every portal query must be scoped by the returned
  * `landlordId`; the UI never decides access on its own.
+ *
+ * A user can belong to more than one organisation, and which one they land in is
+ * still a product decision (a switcher, or one membership per account). Until it
+ * is made the oldest membership wins, so the answer is at least the same every
+ * time: unordered, it was whichever row the planner happened to return, and the
+ * same person could reach one organisation's homes on one request and another's
+ * on the next.
  */
 export async function requireLandlord(locale: Locale, minRole: LandlordRole = "editor"): Promise<LandlordViewer> {
   const v = await getViewer();
   if (!v) redirect({ href: "/portal/sign-in", locale });
-  const member = await db.query.landlordMember.findFirst({ where: eq(schema.landlordMember.userId, v!.userId), with: { landlord: true } });
+  const member = await db.query.landlordMember.findFirst({ where: eq(schema.landlordMember.userId, v!.userId), with: { landlord: true }, orderBy: (t, { asc }) => [asc(t.createdAt), asc(t.landlordId)] });
   if (!member) redirect({ href: "/portal/pending", locale });
   if (minRole === "owner" && member!.role !== "owner") redirect({ href: { pathname: "/portal/homes", query: { denied: "1" } }, locale });
   return { ...v!, landlordId: member!.landlordId, landlordName: member!.landlord.name, landlordSlug: member!.landlord.slug, role: member!.role };
@@ -73,7 +81,7 @@ export async function requireLandlord(locale: Locale, minRole: LandlordRole = "e
 export async function getLandlord(): Promise<LandlordViewer | null> {
   const v = await getViewer();
   if (!v) return null;
-  const member = await db.query.landlordMember.findFirst({ where: eq(schema.landlordMember.userId, v.userId), with: { landlord: true } });
+  const member = await db.query.landlordMember.findFirst({ where: eq(schema.landlordMember.userId, v.userId), with: { landlord: true }, orderBy: (t, { asc }) => [asc(t.createdAt), asc(t.landlordId)] });
   return member ? { ...v, landlordId: member.landlordId, landlordName: member.landlord.name, landlordSlug: member.landlord.slug, role: member.role } : null;
 }
 
