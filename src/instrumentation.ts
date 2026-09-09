@@ -1,6 +1,6 @@
 import type { Instrumentation } from "next";
 import { assertProductionConfig } from "@/lib/env-check";
-import { initErrorReporting, reportError } from "@/lib/observability";
+import { initErrorReporting, redactedPath, reportError } from "@/lib/observability";
 
 /** Runs once per server instance, before requests are served. */
 export async function register() {
@@ -12,7 +12,7 @@ export async function register() {
 /** Every server error Next catches: a page, a route handler or a server action. */
 export const onRequestError: Instrumentation.onRequestError = (err, request, context) => {
   reportError(err, {
-    path: request.path,
+    path: redactedPath(request.path),
     method: request.method,
     router: context.routerKind,
     route: context.routePath,

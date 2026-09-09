@@ -52,3 +52,18 @@ export function reportError(error: unknown, context: Record<string, unknown> = {
     console.error("[observability] could not report", e);
   }
 }
+
+/**
+ * Invitation tokens travel in the path (/portal/invite/<token>) and password
+ * reset tokens in the query. An error on either page would otherwise ship a
+ * live credential to the error tracker and the log line beside it.
+ */
+export function redactedPath(path: string): string {
+  const [pathname, query] = path.split("?", 2);
+  const p = pathname.replace(/(\/(?:invite|inbjudan)\/)[^/]+/, "$1[redacted]");
+  if (!query) return p;
+  const q = new URLSearchParams(query);
+  for (const key of [...q.keys()]) if (/token|secret|key|password/i.test(key)) q.set(key, "[redacted]");
+  return `${p}?${q}`;
+}
+

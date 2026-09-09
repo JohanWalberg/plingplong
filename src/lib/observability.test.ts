@@ -68,3 +68,21 @@ describe("a broken reporter", () => {
     expect(() => fresh.reportError(new Error("still logged"))).not.toThrow();
   });
 });
+
+describe("redactedPath", () => {
+  it("hides an invitation token in either language's path", async () => {
+    const { redactedPath } = await import("./observability");
+    expect(redactedPath("/sv/portal/inbjudan/abc123def")).toBe("/sv/portal/inbjudan/[redacted]");
+    expect(redactedPath("/en/portal/invite/abc123def")).toBe("/en/portal/invite/[redacted]");
+  });
+
+  it("hides token-like query values and keeps the rest", async () => {
+    const { redactedPath } = await import("./observability");
+    expect(redactedPath("/sv/portal/nytt-losenord?token=t0k&callbackURL=%2Fx")).toBe("/sv/portal/nytt-losenord?token=%5Bredacted%5D&callbackURL=%2Fx");
+  });
+
+  it("leaves an ordinary path alone", async () => {
+    const { redactedPath } = await import("./observability");
+    expect(redactedPath("/sv/bostader/solna?rooms=2")).toBe("/sv/bostader/solna?rooms=2");
+  });
+});
