@@ -48,10 +48,30 @@ here fails quietly rather than loudly.
    creates the PostGIS extension and applies every migration before the new
    instance takes traffic, so the schema is never behind the code serving it.
 
+## The first staff account
+
 Nothing seeds the production database. `pnpm db:seed` truncates every table and
-creates users with a published password; it refuses to run against
+creates users with a published password; it refuses to run under
 `NODE_ENV=production` unless `ALLOW_SEED=1`, and there is no reason to override
-that. Create the first staff user by hand.
+that.
+
+That leaves a new deploy with no way in: granting staff from the admin needs a
+lead who already exists, and public sign-up is closed. So there is a script, run
+once from a Render shell on the web service:
+
+```bash
+pnpm staff:add you@yourdomain.se lead "Your Name"
+```
+
+It creates the account, marks the address verified, grants the role, and prints
+a generated password once — sign in at `/sv/admin/logga-in` and change it from
+the account page. Set `STAFF_PASSWORD` first if you would rather choose it than
+have it printed. Running it again changes an existing person's role and leaves
+their password alone, so it is safe to repeat.
+
+After that, everyone else is added from the admin: **Admin → Settings → Staff**,
+which needs the person to have an account already (an invited landlord colleague
+or another run of this script).
 
 ## What the app checks at startup
 
