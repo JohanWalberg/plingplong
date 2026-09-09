@@ -53,6 +53,31 @@ test("municipality and landlord pages", async ({ page }) => {
   await expectAccessible(page, "landlord");
 });
 
+test("the landlord directory searches and filters without leaving the page", async ({ page }) => {
+  await page.goto("/sv/hyresvardar");
+  const total = Number((await page.getByText(/av \d+$/).textContent())?.match(/av (\d+)$/)?.[1]);
+  expect(total).toBeGreaterThan(3);
+
+  // Accent-insensitive name search narrows the grid and mirrors into the URL.
+  await page.getByRole("searchbox", { name: "Sök hyresvärd" }).fill("signalisten");
+  await expect(page.getByRole("link", { name: /Signalisten/ })).toBeVisible();
+  await expect(page.getByText(/^1 hyresvärd av/)).toBeVisible();
+  await expect(page).toHaveURL(/\?q=signalisten/);
+
+  // A filter shows as a chip; removing it widens the list again.
+  await page.getByRole("searchbox", { name: "Sök hyresvärd" }).fill("");
+  await page.getByLabel("Kommun").selectOption({ label: "Solna" });
+  await expect(page.getByRole("button", { name: /Ta bort filtret Solna/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Signalisten/ })).toBeVisible();
+  await page.getByRole("button", { name: /Ta bort filtret Solna/ }).click();
+  await expect(page.getByText(new RegExp(`^${total} hyresvärdar av ${total}$`))).toBeVisible();
+
+  // Nothing matching says so instead of showing an empty grid.
+  await page.getByRole("searchbox", { name: "Sök hyresvärd" }).fill("zzzz-finns-inte");
+  await expect(page.getByText("Ingen hyresvärd matchar", { exact: false })).toBeVisible();
+  await expectAccessible(page, "landlords");
+});
+
 test("search box suggests places and the keyboard picks one", async ({ page }) => {
   await page.goto("/sv");
   const box = page.getByRole("combobox", { name: "Sök efter kommun, stadsdel eller postnummer" });

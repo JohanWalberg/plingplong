@@ -294,7 +294,20 @@
     "typeAgency": "Housing agency",
     "typeFoundation": "Foundation",
     "website": "Website",
-    "noListings": "There are currently no available homes from {name}."
+    "noListings": "There are currently no available homes from {name}.",
+    "searchLabel": "Search landlords",
+    "searchPlaceholder": "Search by name",
+    "filterMunicipality": "Municipality",
+    "anyMunicipality": "All municipalities",
+    "filterType": "Type of landlord",
+    "anyType": "All types",
+    "filterMonitored": "Monitoring",
+    "anyMonitored": "Monitored and others",
+    "showingCount": "{shown, plural, =0 {No landlords} one {# landlord} other {# landlords}} of {total}",
+    "removeFilter": "Remove the {label} filter",
+    "clearFilters": "Clear",
+    "noMatches": "No landlord matches. Try another name or remove a filter.",
+    "municipalityCount": "{count} municipalities"
   },
   "states": {
     "emptyLabel": "No search results",

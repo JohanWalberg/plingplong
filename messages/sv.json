@@ -294,7 +294,20 @@
     "typeAgency": "Bostadsförmedling",
     "typeFoundation": "Stiftelse",
     "website": "Webbplats",
-    "noListings": "Just nu finns inga lediga bostäder från {name}."
+    "noListings": "Just nu finns inga lediga bostäder från {name}.",
+    "searchLabel": "Sök hyresvärd",
+    "searchPlaceholder": "Sök på namn",
+    "filterMunicipality": "Kommun",
+    "anyMunicipality": "Alla kommuner",
+    "filterType": "Typ av hyresvärd",
+    "anyType": "Alla typer",
+    "filterMonitored": "Bevakning",
+    "anyMonitored": "Bevakade och övriga",
+    "showingCount": "{shown, plural, =0 {Inga hyresvärdar} one {# hyresvärd} other {# hyresvärdar}} av {total}",
+    "removeFilter": "Ta bort filtret {label}",
+    "clearFilters": "Rensa",
+    "noMatches": "Ingen hyresvärd matchar. Prova ett annat namn eller ta bort ett filter.",
+    "municipalityCount": "{count} kommuner"
   },
   "states": {
     "emptyLabel": "Inga sökresultat",

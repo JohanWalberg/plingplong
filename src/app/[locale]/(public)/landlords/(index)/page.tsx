@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { sql, eq, and } from "drizzle-orm";
-import { db, schema } from "@/db";
-import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/lib/locale";
 import { alternatesFor } from "@/lib/seo";
 import { SiteHeader } from "@/components/site/header";
-import { StatusPill } from "@/components/ui/badge";
+import { LandlordDirectory } from "@/components/landlord/landlord-directory";
+import { landlordDirectory } from "@/lib/queries/landlords";
+import { listMunicipalities, municipalityName } from "@/lib/queries/places";
 
 // Rendered at build time and refreshed every five minutes; listing changes from
 // the portal and admin clear it immediately through invalidateListingCaches().
@@ -23,17 +22,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LandlordsPage({ params }: Props) {
   const locale = await resolveLocale(params);
   const t = await getTranslations("landlord");
-  const { landlord, listing } = schema;
-  const rows = await db
-    .select({ l: landlord, count: sql<number>`count(${listing.id})::int` })
-    .from(landlord)
-    .leftJoin(listing, and(eq(listing.landlordId, landlord.id), eq(listing.status, "active")))
-    .where(eq(landlord.isKnown, true))
-    .groupBy(landlord.id)
-    .orderBy(sql`${landlord.isMonitored} desc`, sql`count(${listing.id}) desc`, landlord.name);
-
-  const TYPE_KEYS = { municipal: "typeMunicipal", private: "typePrivate", agency: "typeAgency", foundation: "typeFoundation" } as const;
-  const typeLabel = (type: keyof typeof TYPE_KEYS) => t(TYPE_KEYS[type]);
+  const [entries, munis] = await Promise.all([landlordDirectory(), listMunicipalities()]);
+  // Only municipalities some landlord actually operates in, so the filter never offers an empty answer.
+  const used = new Set(entries.flatMap((e) => e.municipalityIds));
+  const municipalities = munis.filter((m) => used.has(m.id)).map((m) => ({ id: m.id, name: municipalityName(m, locale) })).sort((a, b) => a.name.localeCompare(b.name, locale));
 
   return (
     <>
@@ -41,25 +33,7 @@ export default async function LandlordsPage({ params }: Props) {
       <main id="main" className="mx-auto max-w-[1200px] px-4 py-10 sm:px-6">
         <h1 className="font-serif text-[36px] leading-tight sm:text-[44px]">{t("indexTitle")}</h1>
         <p className="mt-2 max-w-[60ch] text-ink-2">{t("indexIntro")}</p>
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {rows.map(({ l, count }) => (
-            <li key={l.id} className="min-w-0 list-none">
-              <Link
-                href={{ pathname: "/landlords/[slug]", params: { slug: l.slug } }}
-                className="flex h-full flex-col gap-2 rounded-md border border-line bg-surface p-4 text-ink hover:border-line-strong hover:no-underline"
-              >
-                <span className="flex items-start justify-between gap-3">
-                  <span className="text-[15px] font-[650] leading-snug">{l.name}</span>
-                  <StatusPill tone={l.isMonitored ? "success" : "quiet"}>{l.isMonitored ? t("monitored") : t("notMonitoredShort")}</StatusPill>
-                </span>
-                <span className="text-meta text-muted">
-                  {typeLabel(l.type)}
-                  {l.isMonitored ? ` · ${count} ${t("statListings").toLowerCase()}` : ""}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <LandlordDirectory entries={entries} municipalities={municipalities} />
       </main>
     </>
   );
