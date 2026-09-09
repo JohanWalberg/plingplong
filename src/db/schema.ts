@@ -48,6 +48,8 @@ export const landlordTypeEnum = pgEnum("landlord_type", ["municipal", "private",
 export const queueRequirementEnum = pgEnum("queue_requirement", ["none", "queue", "points", "unknown"]);
 export const segmentEnum = pgEnum("segment", ["none", "student", "youth", "senior", "accessible"]);
 export const contractTypeEnum = pgEnum("contract_type", ["first_hand", "sublet"]);
+/** How much a listing's coordinates are worth: the address itself, or the middle of somewhere larger. */
+export const locationPrecisionEnum = pgEnum("location_precision", ["exact", "area", "municipality"]);
 export const sourceKindEnum = pgEnum("source_kind", ["feed", "api", "html", "manual"]);
 export const sourceStatusEnum = pgEnum("source_status", [
   "pending",
@@ -226,6 +228,12 @@ export const listing = pgTable(
     areaName: text("area_name"),
     /** WGS 84. The column enforces SRID 4326; see src/db/point.ts for why it has to. */
     location: point4326("location"),
+    /**
+     * Where `location` came from. Most feeds carry no coordinates, so the point
+     * is the middle of the area or the municipality — useful for "roughly here",
+     * wrong to draw as the front door. Null when there is no location at all.
+     */
+    locationPrecision: locationPrecisionEnum("location_precision"),
     rentMonthly: integer("rent_monthly"),
     rooms: real("rooms"),
     sizeSqm: real("size_sqm"),

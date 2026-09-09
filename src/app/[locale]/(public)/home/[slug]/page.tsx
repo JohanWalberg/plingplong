@@ -225,6 +225,13 @@ export default async function ListingPage({ params }: Props) {
                     <div className="flex h-full items-center justify-center bg-placeholder text-meta text-faint">{place}</div>
                   )}
                 </div>
+                {/* Most feeds carry no coordinates, so the pin is the middle of the
+                    area. Saying so beats letting someone plan a viewing around it. */}
+                {lat !== null && lon !== null && l.locationPrecision && l.locationPrecision !== "exact" ? (
+                  <p className="mt-3 text-meta text-muted">
+                    {l.locationPrecision === "area" && l.area ? t("approximateArea", { place: l.area.name }) : t("approximateMunicipality", { place: municipalityName(l.municipality, locale) })}
+                  </p>
+                ) : null}
               </Card>
 
               {similar.length ? (

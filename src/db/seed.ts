@@ -523,6 +523,8 @@ async function main() {
         postcode: l.postcode,
         areaName: l.area,
         location: l.lat && l.lon ? { x: l.lon, y: l.lat } : null,
+        // The fixtures carry real coordinates for the address itself.
+        locationPrecision: l.lat && l.lon ? ("exact" as const) : null,
         rentMonthly: l.rent,
         rooms: l.rooms,
         sizeSqm: l.size,

@@ -43,6 +43,13 @@
       "when": 1788933951778,
       "tag": "0005_point_srid_4326",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788937168758,
+      "tag": "0006_location_precision",
+      "breakpoints": true
     }
   ]
 }

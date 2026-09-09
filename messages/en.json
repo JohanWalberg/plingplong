@@ -202,6 +202,8 @@
     "removeSaved": "Remove from saved",
     "share": "Share",
     "mapOf": "Map of {address}",
+    "approximateArea": "Approximate location: the map shows the middle of {place}, not the address. The source gives no coordinates.",
+    "approximateMunicipality": "Approximate location: the map shows the middle of {place}, not the address.",
     "galleryLabel": "{count} photos",
     "galleryPhoto": "Photo {n} of {count}",
     "galleryCaption": "Photo {n} of {count}",

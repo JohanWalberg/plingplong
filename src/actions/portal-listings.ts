@@ -94,6 +94,11 @@ function parseForm(fd: FormData, requireAll: boolean) {
   };
 }
 
+/**
+ * A manually entered home has no coordinates, so the point is the middle of the
+ * area or, failing that, the municipality. The precision travels with it: drawn
+ * as the address it would be a lie about where someone would be living.
+ */
 async function resolveLocation(municipalityId: string, areaName: string | null) {
   if (areaName) {
     const [a] = await db
@@ -101,13 +106,13 @@ async function resolveLocation(municipalityId: string, areaName: string | null) 
       .from(area)
       .where(and(eq(area.municipalityId, municipalityId), sql`lower(${area.name}) = ${areaName.toLowerCase()}`))
       .limit(1);
-    if (a) return { areaId: a.id, lat: a.lat, lon: a.lon };
+    if (a) return { areaId: a.id, lat: a.lat, lon: a.lon, precision: "area" as const };
   }
   const [m] = await db
     .select({ lat: sql<number | null>`ST_Y(${municipality.centroid})`, lon: sql<number | null>`ST_X(${municipality.centroid})` })
     .from(municipality)
     .where(eq(municipality.id, municipalityId));
-  return { areaId: null, lat: m?.lat ?? null, lon: m?.lon ?? null };
+  return { areaId: null, lat: m?.lat ?? null, lon: m?.lon ?? null, precision: "municipality" as const };
 }
 
 const MAX_IMAGES_PER_LISTING = 12;
@@ -182,6 +187,7 @@ export async function saveListing(locale: Locale, mode: "draft" | "publish", exi
         ...values,
         areaId: loc.areaId,
         location: loc.lat !== null && loc.lon !== null ? { x: loc.lon, y: loc.lat } : null,
+        locationPrecision: loc.lat !== null && loc.lon !== null ? loc.precision : null,
         ...(publishNow ? { status: "active", publishedAt: now, unpublishedAt: null, firstSeenAt: before!.publishedAt ? before!.firstSeenAt : now, lastSeenAt: now, lastCheckedAt: now } : { lastCheckedAt: before!.status === "active" ? now : before!.lastCheckedAt }),
       })
       .where(eq(listing.id, existingId));
@@ -198,6 +204,7 @@ export async function saveListing(locale: Locale, mode: "draft" | "publish", exi
           landlordId: me.landlordId,
           areaId: loc.areaId,
           location: loc.lat !== null && loc.lon !== null ? { x: loc.lon, y: loc.lat } : null,
+        locationPrecision: loc.lat !== null && loc.lon !== null ? loc.precision : null,
           contractType: "first_hand",
           status: mode === "publish" ? "active" : "draft",
           publishedDirectly: true,

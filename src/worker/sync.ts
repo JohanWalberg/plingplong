@@ -99,6 +99,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
         address: listing.address,
         queueRequirement: listing.queueRequirement,
         takenDownAt: listing.takenDownAt,
+        locationPrecision: listing.locationPrecision,
       },
     })
     .from(listingSource)
@@ -150,8 +151,13 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
         if (!municipalityId) continue; // cannot place the listing; counted in found but not stored
         touchedMunicipalities.add(municipalityId);
         const matchedArea = n.areaName ? areas.find((a) => a.municipalityId === municipalityId && (a.name.toLowerCase() === n.areaName!.toLowerCase() || a.slug === slugify(n.areaName!))) : undefined;
+        // Most feeds carry no coordinates. Falling back to the middle of the
+        // area is the best we can do, but it must not be shown as the address,
+        // so what the point actually is gets recorded with it.
+        const hasOwn = n.lat !== null && n.lon !== null;
         const lat = n.lat ?? matchedArea?.lat ?? null;
         const lon = n.lon ?? matchedArea?.lon ?? null;
+        const locationPrecision = lat === null || lon === null ? null : hasOwn ? ("exact" as const) : ("area" as const);
 
         const found = byExternalId.get(n.externalId);
         if (found?.l.takenDownAt) {
@@ -190,6 +196,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
               imageUrl: n.imageUrl,
               applicationUrl: n.sourceUrl ?? found.l.applicationUrl,
               location: lat !== null && lon !== null ? { x: lon, y: lat } : undefined,
+              locationPrecision: locationPrecision ?? found.l.locationPrecision,
               lastSeenAt: now,
               lastCheckedAt: now,
               status: wasGone ? "active" : found.l.status,
@@ -241,6 +248,7 @@ export async function syncSource(sourceId: string, opts: { manual?: boolean; for
                 postcode: n.postcode,
                 areaName: n.areaName,
                 location: lat !== null && lon !== null ? { x: lon, y: lat } : null,
+                locationPrecision,
                 rentMonthly: n.rentMonthly,
                 rooms: n.rooms,
                 sizeSqm: n.sizeSqm,

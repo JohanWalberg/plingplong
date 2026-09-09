@@ -202,6 +202,8 @@
     "removeSaved": "Ta bort från sparade",
     "share": "Dela",
     "mapOf": "Karta över {address}",
+    "approximateArea": "Ungefärligt läge: kartan visar mitten av {place}, inte adressen. Källan anger inga koordinater.",
+    "approximateMunicipality": "Ungefärligt läge: kartan visar mitten av {place}, inte adressen.",
     "galleryLabel": "{count} bilder",
     "galleryPhoto": "Bild {n} av {count}",
     "galleryCaption": "Bild {n} av {count}",

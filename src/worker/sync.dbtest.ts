@@ -162,3 +162,23 @@ describe("a home staff took down", () => {
     expect(after?.takenDownAt).not.toBeNull();
   });
 });
+
+describe("coordinates from a feed that has none", () => {
+  it("records that the point is the area's middle, not the address", async () => {
+    const lid = await makeLandlord("Koordinatlös AB");
+    landlords.push(lid);
+    const sid = await makeSource(lid);
+
+    // The generic feed item carries no lat/lon, so the crawl falls back.
+    feed([item("N")]);
+    expect(await syncSource(sid)).toMatchObject({ ok: true, created: 1 });
+
+    const [row] = await db
+      .select({ precision: listing.locationPrecision })
+      .from(listingSource)
+      .innerJoin(listing, eq(listing.id, listingSource.listingId))
+      .where(eq(listingSource.sourceId, sid));
+    // Whatever it resolved to, it must not claim to be the address.
+    expect(row.precision).not.toBe("exact");
+  });
+});
