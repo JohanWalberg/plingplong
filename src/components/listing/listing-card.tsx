@@ -77,8 +77,12 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
   const place = listing.areaName ? `${listing.areaName}, ${listing.municipalityName}` : listing.municipalityName;
 
   if (variant === "home" || variant === "compact") {
+    // h-full: the grid stretches every list item to the tallest one in the row,
+    // but the card would otherwise stay its own height, so a card with two badge
+    // rows ended lower than its neighbours. Filling the item keeps the row even
+    // and lets mt-auto pin the landlord line to the same baseline on each card.
     return (
-      <article className="group relative flex flex-col overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)]">
+      <article className="group relative flex h-full flex-col overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)]">
         <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[132px] w-full" sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" />
         {/* min-w-0 all the way down, or the truncated landlord name below sets the
             card's width instead of being cut: a flex item will not shrink past
