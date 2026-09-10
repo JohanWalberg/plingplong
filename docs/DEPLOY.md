@@ -27,6 +27,38 @@ get `Secure`. On the first deploy it is `https://hyrabostad.onrender.com`; when
 you attach a custom domain, change it **and redeploy**, because a stale value
 here fails quietly rather than loudly.
 
+## First deploy, step by step
+
+Tick these in order. Each one is something a first deploy has actually tripped
+on, not a formality.
+
+1. **Push the repository to GitHub.** There is no remote yet (`git remote -v` is
+   empty). Render deploys from a repository, so this is literally step one.
+2. **Create the private bucket** and note the name, region or endpoint, and a
+   key pair scoped to it.
+3. **Verify the sender domain in Resend** and create an API key.
+4. **New → Blueprint** in Render, pick the repository. Render reads
+   `render.yaml`, creates the database and both services, and prompts for the
+   `sync: false` values. Use `https://hyrabostad.onrender.com` for the two URLs
+   until the domain is attached.
+5. **Watch the first build.** It runs `pnpm db:migrate` before starting, which
+   creates PostGIS and applies every migration. If the service refuses to start,
+   the log names the exact setting: that is the startup check working, not the
+   deploy failing.
+6. **Create the first staff account** from a Render shell on the web service:
+   `pnpm staff:add you@plingplong.se lead "Your Name"`.
+7. **Run the smoke test from your own machine** against the live URL:
+   `pnpm smoke https://hyrabostad.onrender.com`. It proves the health probe,
+   every public page, the security headers, the sitemap origin, a real 404 and
+   that sign-in rate limiting is live from the outside. All green, or it says
+   exactly what is wrong.
+8. **Attach plingplong.se**, then set `NEXT_PUBLIC_SITE_URL` and
+   `BETTER_AUTH_URL` to `https://plingplong.se` and **redeploy** — both are baked
+   into the build. Run the smoke test again against the real domain; its
+   sitemap check is what catches a stale origin.
+9. **Sign in to the admin, connect the first landlord source**, and watch the
+   anomaly guard on its first run.
+
 ## Deploying
 
 1. Push the repository to GitHub.

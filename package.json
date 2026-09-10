@@ -18,6 +18,7 @@
     "db:migrate": "tsx --env-file-if-exists=.env src/db/migrate.ts",
     "db:seed": "tsx --env-file-if-exists=.env src/db/seed.ts",
     "staff:add": "tsx --env-file-if-exists=.env scripts/create-staff.ts",
+    "smoke": "tsx scripts/smoke.ts",
     "db:reset": "tsx --env-file-if-exists=.env src/db/reset.ts && pnpm db:migrate && pnpm db:seed",
     "worker": "tsx --env-file-if-exists=.env src/worker/index.ts",
     "i18n:check": "tsx scripts/check-messages.ts",

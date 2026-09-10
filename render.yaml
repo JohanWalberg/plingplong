@@ -29,6 +29,10 @@ services:
     startCommand: pnpm start
     healthCheckPath: /api/health
     envVars:
+      # corepack asks before downloading the pinned pnpm; a build has nobody to
+      # answer, and hangs. This answers yes.
+      - key: COREPACK_ENABLE_DOWNLOAD_PROMPT
+        value: "0"
       - key: DATABASE_URL
         fromDatabase: { name: hyrabostad-db, property: connectionString }
       - key: BETTER_AUTH_SECRET
@@ -80,6 +84,8 @@ services:
     buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false
     startCommand: pnpm worker
     envVars:
+      - key: COREPACK_ENABLE_DOWNLOAD_PROMPT
+        value: "0"
       - key: DATABASE_URL
         fromDatabase: { name: hyrabostad-db, property: connectionString }
       # The worker asks the web service to flush pages after a crawl, so it needs
