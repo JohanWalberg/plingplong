@@ -10,12 +10,17 @@ It validates against Render's published schema
 
 ## Before the first deploy
 
-**1. Create the object storage bucket.** Render's disk is ephemeral and belongs
-to one instance, so uploaded listing photos cannot live on it. Any S3-compatible
-bucket works; Cloudflare R2 is the cheapest fit. Keep the bucket **private** —
-images are served through `/api/uploads`, never directly from the bucket. You
-need the bucket name, either the region (AWS) or the endpoint (R2, MinIO), and a
-key pair scoped to that bucket alone.
+**1. Uploads go on a Render Disk — nothing to create.** The blueprint attaches a
+1 GB disk to the web service and sets `STORAGE_DRIVER=disk`. Photos only exist
+for manually published homes, only the web service touches them, and they are
+short-lived, so a bucket would be a third account guarding a handful of files.
+**Turn on snapshots when the disk is created**; that is the backup. The disk
+pins the web service to one instance and makes each deploy a few seconds of
+handover rather than zero-downtime — both accepted, since the rate limiter
+already needs one instance. When either stops being acceptable, the bucket
+path is ready: set `STORAGE_DRIVER=s3` with `S3_BUCKET` and the region or
+endpoint and a scoped key pair, copy the files across, redeploy. Both drivers
+serve through `/api/uploads`, so stored keys and URLs do not change.
 
 **2. Have a Resend API key and a verified sender domain.** The app refuses to
 start in production without `RESEND_API_KEY`, deliberately: without it, password
@@ -34,29 +39,27 @@ on, not a formality.
 
 1. **Push the repository to GitHub.** There is no remote yet (`git remote -v` is
    empty). Render deploys from a repository, so this is literally step one.
-2. **Create the private bucket** and note the name, region or endpoint, and a
-   key pair scoped to it.
-3. **Verify the sender domain in Resend** and create an API key.
-4. **New → Blueprint** in Render, pick the repository. Render reads
-   `render.yaml`, creates the database and both services, and prompts for the
-   `sync: false` values. Use `https://hyrabostad.onrender.com` for the two URLs
-   until the domain is attached.
-5. **Watch the first build.** It runs `pnpm db:migrate` before starting, which
+2. **Verify the sender domain in Resend** and create an API key.
+3. **New → Blueprint** in Render, pick the repository. Render reads
+   `render.yaml`, creates the database, the disk and both services, and prompts
+   for the `sync: false` values. Use `https://hyrabostad.onrender.com` for the
+   two URLs until the domain is attached. Turn on snapshots for the disk.
+4. **Watch the first build.** It runs `pnpm db:migrate` before starting, which
    creates PostGIS and applies every migration. If the service refuses to start,
    the log names the exact setting: that is the startup check working, not the
    deploy failing.
-6. **Create the first staff account** from a Render shell on the web service:
+5. **Create the first staff account** from a Render shell on the web service:
    `pnpm staff:add you@plingplong.se lead "Your Name"`.
-7. **Run the smoke test from your own machine** against the live URL:
+6. **Run the smoke test from your own machine** against the live URL:
    `pnpm smoke https://hyrabostad.onrender.com`. It proves the health probe,
    every public page, the security headers, the sitemap origin, a real 404 and
    that sign-in rate limiting is live from the outside. All green, or it says
    exactly what is wrong.
-8. **Attach plingplong.se**, then set `NEXT_PUBLIC_SITE_URL` and
+7. **Attach plingplong.se**, then set `NEXT_PUBLIC_SITE_URL` and
    `BETTER_AUTH_URL` to `https://plingplong.se` and **redeploy** — both are baked
    into the build. Run the smoke test again against the real domain; its
    sitemap check is what catches a stale origin.
-9. **Sign in to the admin, connect the first landlord source**, and watch the
+8. **Sign in to the admin, connect the first landlord source**, and watch the
    anomaly guard on its first run.
 
 ## Deploying
@@ -69,7 +72,6 @@ on, not a formality.
    |---|---|
    | `NEXT_PUBLIC_SITE_URL` | `https://plingplong.se` once the domain is attached; `https://hyrabostad.onrender.com` before |
    | `BETTER_AUTH_URL` | the same origin |
-   | `S3_BUCKET`, `S3_REGION` or `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | from step 1 |
    | `RESEND_API_KEY`, `EMAIL_FROM` | from step 2 |
    | `SENTRY_DSN` | optional; errors are logged either way |
 
@@ -115,7 +117,9 @@ be quietly wrong. Each of these is a real failure mode, not a formality:
   cookies and the origin check.
 - Missing `RESEND_API_KEY`, which would send reset links to the log.
 - `STORAGE_DRIVER` not chosen explicitly, because defaulting to local disk on a
-  host that throws the disk away loses photos on the next deploy.
+  host that throws the disk away loses photos on the next deploy. `disk` is only
+  right with a persistent volume mounted at `UPLOAD_DIR`, which the blueprint
+  provides.
 - Missing or unparseable `TRUSTED_PROXY_HOPS`. Every rate limit is keyed on the
   address it resolves; guessing wrong either lets one caller pose as thousands
   or collapses thousands into one bucket and locks everyone out. **On Render it

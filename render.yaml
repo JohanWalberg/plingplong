@@ -1,8 +1,8 @@
 # Render blueprint: web, worker and Postgres, all in Frankfurt because the data
 # is Swedish rental listings and personal data should stay in the EU.
 #
-# Read docs/DEPLOY.md before the first deploy: three values have to be supplied
-# by hand (sync: false) and the object storage bucket has to exist first.
+# Read docs/DEPLOY.md before the first deploy: a few values have to be supplied
+# by hand (sync: false). Uploads go on a disk, so no bucket is needed to start.
 
 databases:
   - name: hyrabostad-db
@@ -28,6 +28,14 @@ services:
     preDeployCommand: pnpm db:migrate
     startCommand: pnpm start
     healthCheckPath: /api/health
+    # A persistent disk pins the service to one instance and makes each deploy
+    # a few seconds of handover instead of zero-downtime. Both are accepted for
+    # now: the rate limiter already needs one instance. Turn on snapshots when
+    # creating it; that is the backup.
+    disk:
+      name: uploads
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       # corepack asks before downloading the pinned pnpm; a build has nobody to
       # answer, and hangs. This answers yes.
@@ -50,19 +58,15 @@ services:
       # resolves; see src/lib/rate-limit.ts.
       - key: TRUSTED_PROXY_HOPS
         value: "1"
-      # Render's disk is ephemeral and per-instance, so uploads go to a bucket.
+      # Uploaded photos live on the disk below. Only the web service touches
+      # them, they are short-lived (a listing expires in weeks), and a bucket
+      # would mean a third account guarding a handful of files. Move to
+      # STORAGE_DRIVER=s3 when a second instance or zero-downtime deploys are
+      # needed; both drivers serve through /api/uploads, so nothing else changes.
       - key: STORAGE_DRIVER
-        value: s3
-      - key: S3_BUCKET
-        sync: false
-      - key: S3_REGION
-        sync: false
-      - key: S3_ENDPOINT
-        sync: false
-      - key: S3_ACCESS_KEY_ID
-        sync: false
-      - key: S3_SECRET_ACCESS_KEY
-        sync: false
+        value: disk
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
       - key: RESEND_API_KEY
         sync: false
       - key: EMAIL_FROM
@@ -102,18 +106,10 @@ services:
         fromService: { type: web, name: hyrabostad, envVarKey: BETTER_AUTH_URL }
       - key: TRUSTED_PROXY_HOPS
         value: "1"
+      # The worker never reads or writes uploads; the startup check only wants
+      # the choice stated.
       - key: STORAGE_DRIVER
-        value: s3
-      - key: S3_BUCKET
-        fromService: { type: web, name: hyrabostad, envVarKey: S3_BUCKET }
-      - key: S3_REGION
-        fromService: { type: web, name: hyrabostad, envVarKey: S3_REGION }
-      - key: S3_ENDPOINT
-        fromService: { type: web, name: hyrabostad, envVarKey: S3_ENDPOINT }
-      - key: S3_ACCESS_KEY_ID
-        fromService: { type: web, name: hyrabostad, envVarKey: S3_ACCESS_KEY_ID }
-      - key: S3_SECRET_ACCESS_KEY
-        fromService: { type: web, name: hyrabostad, envVarKey: S3_SECRET_ACCESS_KEY }
+        value: disk
       - key: RESEND_API_KEY
         fromService: { type: web, name: hyrabostad, envVarKey: RESEND_API_KEY }
       - key: EMAIL_FROM
