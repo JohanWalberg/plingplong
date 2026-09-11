@@ -6,12 +6,13 @@ import { buttonClasses } from "@/components/ui/button";
 import { LanguageSwitcher } from "./language-switcher";
 import type { ReactNode } from "react";
 
-type NavKey = "search" | "map" | "howItWorks" | "forLandlords";
+// Landlords are reached from the footer and the landlord block on the front
+// page; the header stays about finding a home.
+type NavKey = "search" | "map" | "howItWorks";
 const NAV: Array<{ key: NavKey; href: StaticPathname }> = [
   { key: "search", href: "/homes" },
   { key: "map", href: "/map" },
   { key: "howItWorks", href: "/how-it-works" },
-  { key: "forLandlords", href: "/for-landlords" },
 ];
 
 const linkBase = "flex min-h-touch items-center rounded-md px-3 text-[14.5px] font-[600] hover:no-underline";
