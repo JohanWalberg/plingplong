@@ -37,8 +37,13 @@ here fails quietly rather than loudly.
 Tick these in order. Each one is something a first deploy has actually tripped
 on, not a formality.
 
-1. **Push the repository to GitHub.** There is no remote yet (`git remote -v` is
-   empty). Render deploys from a repository, so this is literally step one.
+1. **Push the repository to GitHub** (`https://github.com/JohanWalberg/plingplong`)
+   and give Render's GitHub app access to that repository under Render → Account
+   Settings → GitHub. Without the app, pushes never reach Render: the services
+   say Auto-Deploy is on, but nothing deploys until someone presses a button.
+   Changes to `render.yaml` itself (a new environment value, a new service)
+   apply only through a sync of the Blueprint, never through a plain deploy;
+   press **Manual sync** on the Blueprint page or turn its Auto-Sync on.
 2. **Verify the sender domain in Resend** and create an API key.
 3. **New → Blueprint** in Render, pick the repository. Render reads
    `render.yaml`, creates the database, the disk and both services, and prompts
