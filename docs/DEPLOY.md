@@ -44,8 +44,10 @@ on, not a formality.
    `render.yaml`, creates the database, the disk and both services, and prompts
    for the `sync: false` values. Use `https://hyrabostad.onrender.com` for the
    two URLs until the domain is attached. Turn on snapshots for the disk.
-4. **Watch the first build.** It runs `pnpm db:migrate && pnpm db:reference` before starting, which
-   creates PostGIS and applies every migration. If the service refuses to start,
+4. **Watch the first build.** Migrations and reference data run inside the
+   build, before `next build`, because the build prerenders pages that read the
+   database. The pre-deploy step repeats both as a safety net; they are
+   idempotent. If the service refuses to start,
    the log names the exact setting: that is the startup check working, not the
    deploy failing.
 5. **Create the first staff account** from a Render shell on the web service:

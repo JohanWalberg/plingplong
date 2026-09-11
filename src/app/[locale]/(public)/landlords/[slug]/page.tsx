@@ -19,8 +19,14 @@ export const revalidate = 300;
 
 /** Prerender every known landlord; new ones render on demand. */
 export async function generateStaticParams() {
-  const rows = await db.select({ slug: schema.landlord.slug }).from(schema.landlord).where(eq(schema.landlord.isKnown, true));
-  return rows.map((r) => ({ slug: r.slug }));
+  try {
+    const rows = await db.select({ slug: schema.landlord.slug }).from(schema.landlord).where(eq(schema.landlord.isKnown, true));
+    return rows.map((r) => ({ slug: r.slug }));
+  } catch (e) {
+    // No database at build time (fresh deploy, CI): render on demand instead of failing the build.
+    console.warn(`generateStaticParams: rendering on demand (${(e as Error).message.split("\n")[0]})`);
+    return [];
+  }
 }
 
 type Props = { params: Promise<{ locale: string; slug: string }> };

@@ -21,10 +21,12 @@ services:
     # --prod=false because the worker and the migration runner need tsx, and the
     # Next build needs typescript and tailwind, all of which are devDependencies.
     # Render sets NODE_ENV=production, which would otherwise skip them.
-    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm build
-    # Runs after the build and before the new instance takes traffic, so the
-    # schema is never behind the code serving it. Paid instance types only; on
-    # the free tier run `pnpm db:migrate` from a shell instead.
+    # Migrations and reference data run inside the build, before `next build`:
+    # the build prerenders pages that read the database, and on a fresh
+    # database the tables would not exist yet. Both commands are idempotent.
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm db:migrate && pnpm db:reference && pnpm build
+    # Kept as a safety net (idempotent) so the schema is never behind the code
+    # serving it even when a build is served from cache.
     preDeployCommand: pnpm db:migrate && pnpm db:reference
     startCommand: pnpm start
     healthCheckPath: /api/health
