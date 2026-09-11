@@ -10,5 +10,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:30
  * The bare host, for the places that print it rather than link to it: the
  * share-card footer, the crawler's User-Agent, the default sender address.
  * Derived rather than typed, so a domain change is one setting, not a hunt.
+ * The www prefix is dropped: the origin is www.plingplong.se, but people read
+ * and mail plingplong.se.
  */
-export const SITE_HOST = new URL(SITE_URL).host;
+export const SITE_HOST = new URL(SITE_URL).host.replace(/^www\./, "");

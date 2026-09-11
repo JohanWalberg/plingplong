@@ -26,7 +26,8 @@ serve through `/api/uploads`, so stored keys and URLs do not change.
 start in production without `RESEND_API_KEY`, deliberately: without it, password
 reset links are written to the log.
 
-**3. The public origin is `https://plingplong.se`.** `NEXT_PUBLIC_SITE_URL` is baked into the build,
+**3. The public origin is `https://www.plingplong.se`.** Render serves the
+www host and redirects the bare domain to it. `NEXT_PUBLIC_SITE_URL` is baked into the build,
 so it decides canonicals, hreflang, the sitemap, share cards and whether cookies
 get `Secure`. On the first deploy it is `https://hyrabostad.onrender.com`; when
 you attach a custom domain, change it **and redeploy**, because a stale value
@@ -63,7 +64,7 @@ on, not a formality.
    that sign-in rate limiting is live from the outside. All green, or it says
    exactly what is wrong.
 7. **Attach plingplong.se**, then set `NEXT_PUBLIC_SITE_URL` and
-   `BETTER_AUTH_URL` to `https://plingplong.se` and **redeploy** — both are baked
+   `BETTER_AUTH_URL` to `https://www.plingplong.se` and **redeploy** — both are baked
    into the build. Run the smoke test again against the real domain; its
    sitemap check is what catches a stale origin.
 8. **Sign in to the admin, connect the first landlord source**, and watch the
@@ -77,7 +78,7 @@ on, not a formality.
 
    | Variable | Value |
    |---|---|
-   | `NEXT_PUBLIC_SITE_URL` | `https://plingplong.se` once the domain is attached; `https://hyrabostad.onrender.com` before |
+   | `NEXT_PUBLIC_SITE_URL` | `https://www.plingplong.se` once the domain is attached; `https://hyrabostad.onrender.com` before |
    | `BETTER_AUTH_URL` | the same origin |
    | `RESEND_API_KEY`, `EMAIL_FROM` | from step 2 |
    | `SENTRY_DSN` | optional; errors are logged either way |
