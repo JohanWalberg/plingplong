@@ -59,6 +59,28 @@ const DEFAULT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
  * The style URL comes from NEXT_PUBLIC_MAP_STYLE_URL (self-hosted or metered
  * tiles); the MapLibre demo style is the zero-config fallback.
  */
+/** The marker with the most neighbours within roughly 4 km: where the homes actually are. */
+function densestMarker(markers: MapMarker[]): MapMarker | undefined {
+  if (markers.length < 2) return markers[0];
+  const kmPerDegLat = 111;
+  let best: MapMarker | undefined;
+  let bestCount = -1;
+  for (const a of markers) {
+    const kmPerDegLon = 111 * Math.cos((a.lat * Math.PI) / 180);
+    let count = 0;
+    for (const b of markers) {
+      const dx = (a.lon - b.lon) * kmPerDegLon;
+      const dy = (a.lat - b.lat) * kmPerDegLat;
+      if (dx * dx + dy * dy <= 16) count++;
+    }
+    if (count > bestCount) {
+      bestCount = count;
+      best = a;
+    }
+  }
+  return best;
+}
+
 export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, interactive = true, onSelect, onMoveEnd, selectedId, hoveredId = null, onHover, attribution, focus, fitTo, minInitialZoom = 13 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
@@ -89,7 +111,16 @@ export function ListingMap({ center, zoom = 11, bounds, markers, ariaLabel, inte
     if (interactive) map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     if (bounds) {
       map.fitBounds(bounds, { padding: 40, duration: 0, maxZoom: 15 }, FIT);
-      if (map.getZoom() < minInitialZoom) map.setZoom(minInitialZoom, FIT);
+      if (map.getZoom() < minInitialZoom) {
+        // Results spread wider than the zoom floor allows: the centre of the whole
+        // box can be empty countryside, so centre on the selected home (the first
+        // in the list) and let panning re-query the rest.
+        const focusMarker = densestMarker(markers) ?? markers[0];
+        if (focusMarker) {
+          map.jumpTo({ center: [focusMarker.lon, focusMarker.lat], zoom: minInitialZoom }, FIT);
+          onSelectRef.current?.(focusMarker.id);
+        }
+      }
     }
     map.on("load", () => setReady(true));
     // Fits the code asked for carry a marker on the event itself, so telling them
