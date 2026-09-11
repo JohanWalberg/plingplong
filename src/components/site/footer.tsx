@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
-import { LogoMark } from "@/components/ui/misc";
+import { Logo } from "@/components/ui/logo";
 import { LanguageSwitcher } from "./language-switcher";
 
 export async function SiteFooter() {
@@ -47,8 +47,7 @@ export async function SiteFooter() {
       <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <p className="flex items-center gap-2.5">
-            <LogoMark />
-            <span className="text-[17px] font-[700]">{tc("brand")}</span>
+            <Logo tone="dark" />
           </p>
           <p className="mt-4 max-w-[36ch] text-[14px] leading-relaxed text-dark-muted">{t("blurb")}</p>
           <div className="mt-4">

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { expectAccessible, signIn } from "./helpers";
 
 test("lead approves an application and the landlord appears", async ({ page }) => {
-  await signIn(page, "lead@hyrabostad.se", "admin");
+  await signIn(page, "lead@plingplong.se", "admin");
   await expectAccessible(page, "admin overview");
   await page.goto("/sv/admin/hyresvardar/ansokningar");
   await expectAccessible(page, "admin queue");
@@ -22,14 +22,14 @@ test("lead approves an application and the landlord appears", async ({ page }) =
 });
 
 test("support cannot decide applications", async ({ page }) => {
-  await signIn(page, "support@hyrabostad.se", "admin");
+  await signIn(page, "support@plingplong.se", "admin");
   // The needs-info tab always has an undecided application in the seed.
   await page.goto("/sv/admin/hyresvardar/ansokningar?tab=needs_info");
   await expect(page.getByRole("button", { name: "Godkänn och öppna publicering" })).toBeDisabled();
 });
 
 test("duplicate review and source detail render", async ({ page }) => {
-  await signIn(page, "lead@hyrabostad.se", "admin");
+  await signIn(page, "lead@plingplong.se", "admin");
   await page.goto("/sv/admin/dubbletter");
   await expect(page.getByText(/Träffsäkerhet 0,94/)).toBeVisible();
   await expectAccessible(page, "admin duplicates");
@@ -39,7 +39,7 @@ test("duplicate review and source detail render", async ({ page }) => {
 });
 
 test("lead edits a listing, removes it from search and restores it", async ({ page }) => {
-  await signIn(page, "lead@hyrabostad.se", "admin");
+  await signIn(page, "lead@plingplong.se", "admin");
   await page.goto("/sv/admin/bostader?q=Hornsgatan");
   await page.getByRole("link", { name: "Hornsgatan 152" }).click();
   await page.getByLabel("Hyra").fill("9990");

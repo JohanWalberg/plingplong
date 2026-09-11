@@ -5,7 +5,7 @@ import { cleanupLandlords, leadUserId, makeLandlord, makeListing, makeSource, so
 
 let staffId = "";
 vi.mock("@/lib/access", () => ({
-  requireStaff: async () => ({ userId: staffId, email: "lead@hyrabostad.se", name: "Lead", locale: "sv", sessionCreatedAt: new Date(), role: "lead" }),
+  requireStaff: async () => ({ userId: staffId, email: "lead@plingplong.se", name: "Lead", locale: "sv", sessionCreatedAt: new Date(), role: "lead" }),
 }));
 vi.mock("@/i18n/navigation", () => ({
   redirect: (to: unknown) => {

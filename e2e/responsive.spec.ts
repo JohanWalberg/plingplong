@@ -51,7 +51,7 @@ test("portal pages fit a phone", async ({ page }) => {
 
 test("admin pages fit a phone", async ({ page }) => {
   await page.setViewportSize(PHONE);
-  await signIn(page, "lead@hyrabostad.se", "admin");
+  await signIn(page, "lead@plingplong.se", "admin");
   for (const path of ["/sv/admin", "/sv/admin/kallor", "/sv/admin/hyresvardar/ansokningar", "/sv/admin/bostader", "/sv/admin/dubbletter", "/sv/admin/hyresvardar", "/sv/admin/tackning", "/sv/admin/installningar"]) {
     await expectNoSideScroll(page, path);
   }

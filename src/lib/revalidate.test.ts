@@ -14,7 +14,7 @@ beforeEach(() => {
   });
   vi.spyOn(console, "log").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});
-  process.env.NEXT_PUBLIC_SITE_URL = "https://hyrabostad.se/";
+  process.env.NEXT_PUBLIC_SITE_URL = "https://plingplong.se/";
   process.env.REVALIDATE_SECRET = "s3cret";
 });
 afterEach(() => {
@@ -27,7 +27,7 @@ describe("requestRevalidate", () => {
     expect(await requestRevalidate("sync abc")).toBe(true);
     expect(calls).toHaveLength(1);
     // The trailing slash on the site URL must not produce a double slash.
-    expect(calls[0].url).toBe("https://hyrabostad.se/api/revalidate?reason=sync%20abc");
+    expect(calls[0].url).toBe("https://plingplong.se/api/revalidate?reason=sync%20abc");
     expect(calls[0].init.method).toBe("POST");
     expect((calls[0].init.headers as Record<string, string>)["x-revalidate-secret"]).toBe("s3cret");
   });

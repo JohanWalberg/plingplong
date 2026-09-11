@@ -25,7 +25,7 @@ export function ogCard({ kicker, title, subtitle, facts = [], footer }: { kicker
           <div style={{ width: 40, height: 40, border: `4px solid ${PRIMARY}`, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ width: 20, height: 14, background: PRIMARY, borderRadius: 2 }} />
           </div>
-          <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: -0.5 }}>Hyrabostad</div>
+          <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: -0.5 }}>plingplong</div>
           <div style={{ fontSize: 22, color: MUTED, marginLeft: 8 }}>{kicker}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center", gap: 20 }}>

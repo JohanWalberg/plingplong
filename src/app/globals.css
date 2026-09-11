@@ -46,6 +46,7 @@
 
   --font-sans: var(--font-public-sans), "Public Sans", system-ui, sans-serif;
   --font-serif: var(--font-instrument-serif), "Instrument Serif", Georgia, serif;
+  --font-wordmark: var(--font-nunito), "Nunito", "Public Sans", system-ui, sans-serif;
 
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -95,6 +96,7 @@
 
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
+  --font-wordmark: var(--font-wordmark);
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);

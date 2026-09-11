@@ -58,7 +58,7 @@ test("portal pages", async ({ page }) => {
 });
 
 test("admin pages", async ({ page }) => {
-  await signIn(page, "lead@hyrabostad.se", "admin");
+  await signIn(page, "lead@plingplong.se", "admin");
   for (const [path, ctx] of [
     ["/sv/admin/kallor", "admin sources"],
     ["/sv/admin/kallor/ny", "admin add source"],

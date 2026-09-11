@@ -6,7 +6,7 @@ import "./globals.css";
 const publicSans = Public_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "600", "700"], variable: "--font-public-sans", display: "swap" });
 const instrumentSerif = Instrument_Serif({ subsets: ["latin", "latin-ext"], weight: "400", variable: "--font-instrument-serif", display: "swap" });
 
-export const metadata: Metadata = { title: "Sidan finns inte · Hyrabostad", robots: { index: false } };
+export const metadata: Metadata = { title: "Sidan finns inte · plingplong", robots: { index: false } };
 
 const COPY = {
   sv: { title: "Sidan finns inte.", body: "Adressen kan vara felstavad eller så har sidan tagits bort.", home: "Till startsidan", href: "/sv" },
@@ -25,7 +25,7 @@ export default function GlobalNotFound() {
         <main id="main" className="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-6 py-16">
           <p className="flex items-center gap-2.5 text-ink">
             <LogoMark />
-            <span className="text-[17px] font-[700] tracking-tight">Hyrabostad</span>
+            <span className="text-[17px] font-[700] tracking-tight">plingplong</span>
           </p>
           {(["sv", "en"] as const).map((l) => (
             <section key={l} lang={l} className="mt-10 border-t border-hairline pt-8 first-of-type:border-0">

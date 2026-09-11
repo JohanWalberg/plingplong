@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { assertProductionConfig, productionConfigProblems } from "./env-check";
 
-const good = { NEXT_PUBLIC_SITE_URL: "https://hyrabostad.se", BETTER_AUTH_URL: "https://hyrabostad.se", BETTER_AUTH_SECRET: "x".repeat(40), RESEND_API_KEY: "re_123", STORAGE_DRIVER: "s3", S3_BUCKET: "uploads", TRUSTED_PROXY_HOPS: "1" };
+const good = { NEXT_PUBLIC_SITE_URL: "https://plingplong.se", BETTER_AUTH_URL: "https://plingplong.se", BETTER_AUTH_SECRET: "x".repeat(40), RESEND_API_KEY: "re_123", STORAGE_DRIVER: "s3", S3_BUCKET: "uploads", TRUSTED_PROXY_HOPS: "1" };
 
 describe("production config check", () => {
   it("accepts a complete deploy", () => {
@@ -9,7 +9,7 @@ describe("production config check", () => {
   });
 
   it("refuses placeholders, http origins and a missing email key on a real origin", () => {
-    const p = productionConfigProblems({ ...good, BETTER_AUTH_SECRET: "change-me-change-me-change-me-change-me", BETTER_AUTH_URL: "http://hyrabostad.se", RESEND_API_KEY: undefined });
+    const p = productionConfigProblems({ ...good, BETTER_AUTH_SECRET: "change-me-change-me-change-me-change-me", BETTER_AUTH_URL: "http://plingplong.se", RESEND_API_KEY: undefined });
     expect(p.join("\n")).toMatch(/BETTER_AUTH_SECRET/);
     expect(p.join("\n")).toMatch(/https/);
     expect(p.join("\n")).toMatch(/RESEND_API_KEY/);

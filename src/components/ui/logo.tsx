@@ -21,3 +21,25 @@ export function LogoMark({ className = "h-8 w-8", title }: { className?: string;
     </svg>
   );
 }
+
+/**
+ * Wordmark "plingplong.se" in the logo's rounded lowercase: navy on light
+ * grounds, off-white on dark ones, the ".se" always amber.
+ */
+export function Wordmark({ tone = "light", className = "text-[19px]" }: { tone?: "light" | "dark"; className?: string }) {
+  return (
+    <span className={`font-wordmark font-[800] leading-none tracking-[-0.02em] ${className}`} style={{ color: tone === "dark" ? "#ede8e0" : BRAND_NAVY }}>
+      plingplong<span style={{ color: BRAND_AMBER }}>.se</span>
+    </span>
+  );
+}
+
+/** Logo mark and wordmark together, as used in every header. */
+export function Logo({ tone = "light", size = "md" }: { tone?: "light" | "dark"; size?: "sm" | "md" }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <LogoMark className={size === "sm" ? "h-6 w-6" : "h-8 w-8"} />
+      <Wordmark tone={tone} className={size === "sm" ? "text-[16px]" : "text-[19px]"} />
+    </span>
+  );
+}

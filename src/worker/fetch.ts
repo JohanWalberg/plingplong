@@ -6,7 +6,7 @@ import { resolvePublicUrl, BlockedUrlError } from "@/lib/net-guard";
 import { SITE_URL } from "@/lib/site";
 
 // The URL in the agent string is where a landlord's webmaster lands to read who is crawling them and why.
-const USER_AGENT = process.env.CRAWLER_USER_AGENT ?? `Hyrabostad/1.0 (+${SITE_URL}/sv/om-insamling)`;
+const USER_AGENT = process.env.CRAWLER_USER_AGENT ?? `plingplong/1.0 (+${SITE_URL}/sv/om-insamling)`;
 const ROBOTS_UA = USER_AGENT.split("/")[0];
 const TIMEOUT_MS = 30_000;
 const MAX_BODY_BYTES = 10 * 1024 * 1024; // decompressed

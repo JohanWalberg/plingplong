@@ -12,7 +12,7 @@ export async function solnaId(): Promise<string> {
 
 /** The seed's lead staff account, for actor columns. */
 export async function leadUserId(): Promise<string> {
-  const u = await db.query.user.findFirst({ where: eq(user.email, "lead@hyrabostad.se"), columns: { id: true } });
+  const u = await db.query.user.findFirst({ where: eq(user.email, "lead@plingplong.se"), columns: { id: true } });
   if (!u) throw new Error("seed lead user missing: run pnpm db:seed");
   return u.id;
 }

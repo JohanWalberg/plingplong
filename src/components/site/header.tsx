@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
-import { LogoMark } from "@/components/ui/misc";
+import { Logo } from "@/components/ui/logo";
 import { LanguageSwitcher } from "./language-switcher";
 import type { ReactNode } from "react";
 
@@ -23,8 +23,7 @@ export async function SiteHeader({ active, children }: { active?: NavKey; childr
       </a>
       <div className="mx-auto flex min-h-[64px] max-w-[1200px] items-center gap-4 px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5 text-ink hover:text-ink hover:no-underline">
-          <LogoMark />
-          <span className="text-[17px] font-[700] tracking-tight">{tc("brand")}</span>
+          <Logo />
         </Link>
         {children ? <div className="hidden min-w-0 flex-1 md:block">{children}</div> : <div className="flex-1" />}
         <nav aria-label={tc("navMain")} className="hidden items-center gap-1 md:flex">

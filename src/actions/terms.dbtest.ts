@@ -5,7 +5,7 @@ import { cleanupLandlords, leadUserId, solnaId } from "@/test-support/db";
 
 let staffId = "";
 vi.mock("@/lib/access", () => ({
-  requireStaff: async () => ({ userId: staffId, email: "lead@hyrabostad.se", name: "Lead", locale: "sv", sessionCreatedAt: new Date(), role: "lead" }),
+  requireStaff: async () => ({ userId: staffId, email: "lead@plingplong.se", name: "Lead", locale: "sv", sessionCreatedAt: new Date(), role: "lead" }),
 }));
 vi.mock("@/lib/email", () => ({ sendEmail: async () => {} }));
 vi.mock("@/i18n/navigation", () => ({ getPathname: ({ locale }: { locale: string }) => `/${locale}/portal/sign-in`, redirect: () => {} }));

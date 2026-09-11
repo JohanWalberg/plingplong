@@ -1,4 +1,4 @@
-# Hyrabostad
+# plingplong
 
 Swedish rental-housing aggregator: public search, landlord portal and internal
 admin, in Swedish and English.
@@ -32,9 +32,9 @@ All seeded users share the password `hyrabostad-dev-1234`.
 
 | Email | Role |
 |---|---|
-| lead@hyrabostad.se | Staff, lead |
-| support@hyrabostad.se | Staff, support |
-| engineer@hyrabostad.se | Staff, engineer |
+| lead@plingplong.se | Staff, lead |
+| support@plingplong.se | Staff, support |
+| engineer@plingplong.se | Staff, engineer |
 | anna.lindqvist@signalisten.se | Landlord owner (Signalisten) |
 | redaktor@signalisten.se | Landlord editor (Signalisten) |
 

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Public_Sans } from "next/font/google";
+import { Instrument_Serif, Nunito, Public_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { routing } from "@/i18n/routing";
 import { resolveLocale } from "@/lib/locale";
 import "../globals.css";
+
+const nunito = Nunito({ subsets: ["latin"], weight: ["800"], variable: "--font-nunito", display: "swap" });
 
 const publicSans = Public_Sans({
   subsets: ["latin", "latin-ext"],
@@ -30,10 +32,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const locale = await resolveLocale(params);
   const t = await getTranslations({ locale, namespace: "home" });
   return {
-    title: { default: "Hyrabostad", template: "%s · Hyrabostad" },
+    title: { default: "plingplong", template: "%s · plingplong" },
     description: t("sub"),
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-    openGraph: { siteName: "Hyrabostad", type: "website", locale: locale === "sv" ? "sv_SE" : "en_GB" },
+    openGraph: { siteName: "plingplong", type: "website", locale: locale === "sv" ? "sv_SE" : "en_GB" },
     twitter: { card: "summary_large_image" },
   };
 }
@@ -47,7 +49,7 @@ export default async function LocaleLayout({
 }) {
   const locale = await resolveLocale(params);
   return (
-    <html lang={locale} className={`${publicSans.variable} ${instrumentSerif.variable}`}>
+    <html lang={locale} className={`${publicSans.variable} ${instrumentSerif.variable} ${nunito.variable}`}>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>

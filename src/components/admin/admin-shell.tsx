@@ -4,7 +4,7 @@ import { sql, eq, and, inArray } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { Link } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
-import { LogoMark } from "@/components/ui/misc";
+import { Logo } from "@/components/ui/logo";
 import { LanguageSwitcher } from "@/components/site/language-switcher";
 import { SignOutButton } from "@/components/auth/sign-in-form";
 import type { StaffViewer } from "@/lib/access";
@@ -45,8 +45,7 @@ export async function AdminShell({ viewer, active, title, actions, children }: {
       </a>
       <aside className="hidden w-[206px] shrink-0 flex-col bg-dark text-dark-text md:flex">
         <p className="flex items-center gap-2 px-4 py-4">
-          <LogoMark className="h-6 w-6" />
-          <span className="text-[14px] font-[700]">{tc("brand")}</span>
+          <Logo tone="dark" size="sm" />
           <span className="text-[12px] text-dark-muted">{tc("admin")}</span>
         </p>
         <nav className="flex flex-1 flex-col" aria-label={tc("navMain")}>

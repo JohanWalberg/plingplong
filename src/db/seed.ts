@@ -626,9 +626,9 @@ async function main() {
   ]);
 
   console.log("users…");
-  const leadId = await createUser("lead@hyrabostad.se", "Lea Ansvarig");
-  const supportId = await createUser("support@hyrabostad.se", "Sam Support");
-  const engineerId = await createUser("engineer@hyrabostad.se", "Elin Utvecklare", "en");
+  const leadId = await createUser("lead@plingplong.se", "Lea Ansvarig");
+  const supportId = await createUser("support@plingplong.se", "Sam Support");
+  const engineerId = await createUser("engineer@plingplong.se", "Elin Utvecklare", "en");
   await db.insert(staffUser).values([
     { userId: leadId, role: "lead" },
     { userId: supportId, role: "support" },

@@ -4,7 +4,7 @@ import { resolveLocale } from "@/lib/locale";
 import { getStaff } from "@/lib/access";
 import { redirect } from "@/i18n/navigation";
 import { SignInForm } from "@/components/auth/sign-in-form";
-import { LogoMark } from "@/components/ui/misc";
+import { Logo } from "@/components/ui/logo";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | undefined>> };
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -22,8 +22,7 @@ export default async function AdminSignInPage({ params, searchParams }: Props) {
     <main id="main" className="flex min-h-dvh items-center justify-center bg-dark px-4 py-12 text-dark-text">
       <div className="w-full max-w-[440px]">
         <p className="flex items-center justify-center gap-2.5">
-          <LogoMark />
-          <span className="text-[17px] font-[700]">{tc("brand")}</span>
+          <Logo tone="dark" />
           <span className="text-[13px] text-dark-muted">{tc("admin")}</span>
         </p>
         <div className="mt-6 rounded-lg bg-surface p-6 text-ink shadow-xl sm:p-8">

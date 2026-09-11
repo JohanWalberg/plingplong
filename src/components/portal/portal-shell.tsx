@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import type { StaticPathname } from "@/i18n/routing";
-import { LogoMark } from "@/components/ui/misc";
+import { Logo } from "@/components/ui/logo";
 import { LanguageSwitcher } from "@/components/site/language-switcher";
 import { SignOutButton } from "@/components/auth/sign-in-form";
 import { buttonClasses } from "@/components/ui/button";
@@ -28,8 +28,7 @@ export async function PortalShell({ viewer, active, children }: { viewer: Landlo
         </a>
         <div className="mx-auto flex min-h-[64px] max-w-[1200px] items-center gap-4 px-4 sm:px-6">
           <Link href="/portal/homes" className="flex items-center gap-2.5 text-ink hover:text-ink hover:no-underline">
-            <LogoMark />
-            <span className="text-[17px] font-[700] tracking-tight">{tc("brand")}</span>
+            <Logo />
             {viewer ? <span className="hidden text-[13px] text-muted sm:inline">· {viewer.landlordName}</span> : null}
           </Link>
           <nav className="ml-4 hidden items-center gap-1 md:flex" aria-label={tc("navMain")}>
@@ -78,8 +77,7 @@ export async function PortalPublicShell({ children, wide = false }: { children: 
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex min-h-[64px] max-w-[1200px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 sm:px-6 sm:py-0">
           <Link href="/for-landlords" className="flex min-w-0 items-center gap-2.5 text-ink hover:text-ink hover:no-underline">
-            <LogoMark />
-            <span className="text-[17px] font-[700] tracking-tight">{tc("brand")}</span>
+            <Logo />
             <span className="hidden text-[13px] text-muted sm:inline">{tc("forLandlords")}</span>
           </Link>
           <nav className="ml-auto hidden items-center gap-4 text-[14px] font-[600] md:flex" aria-label={tc("navMain")}>
