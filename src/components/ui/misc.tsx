@@ -6,7 +6,7 @@ export function Skeleton({ className = "", ...rest }: HTMLAttributes<HTMLDivElem
 
 export function Card({ children, className = "", as: Tag = "div", ...rest }: HTMLAttributes<HTMLElement> & { children: ReactNode; as?: "div" | "section" | "article" | "aside" }) {
   return (
-    <Tag className={`rounded-md border border-line bg-surface shadow-[0_1px_2px_rgba(26,24,21,.04)] ${className}`} {...rest}>
+    <Tag className={`rounded-lg border border-line bg-surface shadow-[0_1px_2px_rgba(6,59,114,.04)] ${className}`} {...rest}>
       {children}
     </Tag>
   );
@@ -21,7 +21,7 @@ export function FilterChip({ label, onRemove, removeLabel }: { label: string; on
           type="button"
           onClick={onRemove}
           aria-label={removeLabel ?? `× ${label}`}
-          className="flex h-7 w-7 items-center justify-center rounded-full text-[15px] leading-none hover:bg-[#f0dcd2]"
+          className="flex h-7 w-7 items-center justify-center rounded-full text-[15px] leading-none hover:bg-[#d6e6ff]"
         >
           ×
         </button>

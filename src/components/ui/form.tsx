@@ -36,7 +36,7 @@ export function FieldShell({ label, hint, error, optional, id, children, classNa
 
 export const inputClasses =
   "min-h-touch w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] text-ink placeholder:text-faint " +
-  "focus:border-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary " +
+  "focus:border-blue focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue " +
   "aria-[invalid=true]:border-error";
 
 type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id"> & {

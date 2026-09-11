@@ -4,53 +4,75 @@
  * Design tokens from the Foundations screen of the prototypes.
  * Light theme only: the product is deliberately single-theme (see docs).
  */
+/*
+ * plingplong brand tokens. Token names are kept from the original design so
+ * every component picks up the new palette without changes; the values are
+ * the brand system (navy, bright blue, plingplong yellow, soft blue grounds).
+ * Light theme only: the product is deliberately single-theme (see docs).
+ */
 :root {
-  --color-primary: #a34a2a;
-  --color-primary-hover: #8a3d21;
-  --color-primary-subtle: #f7efea;
-  --color-primary-chip-border: #e4cfc3;
-  --color-primary-chip-text: #7a2e13;
-  --color-text: #1a1815;
-  --color-text-secondary: #4a453d;
-  --color-text-muted: #6b655d;
-  --color-text-faint: #6b655d; /* design had #8a8378; darkened for WCAG AA 4.5:1 */
-  --color-border: #e2ddd5;
-  --color-border-strong: #cfc8bc;
-  --color-hairline: #f0ece5;
-  --color-background: #faf8f5;
-  --color-canvas: #f5f2ed;
+  /* brand */
+  --color-primary: #063b72; /* primary blue: nav, headings, secondary buttons, selected */
+  --color-primary-hover: #052b55; /* deep navy */
+  --color-navy: #052b55;
+  --color-blue: #0f63c9; /* text links and focus rings: the brand's bright blue darkened one step for AA contrast on white and soft blue */
+  --color-blue-hover: #0b4a94;
+  --color-blue-bright: #147af3; /* the brand's bright blue for fills, borders, highlights and icons, never small text */
+  --color-accent: #ffb31a; /* plingplong yellow: primary CTAs, featured, "pling" */
+  --color-accent-hover: #f59e0b;
+  --color-primary-subtle: #eaf2ff;
+  --color-primary-chip-border: #b2d4ff;
+  --color-primary-chip-text: #063b72;
+
+  /* text */
+  --color-text: #1d2939;
+  --color-text-secondary: #475467;
+  --color-text-muted: #5f6b7a; /* brand #667085 darkened a step: AA on the soft blue ground */
+  --color-text-faint: #5c6675;
+
+  /* lines and grounds */
+  --color-border: #e4eaf1;
+  --color-border-strong: #c9d3e0;
+  --color-hairline: #eef2f7;
+  --color-background: #ffffff;
+  --color-canvas: #f5f8fc; /* alternate sections, search areas, filter panels */
   --color-surface: #ffffff;
-  --color-surface-muted: #f2ede6;
-  --color-placeholder: #ede8e0;
-  --color-success: #1f6b4a;
-  --color-success-bg: #edf5f0;
-  --color-success-border: #cfe3d8;
-  --color-warning: #9a6a00;
-  --color-warning-bg: #fbf4e6;
-  --color-warning-border: #eadfc4;
-  --color-warning-text: #6b4e00;
-  --color-error: #b0271f;
-  --color-error-bg: #fbedeb;
-  --color-error-border: #efcfca;
-  --color-error-text: #8c2019;
-  --color-info: #2b5470;
-  --color-info-bg: #f1f5f7;
-  --color-info-border: #d7e1e6;
-  --color-info-text: #274456;
-  --color-dark: #1f1c18;
-  --color-dark-2: #2e2a24;
-  --color-dark-3: #3a352e;
-  --color-dark-text: #ede8e0;
-  --color-dark-muted: #b5aea3;
-  --color-dark-accent: #e8b79e;
+  --color-surface-muted: #eef3f9;
+  --color-placeholder: #e9eff6;
 
-  --font-sans: var(--font-public-sans), "Public Sans", system-ui, sans-serif;
-  --font-serif: var(--font-instrument-serif), "Instrument Serif", Georgia, serif;
-  --font-wordmark: var(--font-nunito), "Nunito", "Public Sans", system-ui, sans-serif;
+  /* semantic, separate from the accent */
+  --color-success: #067647;
+  --color-success-bg: #ecfdf3;
+  --color-success-border: #abefc6;
+  --color-warning: #b54708;
+  --color-warning-bg: #fffaeb;
+  --color-warning-border: #fedf89;
+  --color-warning-text: #93370d;
+  --color-error: #d92d20;
+  --color-error-bg: #fef3f2;
+  --color-error-border: #fecdca;
+  --color-error-text: #b42318;
+  --color-info: #147af3;
+  --color-info-bg: #eff6ff;
+  --color-info-border: #b2d4ff;
+  --color-info-text: #063b72;
 
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+  /* dark UI areas: footer, admin */
+  --color-dark: #052b55;
+  --color-dark-2: #063b72;
+  --color-dark-3: #144a8a;
+  --color-dark-text: #f5f8fc;
+  --color-dark-muted: #a9c0dd;
+  --color-dark-accent: #ffb31a;
+
+  --font-sans: var(--font-nunito-sans), "Nunito Sans", Arial, sans-serif;
+  --font-serif: var(--font-nunito-sans), "Nunito Sans", Arial, sans-serif; /* display headings: Nunito Sans 800 */
+  --font-wordmark: var(--font-nunito-sans), "Nunito Sans", Arial, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 100px;
 }
 
@@ -58,6 +80,12 @@
   --color-primary: var(--color-primary);
   --color-primary-hover: var(--color-primary-hover);
   --color-primary-subtle: var(--color-primary-subtle);
+  --color-navy: var(--color-navy);
+  --color-blue: var(--color-blue);
+  --color-blue-hover: var(--color-blue-hover);
+  --color-blue-bright: var(--color-blue-bright);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
   --color-chip-border: var(--color-primary-chip-border);
   --color-chip-text: var(--color-primary-chip-text);
   --color-ink: var(--color-text);
@@ -101,6 +129,7 @@
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 
   --spacing-touch: 44px;
   --spacing-touch-lg: 48px;
@@ -140,11 +169,11 @@
     box-sizing: border-box;
   }
   a {
-    color: var(--color-primary);
+    color: var(--color-blue);
     text-decoration: none;
   }
   a:hover {
-    color: var(--color-primary-hover);
+    color: var(--color-blue-hover);
     text-decoration: underline;
   }
   button,
@@ -158,26 +187,29 @@
     cursor: pointer;
   }
   :focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-blue);
     outline-offset: 2px;
   }
   ::selection {
-    background: #f0dcd2;
+    background: #ffe7b0;
   }
   h1,
   h2,
   h3,
   h4 {
     margin: 0;
-    font-weight: 650;
+    font-weight: 700;
     letter-spacing: -0.01em;
+    color: var(--color-primary);
   }
   p {
     margin: 0;
   }
+  /* Display headings: the brand's heavy rounded weight, deep navy. */
   .font-serif {
-    font-weight: 400;
-    letter-spacing: -0.01em;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-navy);
   }
   .tabular {
     font-variant-numeric: tabular-nums;
@@ -216,7 +248,7 @@
   }
 }
 .skeleton {
-  background: linear-gradient(90deg, var(--color-placeholder) 0px, #f4f0ea 40px, var(--color-placeholder) 80px);
+  background: linear-gradient(90deg, var(--color-placeholder) 0px, #f5f8fc 40px, var(--color-placeholder) 80px);
   background-size: 200px 100%;
   animation: skeleton-shimmer 1.4s linear infinite;
   border-radius: var(--radius-sm);

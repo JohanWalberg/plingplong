@@ -72,7 +72,7 @@ function LanguageSwitcherInner({ alternates, variant = "light" }: SwitcherProps)
             aria-pressed={active}
             onClick={() => switchTo(l)}
             className={`min-h-9 min-w-11 px-2.5 text-[12.5px] font-[650] uppercase tracking-wide ${
-              active ? (dark ? "bg-dark-text text-dark" : "bg-ink text-white") : dark ? "text-dark-muted hover:text-dark-text" : "text-muted hover:text-ink"
+              active ? (dark ? "bg-dark-text text-dark" : "bg-primary text-white") : dark ? "text-dark-muted hover:text-dark-text" : "text-muted hover:text-ink"
             }`}
           >
             {l}

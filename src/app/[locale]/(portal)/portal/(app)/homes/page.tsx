@@ -54,7 +54,7 @@ export default async function PortalHomesPage({ params, searchParams }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
           <nav className="flex flex-wrap gap-1" aria-label={t("colStatus")}>
             {PORTAL_STATUSES.map((s) => (
-              <Link key={s} href={{ pathname: "/portal/homes", query: { ...(s !== "active" ? { status: s } : {}), ...(q ? { q } : {}) } }} aria-current={s === status ? "page" : undefined} className={`flex min-h-9 items-center gap-1.5 rounded-md px-3 text-[13.5px] font-[650] hover:no-underline ${s === status ? "bg-ink text-white hover:text-white" : "text-ink-2 hover:bg-bg"}`}>
+              <Link key={s} href={{ pathname: "/portal/homes", query: { ...(s !== "active" ? { status: s } : {}), ...(q ? { q } : {}) } }} aria-current={s === status ? "page" : undefined} className={`flex min-h-9 items-center gap-1.5 rounded-md px-3 text-[13.5px] font-[650] hover:no-underline ${s === status ? "bg-primary text-white hover:text-white" : "text-ink-2 hover:bg-bg"}`}>
                 {t(TABS[s])}
                 <span className={`tabular ${s === status ? "text-dark-muted" : "text-muted"}`}>{counts[s] ?? 0}</span>
               </Link>

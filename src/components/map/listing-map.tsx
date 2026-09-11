@@ -38,7 +38,7 @@ type Props = {
 function markerClass(active: boolean, hovered: boolean) {
   const base = "rounded-md border px-2 py-1 text-[12.5px] font-[700] tabular shadow-md transition-transform";
   if (active) return `${base} z-10 border-primary bg-primary text-white${hovered ? " scale-110" : ""}`;
-  if (hovered) return `${base} z-10 scale-110 border-ink bg-ink text-white`;
+  if (hovered) return `${base} z-10 scale-110 border-ink bg-primary text-white`;
   return `${base} border-line-strong bg-surface text-ink hover:border-ink`;
 }
 

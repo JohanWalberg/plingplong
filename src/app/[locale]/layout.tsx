@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Nunito, Public_Sans } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -7,20 +7,10 @@ import { routing } from "@/i18n/routing";
 import { resolveLocale } from "@/lib/locale";
 import "../globals.css";
 
-const nunito = Nunito({ subsets: ["latin"], weight: ["800"], variable: "--font-nunito", display: "swap" });
-
-const publicSans = Public_Sans({
+const nunitoSans = Nunito_Sans({
   subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-public-sans",
-  display: "swap",
-});
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin", "latin-ext"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-nunito-sans",
   display: "swap",
 });
 
@@ -49,7 +39,7 @@ export default async function LocaleLayout({
 }) {
   const locale = await resolveLocale(params);
   return (
-    <html lang={locale} className={`${publicSans.variable} ${instrumentSerif.variable} ${nunito.variable}`}>
+    <html lang={locale} className={nunitoSans.variable}>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>

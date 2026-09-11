@@ -43,7 +43,7 @@ export async function SearchBox({
         keepQuery={keepQuery}
         placeholder={t("placeholder")}
         label={t("searchLabel")}
-        className={`w-full rounded-md border border-line-strong bg-surface pl-11 pr-3 text-ink placeholder:text-faint focus:border-ink focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+        className={`w-full rounded-md border border-line-strong bg-surface pl-11 pr-3 text-ink placeholder:text-faint focus:border-blue focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${
           lg ? "min-h-[52px] text-[16px]" : "min-h-touch text-[15px]"
         }`}
       />

@@ -82,7 +82,7 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
     // rows ended lower than its neighbours. Filling the item keeps the row even
     // and lets mt-auto pin the landlord line to the same baseline on each card.
     return (
-      <article className="group relative flex h-full flex-col overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)]">
+      <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface transition-shadow hover:shadow-[0_4px_16px_rgba(6,59,114,.08)]">
         <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[132px] w-full" sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" />
         {/* min-w-0 all the way down, or the truncated landlord name below sets the
             card's width instead of being cut: a flex item will not shrink past
@@ -109,7 +109,7 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
   }
 
   return (
-    <article className="group relative grid grid-cols-[108px_1fr] overflow-hidden rounded-md border border-line bg-surface transition-shadow hover:shadow-[0_2px_8px_rgba(26,24,21,.08)] sm:grid-cols-[212px_1fr]">
+    <article className="group relative grid grid-cols-[108px_1fr] overflow-hidden rounded-lg border border-line bg-surface transition-shadow hover:shadow-[0_4px_16px_rgba(6,59,114,.08)] sm:grid-cols-[212px_1fr]">
       {/* Phones get a thumbnail column so two or three homes fit on a screen; wider screens keep the full image. */}
       <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-full min-h-[136px] w-full sm:min-h-[158px]" sizes="(min-width: 640px) 212px, 108px" />
       <div className="flex min-w-0 flex-col gap-2 p-3 sm:gap-3 sm:p-4">
@@ -153,7 +153,7 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
 export function ListingCardSkeleton({ variant = "result" }: { variant?: "result" | "home" }) {
   if (variant === "home") {
     return (
-      <div className="overflow-hidden rounded-md border border-line bg-surface">
+      <div className="overflow-hidden rounded-lg border border-line bg-surface">
         <div className="skeleton h-[132px] w-full rounded-none" />
         <div className="flex flex-col gap-3 p-4">
           <div className="skeleton h-5 w-1/3" />
@@ -164,7 +164,7 @@ export function ListingCardSkeleton({ variant = "result" }: { variant?: "result"
     );
   }
   return (
-    <div className="grid grid-cols-1 overflow-hidden rounded-md border border-line bg-surface sm:grid-cols-[212px_1fr]">
+    <div className="grid grid-cols-1 overflow-hidden rounded-lg border border-line bg-surface sm:grid-cols-[212px_1fr]">
       <div className="skeleton h-[150px] w-full rounded-none sm:h-full" />
       <div className="flex flex-col gap-3 p-4">
         <div className="skeleton h-5 w-1/2" />

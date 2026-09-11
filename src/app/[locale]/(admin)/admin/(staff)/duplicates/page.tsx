@@ -37,7 +37,7 @@ export default async function DuplicatesPage({ params, searchParams }: Props) {
       <p className="text-[14px] text-ink-2">{t("sub", { count: tab === "pending" ? rows.length : 0 })}</p>
       <div className="mt-3 flex gap-1">
         {(["pending", "decided"] as const).map((k) => (
-          <Link key={k} aria-current={tab === k ? "page" : undefined} href={{ pathname: "/admin/duplicates", query: { tab: k } }} className={`flex min-h-10 items-center rounded-md px-3 text-[13.5px] font-[650] hover:no-underline ${tab === k ? "bg-ink text-white hover:text-white" : "text-ink-2 hover:bg-surface"}`}>
+          <Link key={k} aria-current={tab === k ? "page" : undefined} href={{ pathname: "/admin/duplicates", query: { tab: k } }} className={`flex min-h-10 items-center rounded-md px-3 text-[13.5px] font-[650] hover:no-underline ${tab === k ? "bg-primary text-white hover:text-white" : "text-ink-2 hover:bg-surface"}`}>
             {k === "pending" ? t("title") : t("decided")}
           </Link>
         ))}

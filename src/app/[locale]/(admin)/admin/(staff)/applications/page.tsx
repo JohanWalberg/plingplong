@@ -66,7 +66,7 @@ export default async function ApplicationsPage({ params, searchParams }: Props) 
                 key={k}
                 aria-current={tab === k ? "page" : undefined}
                 href={{ pathname: "/admin/applications", query: { tab: k } }}
-                className={`flex min-h-10 items-center gap-2 rounded-md px-3 text-[13.5px] font-[650] hover:no-underline ${tab === k ? "bg-ink text-white hover:text-white" : "text-ink-2 hover:bg-surface"}`}
+                className={`flex min-h-10 items-center gap-2 rounded-md px-3 text-[13.5px] font-[650] hover:no-underline ${tab === k ? "bg-primary text-white hover:text-white" : "text-ink-2 hover:bg-surface"}`}
               >
                 {t(k === "pending" ? "tabPending" : k === "needs_info" ? "tabNeedsInfo" : "tabDecided")}
                 <span className={`rounded-full px-1.5 text-[11px] ${tab === k ? "bg-white/20" : "bg-surface-muted"}`}>{counts[k]}</span>

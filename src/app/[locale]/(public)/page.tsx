@@ -5,7 +5,11 @@ import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
 import { ListingCard } from "@/components/listing/listing-card";
 import { RecentlyViewed } from "@/components/listing/recently-viewed";
+import { buttonClasses } from "@/components/ui/button";
+import { icons } from "@/components/ui/misc";
 import { latestListings, siteTotals } from "@/lib/queries/listings";
+import { topMunicipalities } from "@/lib/queries/home";
+import { municipalityName, municipalitySlug } from "@/lib/queries/places";
 
 // Rendered at build time and refreshed every five minutes; listing changes from
 // the portal and admin clear it immediately through invalidateListingCaches().
@@ -13,55 +17,129 @@ export const revalidate = 300;
 
 const POPULAR = ["stockholm", "solna", "goteborg", "malmo", "uppsala"] as const;
 
+/** Faint house-and-door outline behind the hero: the logo's world, kept very quiet. */
+function HeroDecoration() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 320 320" className="pointer-events-none absolute -right-10 top-1/2 hidden h-[360px] w-[360px] -translate-y-1/2 lg:block" fill="none">
+      <path d="M40 150 L160 40 L280 150 V280 H40 Z" stroke="#147af3" strokeOpacity="0.12" strokeWidth="3" strokeLinejoin="round" />
+      <path d="M118 280 V190 a42 42 0 0 1 84 0 V280" stroke="#147af3" strokeOpacity="0.16" strokeWidth="3" />
+      <path d="M232 178 a26 26 0 0 1 0 36" stroke="#ffb31a" strokeOpacity="0.7" strokeWidth="6" strokeLinecap="round" />
+      <path d="M252 160 a52 52 0 0 1 0 72" stroke="#ffb31a" strokeOpacity="0.45" strokeWidth="6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await resolveLocale(params);
   const t = await getTranslations("home");
-  const [latest, totals] = await Promise.all([latestListings(locale, 3), siteTotals()]);
+  const tf = await getTranslations("portal.landing");
+  const [latest, totals, munis] = await Promise.all([latestListings(locale, 6), siteTotals(), topMunicipalities(8)]);
 
   return (
     <>
       <SiteHeader />
       <main id="main">
-        <section className="border-b border-line bg-bg">
-          <div className="mx-auto max-w-[1200px] px-4 py-14 sm:px-6 sm:py-20">
-            <h1 className="font-serif text-[40px] leading-[1.08] sm:text-display">{t("title")}</h1>
-            <p className="mt-3 max-w-[48ch] text-[17px] text-ink-2">{t("sub")}</p>
-            <div className="mt-8 max-w-[720px]">
-              <SearchBox locale={locale} />
-            </div>
-            {/* What we actually have, never a share of the market: coverage is its own page. */}
-            {totals.homes ? (
-              <p className="mt-3 text-[14px] text-ink-2">
-                {t("totals", { homes: totals.homes, landlords: totals.landlords, municipalities: totals.municipalities })}{" "}
-                <Link href="/coverage" className="font-[600]">
-                  {t("totalsLink")}
-                </Link>
+        {/* 1–3: headline, search, primary CTA */}
+        <section className="relative overflow-hidden border-b border-line bg-canvas">
+          <div className="relative mx-auto max-w-[1200px] px-4 py-16 sm:px-6 sm:py-24">
+            <HeroDecoration />
+            <div className="relative max-w-[720px]">
+              <h1 className="font-serif text-[40px] leading-[1.05] sm:text-[56px]">{t("title")}</h1>
+              <p className="mt-4 max-w-[46ch] text-[18px] leading-relaxed text-ink-2">{t("sub")}</p>
+              <div className="mt-8 rounded-xl border border-line bg-surface p-3 shadow-[0_8px_30px_rgba(6,59,114,.08)] sm:p-4">
+                <SearchBox locale={locale} />
+              </div>
+              <p className="mt-4 flex flex-wrap items-center gap-2 text-[13.5px] text-muted">
+                <span>{t("popular")}</span>
+                {POPULAR.map((p) => (
+                  <Link
+                    key={p}
+                    href={{ pathname: "/homes/[place]", params: { place: p === "goteborg" && locale === "en" ? "gothenburg" : p } }}
+                    className="inline-flex min-h-9 items-center rounded-full border border-line bg-surface px-3.5 text-[13.5px] font-[600] text-primary hover:border-blue hover:text-blue hover:no-underline"
+                  >
+                    {p === "goteborg" ? (locale === "sv" ? "Göteborg" : "Gothenburg") : p === "malmo" ? "Malmö" : p[0].toUpperCase() + p.slice(1)}
+                  </Link>
+                ))}
               </p>
-            ) : null}
-            <p className="mt-4 flex flex-wrap items-center gap-2 text-[13.5px] text-muted">
-              <span>{t("popular")}</span>
-              {POPULAR.map((p) => (
-                <Link
-                  key={p}
-                  href={{ pathname: "/homes/[place]", params: { place: p === "goteborg" && locale === "en" ? "gothenburg" : p } }}
-                  className="inline-flex min-h-9 items-center rounded-full border border-line-strong bg-surface px-3 text-[13.5px] font-[600] text-ink hover:bg-bg hover:no-underline"
-                >
-                  {p === "goteborg" ? (locale === "sv" ? "Göteborg" : "Gothenburg") : p === "malmo" ? "Malmö" : p[0].toUpperCase() + p.slice(1)}
-                </Link>
-              ))}
-            </p>
+              {/* What we actually have, never a share of the market: coverage is its own page. */}
+              {totals.homes ? (
+                <p className="mt-5 text-[14px] text-ink-2">
+                  {t("totals", { homes: totals.homes, landlords: totals.landlords, municipalities: totals.municipalities })}{" "}
+                  <Link href="/coverage" className="font-[600]">
+                    {t("totalsLink")}
+                  </Link>
+                </p>
+              ) : null}
+            </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6">
-          <ol className="grid gap-8 md:grid-cols-3">
+        {/* 4: available homes */}
+        <section className="mx-auto max-w-[1200px] px-4 py-14 sm:px-6" aria-labelledby="latest">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <h2 id="latest" className="font-serif text-[28px] leading-tight">
+              {t("latest")}
+            </h2>
+            <Link href="/homes" className={buttonClasses("secondary", "sm")}>
+              {t("seeAll")}
+            </Link>
+          </div>
+          <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {latest.map((l) => (
+              <li key={l.id} className="min-w-0 list-none">
+                <ListingCard listing={l} variant="home" />
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <RecentlyViewed className="mx-auto max-w-[1200px] px-4 pb-14 sm:px-6" />
+
+        {/* 5: municipality discovery */}
+        {munis.length ? (
+          <section className="border-y border-line bg-canvas" aria-labelledby="munis">
+            <div className="mx-auto max-w-[1200px] px-4 py-14 sm:px-6">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <h2 id="munis" className="font-serif text-[28px] leading-tight">
+                    {t("municipalitiesTitle")}
+                  </h2>
+                  <p className="mt-1 text-ink-2">{t("municipalitiesSub")}</p>
+                </div>
+                <Link href="/municipalities" className="font-[600]">
+                  {t("allMunicipalities")} →
+                </Link>
+              </div>
+              <ul className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+                {munis.map((m) => (
+                  <li key={m.id} className="list-none">
+                    <Link
+                      href={{ pathname: "/homes/[place]", params: { place: municipalitySlug(m, locale) } }}
+                      className="flex min-h-touch-lg items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-ink hover:border-blue hover:no-underline hover:shadow-[0_4px_16px_rgba(6,59,114,.08)]"
+                    >
+                      <span className="text-[15px] font-[700] text-primary">{municipalityName(m, locale)}</span>
+                      <span className="text-meta text-muted tabular">{t("homesCount", { count: m.count })}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        ) : null}
+
+        {/* 6: benefits */}
+        <section className="mx-auto max-w-[1200px] px-4 py-14 sm:px-6" aria-labelledby="benefits">
+          <h2 id="benefits" className="font-serif text-[28px] leading-tight">
+            {t("benefitsTitle")}
+          </h2>
+          <ol className="mt-6 grid gap-5 md:grid-cols-3">
             {([1, 2, 3] as const).map((n) => (
-              <li key={n} className="flex gap-4">
-                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line-strong text-[13px] font-[700] tabular">
+              <li key={n} className="flex gap-4 rounded-lg border border-line bg-surface p-5">
+                <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-[14px] font-[800] text-navy tabular">
                   {n}
                 </span>
                 <div>
-                  <h2 className="text-h3">{t(`prop${n}Title`)}</h2>
+                  <h3 className="text-h3">{t(`prop${n}Title`)}</h3>
                   <p className="mt-1 text-[14.5px] text-ink-2">{t(`prop${n}Body`)}</p>
                 </div>
               </li>
@@ -69,27 +147,32 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </ol>
         </section>
 
-        <RecentlyViewed className="mx-auto max-w-[1200px] px-4 pb-12 sm:px-6" />
-
-        <section className="mx-auto max-w-[1200px] px-4 pb-16 sm:px-6" aria-labelledby="latest">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 id="latest" className="text-h2">
-              {t("latest")}
-            </h2>
-            <Link href="/homes" className="text-[14px] font-[650]">
-              {t("seeAll")}
-            </Link>
+        {/* 7: landlords */}
+        <section className="mx-auto max-w-[1200px] px-4 pb-16 sm:px-6" aria-labelledby="landlords">
+          <div className="grid gap-8 rounded-xl bg-navy px-6 py-10 text-dark-text sm:px-10 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <h2 id="landlords" className="font-serif text-[28px] leading-tight text-white">
+                {t("landlordTitle")}
+              </h2>
+              <p className="mt-3 max-w-[56ch] text-[16px] leading-relaxed text-dark-muted">{t("landlordBody")}</p>
+              <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[14px] text-dark-text">
+                {([1, 2, 3] as const).map((n) => (
+                  <li key={n} className="flex items-center gap-2">
+                    <span className="text-accent">{icons.check}</span>
+                    {tf(`path1Point${n}`)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex flex-col gap-3 md:items-end">
+              <Link href="/for-landlords/create-account" className={buttonClasses("primary", "lg")}>
+                {t("landlordCta")}
+              </Link>
+              <Link href="/for-landlords" className="text-[14px] font-[600] text-dark-accent hover:text-white">
+                {t("landlordMore")} →
+              </Link>
+            </div>
           </div>
-          {/* min-w-0 on the items: a grid item defaults to min-width:auto, so the
-              widest card sizes the whole column. A landlord with a long name
-              pushed the home page sideways on a phone. */}
-          <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {latest.map((l) => (
-              <li key={l.id} className="min-w-0 list-none">
-                <ListingCard listing={l} variant="home" />
-              </li>
-            ))}
-          </ul>
         </section>
       </main>
     </>

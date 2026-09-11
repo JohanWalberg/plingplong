@@ -140,7 +140,7 @@ export function FilterPanel({ filters, landlords, total, onApplied }: Props & { 
               const n = parseInt(rentInput, 10);
               if (!Number.isNaN(n) && n > 0) commitRent(n);
             }}
-            className="min-h-touch w-full rounded-md border border-line-strong bg-surface px-3 tabular focus:border-ink focus:outline-none"
+            className="min-h-touch w-full rounded-md border border-line-strong bg-surface px-3 tabular focus:border-blue focus:outline-none"
           />
           <span className="shrink-0 text-[13.5px] text-muted">{t("perMonth")}</span>
         </div>
@@ -173,7 +173,7 @@ export function FilterPanel({ filters, landlords, total, onApplied }: Props & { 
                 type="button"
                 aria-pressed={on}
                 onClick={() => toggleRoom(r)}
-                className={`min-h-touch rounded-md border px-2 text-[13.5px] font-[650] ${on ? "border-ink bg-ink text-white" : "border-line-strong bg-surface text-ink hover:bg-bg"}`}
+                className={`min-h-touch rounded-md border px-2 text-[13.5px] font-[650] ${on ? "border-primary bg-primary text-white" : "border-line-strong bg-surface text-ink hover:bg-bg"}`}
               >
                 {roomLabel(r)}
               </button>
@@ -187,12 +187,12 @@ export function FilterPanel({ filters, landlords, total, onApplied }: Props & { 
           <label className="sr-only" htmlFor={sizeMinId}>
             {t("min")}
           </label>
-          <input id={sizeMinId} inputMode="numeric" placeholder={t("min")} value={sizeMin} onChange={(e) => setSizeMin(e.target.value.replace(/\D/g, ""))} onBlur={commitSize} className="min-h-touch w-full rounded-md border border-line-strong bg-surface px-3 tabular focus:border-ink focus:outline-none" />
+          <input id={sizeMinId} inputMode="numeric" placeholder={t("min")} value={sizeMin} onChange={(e) => setSizeMin(e.target.value.replace(/\D/g, ""))} onBlur={commitSize} className="min-h-touch w-full rounded-md border border-line-strong bg-surface px-3 tabular focus:border-blue focus:outline-none" />
           <span aria-hidden="true" className="text-muted">–</span>
           <label className="sr-only" htmlFor={sizeMaxId}>
             {t("max")}
           </label>
-          <input id={sizeMaxId} inputMode="numeric" placeholder={t("max")} value={sizeMax} onChange={(e) => setSizeMax(e.target.value.replace(/\D/g, ""))} onBlur={commitSize} className="min-h-touch w-full rounded-md border border-line-strong bg-surface px-3 tabular focus:border-ink focus:outline-none" />
+          <input id={sizeMaxId} inputMode="numeric" placeholder={t("max")} value={sizeMax} onChange={(e) => setSizeMax(e.target.value.replace(/\D/g, ""))} onBlur={commitSize} className="min-h-touch w-full rounded-md border border-line-strong bg-surface px-3 tabular focus:border-blue focus:outline-none" />
           <span className="shrink-0 text-[13.5px] text-muted">m²</span>
         </div>
       </Fieldset>
@@ -241,7 +241,7 @@ export function FilterPanel({ filters, landlords, total, onApplied }: Props & { 
                       type="button"
                       aria-pressed={on}
                       onClick={() => toggleIn("segment", s)}
-                      className={`min-h-touch rounded-full border px-3.5 text-[13.5px] font-[650] ${on ? "border-ink bg-ink text-white" : "border-line-strong bg-surface text-ink hover:bg-bg"}`}
+                      className={`min-h-touch rounded-full border px-3.5 text-[13.5px] font-[650] ${on ? "border-primary bg-primary text-white" : "border-line-strong bg-surface text-ink hover:bg-bg"}`}
                     >
                       {t(SEGMENT_KEYS[s])}
                     </button>

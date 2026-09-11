@@ -4,15 +4,16 @@ export type ButtonVariant = "primary" | "secondary" | "tertiary" | "danger" | "d
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-md font-[650] leading-tight text-center transition-colors select-none " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center gap-2 rounded-md font-[700] leading-tight text-center transition-colors select-none " +
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue disabled:cursor-not-allowed";
 
+/** Brand system: yellow primary CTA with navy text, white secondary with a navy border, blue text actions. */
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-white hover:bg-primary-hover hover:text-white hover:no-underline",
-  secondary: "bg-surface text-ink border border-line-strong hover:bg-bg hover:text-ink hover:no-underline",
-  tertiary: "bg-transparent text-primary hover:text-primary-hover hover:underline px-2",
+  primary: "bg-accent text-navy hover:bg-accent-hover hover:text-navy hover:no-underline",
+  secondary: "bg-surface text-primary border border-primary hover:bg-primary-subtle hover:text-primary hover:no-underline",
+  tertiary: "bg-transparent text-blue hover:text-blue-hover hover:underline px-2",
   danger: "bg-surface text-error-text border border-error-border hover:bg-error-bg hover:text-error-text hover:no-underline",
-  dark: "bg-ink text-white hover:bg-dark-2 hover:text-white hover:no-underline",
+  dark: "bg-primary text-white hover:bg-navy hover:text-white hover:no-underline",
 };
 
 const sizes: Record<ButtonSize, string> = {

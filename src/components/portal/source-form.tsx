@@ -53,7 +53,7 @@ export function SourceForm() {
         <Card as="section" className="p-6">
           <div role="group" aria-label={t("typeLabel")} className="grid gap-2 sm:grid-cols-3">
             {(["feed", "api", "html"] as const).map((k) => (
-              <button key={k} type="button" aria-pressed={kind === k} onClick={() => setKind(k)} className={`flex min-h-touch flex-col items-start rounded-md border px-4 py-3 text-left ${kind === k ? "border-ink bg-ink text-white" : "border-line-strong bg-surface hover:bg-bg"}`}>
+              <button key={k} type="button" aria-pressed={kind === k} onClick={() => setKind(k)} className={`flex min-h-touch flex-col items-start rounded-md border px-4 py-3 text-left ${kind === k ? "border-ink bg-primary text-white" : "border-line-strong bg-surface hover:bg-bg"}`}>
                 <span className="font-[650]">{t(k === "feed" ? "typeFeed" : k === "api" ? "typeApi" : "typeHtml")}</span>
                 <span className={`text-meta ${kind === k ? "text-dark-muted" : "text-muted"}`}>{t(k === "feed" ? "typeFeedBody" : k === "api" ? "typeApiBody" : "typeHtmlBody")}</span>
               </button>

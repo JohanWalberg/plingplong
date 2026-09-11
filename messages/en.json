@@ -38,21 +38,23 @@
   },
   "navigation": {
     "home": "Home",
-    "search": "Search homes",
+    "search": "Available homes",
     "map": "Map",
     "landlords": "Landlords",
     "municipalities": "Municipalities",
     "saved": "Saved",
     "forLandlords": "For landlords",
     "portalLogin": "Sign in to the portal",
-    "portal": "Landlord portal"
+    "portal": "Landlord portal",
+    "howItWorks": "How it works",
+    "login": "Log in"
   },
   "home": {
-    "title": "Where do you want to live?",
-    "sub": "Find rental homes from multiple landlords in one place.",
+    "title": "Find your next home",
+    "sub": "Available rental homes from many landlords, gathered in one place.",
     "placeholder": "Municipality, district or postcode",
     "searchLabel": "Search by municipality, district or postcode",
-    "cta": "Search homes",
+    "cta": "Find a home",
     "popular": "Common searches:",
     "latest": "Recently added homes",
     "seeAll": "See all homes",
@@ -68,7 +70,16 @@
     "recentTitle": "Recently viewed",
     "recentClear": "Clear",
     "totals": "{homes, plural, one {# available home} other {# available homes}} from {landlords, plural, one {# landlord} other {# landlords}} in {municipalities, plural, one {# municipality} other {# municipalities}} right now.",
-    "totalsLink": "See our coverage"
+    "totalsLink": "See our coverage",
+    "municipalitiesTitle": "Explore municipalities",
+    "municipalitiesSub": "Rental homes available right now, municipality by municipality.",
+    "allMunicipalities": "All municipalities",
+    "benefitsTitle": "Why plingplong",
+    "landlordTitle": "Are you a landlord?",
+    "landlordBody": "Publish your vacancies where people are already looking. Connect your website or add homes directly. Free, with no exclusivity, and applications always happen with you.",
+    "landlordCta": "List a home",
+    "landlordMore": "How it works for landlords",
+    "homesCount": "{count, plural, one {# available home} other {# available homes}}"
   },
   "results": {
     "heading": "{count, plural, =0 {No homes} one {# home} other {# homes}} in {place}",

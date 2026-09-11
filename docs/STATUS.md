@@ -256,6 +256,24 @@ Still open from the review's questions: what a "view" should count on the
 statistics page beyond detail-page opens, and whether landlord pages should
 state the fetch cadence publicly (they do today).
 
+## Brand refresh (2026-09-11)
+
+The visual layer was moved from the prototype's clay-and-cream palette to the
+plingplong brand system: Nunito Sans throughout, navy `#063B72` for headings,
+navigation and secondary buttons, plingplong yellow `#FFB31A` for primary
+CTAs, soft blue `#F5F8FC` for alternate sections and the search area, 16 px
+cards and 10 px inputs. Everything runs through the tokens in
+`src/app/globals.css`, so the portal and admin inherited it without page
+changes. The home page follows the brief's hierarchy: hero with dominant
+search, latest homes, municipality discovery, benefits, landlord block.
+
+Two brand values were adjusted for WCAG AA, measured by axe:
+
+- Text links use `#0F63C9` instead of the brand's `#147AF3`, which is 4.1:1 on
+  white. The bright blue stays for fills, borders, focus highlights and icons.
+- Muted text uses `#5F6B7A` instead of `#667085`, which is 4.5:1 on white but
+  below it on the soft blue ground.
+
 ## Design deviations worth knowing
 
 - The faint grey text token was darkened from `#8a8378` to `#6b655d` because

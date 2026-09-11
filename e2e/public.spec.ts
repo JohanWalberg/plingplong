@@ -5,7 +5,7 @@ test("home → search Solna → filter → detail → language switch keeps stat
   await page.goto("/sv");
   await expectAccessible(page, "home");
   await page.getByRole("combobox").first().fill("Solna");
-  await page.getByRole("button", { name: "Sök bostäder" }).first().click();
+  await page.getByRole("button", { name: "Hitta bostad" }).first().click();
   await page.waitForURL(/\/sv\/bostader\/solna/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/bostäder i Solna/);
   await expectAccessible(page, "results");

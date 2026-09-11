@@ -3,8 +3,8 @@
  * redrawn as SVG from the source PNG in public/brand/. Colours are the
  * brand's navy and amber, not the UI accent, so it reads as a logo.
  */
-export const BRAND_NAVY = "#1b4a7a";
-export const BRAND_AMBER = "#f5a800";
+export const BRAND_NAVY = "#063b72";
+export const BRAND_AMBER = "#ffb31a";
 
 export function LogoMark({ className = "h-8 w-8", title }: { className?: string; title?: string }) {
   return (
@@ -23,14 +23,19 @@ export function LogoMark({ className = "h-8 w-8", title }: { className?: string;
 }
 
 /**
- * Wordmark "plingplong.se" in the logo's rounded lowercase: navy on light
- * grounds, off-white on dark ones, the ".se" always amber.
+ * Wordmark "plingplong.se" drawn as SVG text in the brand's heavy rounded
+ * weight: navy on light grounds, off-white on dark ones, the ".se" amber.
+ * An image, not body copy, so the accent is not held to text contrast.
  */
-export function Wordmark({ tone = "light", className = "text-[19px]" }: { tone?: "light" | "dark"; className?: string }) {
+export function Wordmark({ tone = "light", className = "h-[22px]" }: { tone?: "light" | "dark"; className?: string }) {
+  const fill = tone === "dark" ? "#f5f8fc" : "#052b55";
   return (
-    <span className={`font-wordmark font-[800] leading-none tracking-[-0.02em] ${className}`} style={{ color: tone === "dark" ? "#ede8e0" : BRAND_NAVY }}>
-      plingplong<span style={{ color: BRAND_AMBER }}>.se</span>
-    </span>
+    <svg viewBox="0 0 176 30" className={className} role="img" aria-label="plingplong.se">
+      <text x="0" y="24" fontFamily="var(--font-wordmark)" fontWeight="800" fontSize="27" letterSpacing="-0.5" fill={fill}>
+        plingplong
+        <tspan fill={BRAND_AMBER}>.se</tspan>
+      </text>
+    </svg>
   );
 }
 
@@ -39,7 +44,7 @@ export function Logo({ tone = "light", size = "md" }: { tone?: "light" | "dark";
   return (
     <span className="inline-flex items-center gap-2">
       <LogoMark className={size === "sm" ? "h-6 w-6" : "h-8 w-8"} />
-      <Wordmark tone={tone} className={size === "sm" ? "text-[16px]" : "text-[19px]"} />
+      <Wordmark tone={tone} className={size === "sm" ? "h-[18px]" : "h-[22px]"} />
     </span>
   );
 }
