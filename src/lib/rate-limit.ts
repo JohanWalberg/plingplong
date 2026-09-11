@@ -64,8 +64,10 @@ export const CLIENT_IP_HEADER = "x-hb-client-ip";
  * X-Forwarded-For, so with N trusted hops the client is the N-th entry from
  * the right; anything further left was supplied by the client and is ignored.
  * TRUSTED_PROXY_HOPS says how many: 1 for a single load balancer or CDN
- * (Render, Fly, Vercel), 0 when the server is reached directly. It defaults to
- * 1, and anything unparseable is read as 0 so a typo fails closed.
+ * (Fly, Vercel), 2 where a CDN sits in front of the platform's own balancer
+ * (Render puts Cloudflare ahead of every service), 0 when the server is
+ * reached directly. It defaults to 1, and anything unparseable is read as 0 so
+ * a typo fails closed. /api/whoami shows what the running server resolves.
  */
 export function clientIp(headers: Headers): string {
   // 0 means nothing trustworthy sits in front, so the forwarded headers are the

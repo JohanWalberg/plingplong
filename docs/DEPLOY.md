@@ -125,7 +125,11 @@ be quietly wrong. Each of these is a real failure mode, not a formality:
 - Missing or unparseable `TRUSTED_PROXY_HOPS`. Every rate limit is keyed on the
   address it resolves; guessing wrong either lets one caller pose as thousands
   or collapses thousands into one bucket and locks everyone out. **On Render it
-  is 1**, which the blueprint sets.
+  is 2**, which the blueprint sets: Render puts Cloudflare in front of every
+  service, and its own load balancer sits behind that, so the forwarded chain
+  is "caller, cloudflare-edge". With 1 the limiter keys on Cloudflare's edge
+  addresses and never throttles anyone. Check it from outside with
+  `curl https://<your-host>/api/whoami`; `clientIp` must be your own address.
 
 A failed check stops the deploy with the list of problems. That is the intended
 behaviour: a half-configured deploy is worse than none.

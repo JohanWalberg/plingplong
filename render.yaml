@@ -55,11 +55,14 @@ services:
         sync: false
       - key: BETTER_AUTH_URL
         sync: false
-      # Render terminates TLS at its edge and appends the caller's address, so
-      # exactly one hop is trustworthy. Every rate limit is keyed on what this
-      # resolves; see src/lib/rate-limit.ts.
+      # Two proxies stand between the caller and the app: Render fronts every
+      # service with Cloudflare, and its own load balancer sits behind that, so
+      # X-Forwarded-For carries "caller, cloudflare-edge". Every rate limit is
+      # keyed on what this resolves (see src/lib/rate-limit.ts); with 1 the
+      # limiter keys on Cloudflare's edge addresses and never throttles anyone.
+      # Verify after a change: GET /api/whoami should echo your own address.
       - key: TRUSTED_PROXY_HOPS
-        value: "1"
+        value: "2"
       # Uploaded photos live on the disk below. Only the web service touches
       # them, they are short-lived (a listing expires in weeks), and a bucket
       # would mean a third account guarding a handful of files. Move to
@@ -107,7 +110,7 @@ services:
       - key: BETTER_AUTH_URL
         fromService: { type: web, name: hyrabostad, envVarKey: BETTER_AUTH_URL }
       - key: TRUSTED_PROXY_HOPS
-        value: "1"
+        value: "2"
       # The worker never reads or writes uploads; the startup check only wants
       # the choice stated.
       - key: STORAGE_DRIVER
