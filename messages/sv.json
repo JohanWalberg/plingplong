@@ -140,6 +140,7 @@
   },
   "sorts": {
     "new": "Nyast",
+    "popular": "Populärast",
     "rentUp": "Lägst hyra",
     "rentDown": "Högst hyra",
     "sizeDown": "Störst",
@@ -216,6 +217,8 @@
     "approximateArea": "Ungefärligt läge: kartan visar mitten av {place}, inte adressen. Källan anger inga koordinater.",
     "approximateMunicipality": "Ungefärligt läge: kartan visar mitten av {place}, inte adressen.",
     "galleryLabel": "{count} bilder",
+    "galleryPrev": "Föregående bild",
+    "galleryNext": "Nästa bild",
     "galleryPhoto": "Bild {n} av {count}",
     "galleryCaption": "Bild {n} av {count}",
     "linkCopied": "Länken är kopierad.",

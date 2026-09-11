@@ -130,6 +130,15 @@ four missing indexes, three unbounded authenticated paths, and a nightly
 retention job that threw every time it ran and, once fixed, never deleted the
 user rows it promised to.
 
+### Results page, 2026-09-11
+
+- Sort "Populärast": views over the last seven days from `listing_metric_daily`,
+  newest first as the tie-break. A correlated subquery per candidate row; fine
+  at this size, an aggregate column when the table grows.
+- Cards for homes published here carry all their uploaded photos as a small
+  carousel with arrows and a counter; crawled homes still have one hotlinked
+  photo. The arrows sit above the card link and swallow their clicks.
+
 ## Review
 
 A full code and security review from 2026-09-07 is in `REVIEW-2026-09-07.md`:

@@ -63,8 +63,16 @@ function whereClauses(scope: SearchScope, f: SearchFilters): SQL[] {
   return w;
 }
 
+/** Views over the last week, from the daily metrics; what "popular" means here. */
+const POPULAR_WINDOW_DAYS = 7;
+const recentViews = () =>
+  sql`(select coalesce(sum(m.views), 0) from listing_metric_daily m where m.listing_id = ${listing.id} and m.day >= (current_date - ${POPULAR_WINDOW_DAYS}::int))`;
+
 function orderBy(sort: SearchFilters["sort"]): SQL[] {
   switch (sort) {
+    case "popular":
+      // Ties, and every home nobody has opened yet, fall back to newest first.
+      return [sql`${recentViews()} desc`, desc(listing.firstSeenAt)];
     case "rentUp":
       return [sql`${listing.rentMonthly} asc nulls last`, desc(listing.firstSeenAt)];
     case "rentDown":
@@ -80,6 +88,10 @@ function orderBy(sort: SearchFilters["sort"]): SQL[] {
   }
 }
 
+/** Up to six uploaded photos in order, as the paths /api/uploads serves; crawled homes have one hotlinked URL instead. */
+const uploadedImageUrls = () =>
+  sql<string[] | null>`(select array_agg(u.path order by u.position) from (select '/api/uploads/' || li.storage_key as path, li.position from listing_image li where li.listing_id = ${listing.id} order by li.position limit 6) u)`;
+
 const cardSelect = (locale: Locale) => ({
   slug: listing.slug,
   address: listing.address,
@@ -89,6 +101,7 @@ const cardSelect = (locale: Locale) => ({
   rooms: listing.rooms,
   sizeSqm: listing.sizeSqm,
   imageUrl: listing.imageUrl,
+  imageUrls: uploadedImageUrls(),
   landlordName: landlord.name,
   landlordSlug: landlord.slug,
   lastCheckedAt: listing.lastCheckedAt,

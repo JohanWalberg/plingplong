@@ -5,6 +5,7 @@ import { Badge, BadgeList } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { Freshness } from "./freshness";
 import { ListingImage } from "./listing-image";
+import { CardCarousel } from "./card-carousel";
 import { composeBadges, deadlineMessage, deadlineState, initials, rentLabel, roomsSizeLabel, type BadgeLabels } from "@/lib/listing-display";
 import type { QueueRequirement, Segment } from "@/db/schema";
 
@@ -17,6 +18,8 @@ export type ListingCardData = {
   rooms: number | null;
   sizeSqm: number | null;
   imageUrl: string | null;
+  /** Uploaded photos for a home published here; undefined or null where the query did not fetch them. */
+  imageUrls?: string[] | null;
   landlordName: string;
   landlordSlug: string;
   lastCheckedAt: Date;
@@ -48,8 +51,14 @@ export async function getBadgeLabels(): Promise<BadgeLabels> {
   };
 }
 
-function ImageArea({ imageUrl, address, noImage, className, sizes }: { imageUrl: string | null; address: string; noImage: string; className: string; sizes: string }) {
-  return <ListingImage src={imageUrl} address={address} noImage={noImage} className={className} sizes={sizes} />;
+/** One photo, or a small carousel when a home published here has several. */
+async function ImageArea({ listing, noImage, className, sizes }: { listing: ListingCardData; noImage: string; className: string; sizes: string }) {
+  const images = listing.imageUrl ? [listing.imageUrl] : (listing.imageUrls ?? []);
+  if (images.length > 1) {
+    const t = await getTranslations("listing");
+    return <CardCarousel images={images} address={listing.address} noImage={noImage} className={className} sizes={sizes} labels={{ prev: t("galleryPrev"), next: t("galleryNext"), photo: t("galleryLabel", { count: images.length }) }} />;
+  }
+  return <ListingImage src={images[0] ?? null} address={listing.address} noImage={noImage} className={className} sizes={sizes} />;
 }
 
 function DeadlinePill({ deadline, locale, t }: { deadline: string | null; locale: Locale; t: Awaited<ReturnType<typeof getTranslations<"deadline">>> }) {
@@ -83,7 +92,7 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
     // and lets mt-auto pin the landlord line to the same baseline on each card.
     return (
       <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface transition-shadow hover:shadow-[0_4px_16px_rgba(6,59,114,.08)]">
-        <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-[132px] w-full" sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" />
+        <ImageArea listing={listing} noImage={t("noImage")} className="h-[132px] w-full" sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" />
         {/* min-w-0 all the way down, or the truncated landlord name below sets the
             card's width instead of being cut: a flex item will not shrink past
             its content without it, and one long name widened the whole grid. */}
@@ -111,7 +120,7 @@ export async function ListingCard({ listing, variant = "result" }: { listing: Li
   return (
     <article className="group relative grid grid-cols-[108px_1fr] overflow-hidden rounded-lg border border-line bg-surface transition-shadow hover:shadow-[0_4px_16px_rgba(6,59,114,.08)] sm:grid-cols-[212px_1fr]">
       {/* Phones get a thumbnail column so two or three homes fit on a screen; wider screens keep the full image. */}
-      <ImageArea imageUrl={listing.imageUrl} address={listing.address} noImage={t("noImage")} className="h-full min-h-[136px] w-full sm:min-h-[158px]" sizes="(min-width: 640px) 212px, 108px" />
+      <ImageArea listing={listing} noImage={t("noImage")} className="h-full min-h-[136px] w-full sm:min-h-[158px]" sizes="(min-width: 640px) 212px, 108px" />
       <div className="flex min-w-0 flex-col gap-2 p-3 sm:gap-3 sm:p-4">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
           <div className="min-w-0">

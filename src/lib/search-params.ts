@@ -1,5 +1,5 @@
 
-export const SORTS = ["new", "rentUp", "rentDown", "sizeDown", "deadline", "checked"] as const;
+export const SORTS = ["new", "popular", "rentUp", "rentDown", "sizeDown", "deadline", "checked"] as const;
 export type Sort = (typeof SORTS)[number];
 export const QUEUE_FILTERS = ["none", "queue", "unknown"] as const;
 export type QueueFilter = (typeof QUEUE_FILTERS)[number];

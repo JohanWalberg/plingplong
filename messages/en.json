@@ -140,6 +140,7 @@
   },
   "sorts": {
     "new": "Newest",
+    "popular": "Most viewed",
     "rentUp": "Lowest rent",
     "rentDown": "Highest rent",
     "sizeDown": "Largest",
@@ -216,6 +217,8 @@
     "approximateArea": "Approximate location: the map shows the middle of {place}, not the address. The source gives no coordinates.",
     "approximateMunicipality": "Approximate location: the map shows the middle of {place}, not the address.",
     "galleryLabel": "{count} photos",
+    "galleryPrev": "Previous photo",
+    "galleryNext": "Next photo",
     "galleryPhoto": "Photo {n} of {count}",
     "galleryCaption": "Photo {n} of {count}",
     "linkCopied": "Link copied.",
