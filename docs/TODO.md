@@ -126,6 +126,6 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 - [ ] BankID for landlords through an OIDC broker.
 - [ ] Staff SSO (Google Workspace / Entra) with 2FA at the IdP.
 - [ ] Playwright adapter for JavaScript-rendered landlord sites.
-- [ ] Saved-search email alerts (requires seeker email, a product decision).
+- [x] Saved-search email alerts ("Bevaka sökning": double opt-in, daily digest, no account).
 - [ ] Real municipality and area polygons from Lantmäteriet; search by drawn area.
 - [x] ISR on-demand invalidation when a crawl changes a municipality's listings.

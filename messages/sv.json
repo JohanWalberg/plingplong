@@ -256,7 +256,8 @@
     "back": "Tillbaka",
     "backToSearch": "Tillbaka till sökningen",
     "showAll": "Visa alla",
-    "openWebsite": "Öppna webbplats"
+    "openWebsite": "Öppna webbplats",
+    "watchSearch": "Bevaka sökning"
   },
   "municipality": {
     "crumbRoot": "Kommuner",
@@ -400,6 +401,8 @@
     "privacyListingsTitle": "Uppgifter i annonser",
     "privacyListingsBody": "Hyresvärdars kontaktvägar som visas på bostadssidor är uppgifter som hyresvärden själv valt att publicera. Vill du att en uppgift tas bort, kontakta oss.",
     "privacyContact": "Frågor om personuppgifter: {email}",
+    "privacyAlertsTitle": "Bevakningar",
+    "privacyAlertsBody": "Startar du en bevakning sparar vi din e-postadress tillsammans med sökningen tills du avslutar den via länken i mejlen. En bevakning som inte bekräftas raderas efter sju dagar. Adressen används bara till bevakningens mejl.",
     "cookiesTitle": "Cookies",
     "cookiesIntro": "plingplong använder inga spårningscookies och ingen tredjepartsanalys på de publika sidorna.",
     "cookiesNecessaryTitle": "Nödvändig lagring",
@@ -1264,7 +1267,36 @@
     "accountExistsSubject": "Du har redan ett konto",
     "accountExistsBody": "Hej {name},\n\nEn ansökan skickades nyss in med den här e-postadressen, men det finns redan ett konto för den, så inget nytt skapades. Logga in här: {url}. Har du glömt lösenordet kan du återställa det där. Om det inte var du kan du bortse från det här mejlet.\n\nplingplong",
     "expiringSoonSubject": "Sista ansökningsdag om {days} dagar för {count, plural, one {en bostad} other {# bostäder}}",
-    "expiringSoonBody": "Hej,\n\nSista ansökningsdag är om {days} dagar för:\n\n{homes}\n\nEfter sista ansökningsdag ligger bostaden kvar en vecka och avpubliceras sedan automatiskt. Vill ni förlänga söktiden ändrar ni datumet i portalen: {url}\n\nplingplong"
+    "expiringSoonBody": "Hej,\n\nSista ansökningsdag är om {days} dagar för:\n\n{homes}\n\nEfter sista ansökningsdag ligger bostaden kvar en vecka och avpubliceras sedan automatiskt. Vill ni förlänga söktiden ändrar ni datumet i portalen: {url}\n\nplingplong",
+    "alertConfirmSubject": "Bekräfta din bevakning: {label}",
+    "alertConfirmBody": "Hej,\n\nDu har bett oss bevaka {label} på plingplong. Bekräfta här så börjar vi mejla dig när nya bostäder dyker upp:\n\n{url}\n\nHar du inte bett om detta kan du bortse från mejlet; utan bekräftelse skickas inget mer.\n\nplingplong",
+    "alertDigestSubject": "{count, plural, one {En ny bostad} other {# nya bostäder}}: {label}",
+    "alertDigestBody": "Hej,\n\nSedan sist har {count, plural, one {en ny bostad} other {# nya bostäder}} dykt upp som matchar {label}:\n\n{homes}\n\nHela sökningen: {searchUrl}\n\nVill du inte ha fler mejl om den här sökningen avslutar du bevakningen här: {manageUrl}\n\nplingplong"
+  },
+  "alerts": {
+    "title": "Bevaka den här sökningen",
+    "body": "Vi mejlar dig när nya bostäder dyker upp som matchar {label}. Högst ett mejl om dagen, gratis, och du avslutar när du vill med länken i mejlet.",
+    "email": "E-postadress",
+    "submit": "Starta bevakning",
+    "sentTitle": "Kolla din inkorg",
+    "sentBody": "Vi har skickat ett mejl till {email}. Klicka på länken i det för att bekräfta bevakningen.",
+    "errorEmail": "Ange en giltig e-postadress.",
+    "errorRate": "För många försök just nu. Prova igen om en stund.",
+    "errorLimit": "Den adressen har redan tio bevakningar. Avsluta någon av dem först.",
+    "errorInvalid": "Sökningen kunde inte sparas. Ladda om sidan och försök igen.",
+    "manageTitle": "Bevakning",
+    "confirmTitle": "Bekräfta din bevakning",
+    "confirmBody": "Du får ett mejl senast morgonen efter att nya bostäder dyker upp som matchar {label}.",
+    "confirmButton": "Bekräfta bevakning",
+    "activeTitle": "Bevakningen är igång",
+    "activeBody": "Vi bevakar {label} åt dig och mejlar {email} när det kommer nya bostäder.",
+    "openSearch": "Visa sökningen",
+    "endButton": "Avsluta bevakning",
+    "endedTitle": "Bevakningen är avslutad",
+    "endedBody": "Vi skickar inga fler mejl om den här sökningen. Du kan starta en ny bevakning från vilken sökning som helst.",
+    "invalidTitle": "Länken gäller inte längre",
+    "invalidBody": "Bevakningen är avslutad eller så har ett nyare mejl ersatt länken. Öppna det senaste mejlet, eller starta en ny bevakning från sökningen.",
+    "toSearch": "Till bostäderna"
   },
   "map": {
     "hint": "Flytta kartan och sök om i det nya utsnittet",

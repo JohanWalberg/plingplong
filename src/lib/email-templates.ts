@@ -11,7 +11,9 @@ type Template =
   | "invite"
   | "reset"
   | "sourceFailed"
-  | "expiringSoon";
+  | "expiringSoon"
+  | "alertConfirm"
+  | "alertDigest";
 
 export async function renderEmail(
   locale: Locale,

@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
 import { ActiveChips, FilterPanel, FilterSheet, SortSelect } from "@/components/search/filter-panel";
 import { SaveSearchButton } from "@/components/search/save-search-button";
+import { AlertButton } from "@/components/search/alert-button";
 import { ResultsRegion, SearchTransitionProvider } from "@/components/search/search-transition";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Callout, icons } from "@/components/ui/misc";
@@ -108,6 +109,7 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
                   <FilterSheet filters={filters} landlords={landlords} total={result.total} />
                 </div>
                 <SaveSearchButton label={heading} />
+                <AlertButton locale={locale} label={placeName ?? t("allOfSweden")} place={muni ? municipalitySlug(muni, locale) : undefined} area={area?.slug} query={toQuery({ ...filters, page: 1, sort: "new" })} />
                 <div className="hidden sm:block">
                   <SortSelect filters={filters} />
                 </div>

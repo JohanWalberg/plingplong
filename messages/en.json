@@ -256,7 +256,8 @@
     "back": "Back",
     "backToSearch": "Back to search",
     "showAll": "Show all",
-    "openWebsite": "Open website"
+    "openWebsite": "Open website",
+    "watchSearch": "Watch this search"
   },
   "municipality": {
     "crumbRoot": "Municipalities",
@@ -400,6 +401,8 @@
     "privacyListingsTitle": "Details in listings",
     "privacyListingsBody": "Landlord contact routes shown on listing pages are details the landlord chose to publish. Contact us if you want a detail removed.",
     "privacyContact": "Questions about personal data: {email}",
+    "privacyAlertsTitle": "Search alerts",
+    "privacyAlertsBody": "When you start an alert we store your email address with the search until you end it from the link in the emails. An alert that is never confirmed is deleted after seven days. The address is used for the alert emails only.",
     "cookiesTitle": "Cookies",
     "cookiesIntro": "plingplong uses no tracking cookies and no third-party analytics on the public pages.",
     "cookiesNecessaryTitle": "Necessary storage",
@@ -1264,7 +1267,36 @@
     "accountExistsSubject": "You already have an account",
     "accountExistsBody": "Hi {name},\n\nAn application was just submitted with this email address, but an account already exists for it, so nothing new was created. Sign in here: {url}. If you have forgotten your password you can reset it there. If this was not you, you can ignore this email.\n\nplingplong",
     "expiringSoonSubject": "Application deadline in {days} days for {count, plural, one {one home} other {# homes}}",
-    "expiringSoonBody": "Hi,\n\nThe application deadline is in {days} days for:\n\n{homes}\n\nAfter the deadline the home stays for one week and is then unpublished automatically. To give people longer, change the date in the portal: {url}\n\nplingplong"
+    "expiringSoonBody": "Hi,\n\nThe application deadline is in {days} days for:\n\n{homes}\n\nAfter the deadline the home stays for one week and is then unpublished automatically. To give people longer, change the date in the portal: {url}\n\nplingplong",
+    "alertConfirmSubject": "Confirm your alert: {label}",
+    "alertConfirmBody": "Hi,\n\nYou asked us to watch {label} on plingplong. Confirm here and we start emailing you when new homes appear:\n\n{url}\n\nIf this was not you, ignore this email; nothing more is sent without confirmation.\n\nplingplong",
+    "alertDigestSubject": "{count, plural, one {One new home} other {# new homes}}: {label}",
+    "alertDigestBody": "Hi,\n\nSince last time {count, plural, one {one new home has} other {# new homes have}} appeared that match {label}:\n\n{homes}\n\nThe full search: {searchUrl}\n\nTo stop emails about this search, end the alert here: {manageUrl}\n\nplingplong"
+  },
+  "alerts": {
+    "title": "Watch this search",
+    "body": "We email you when new homes appear that match {label}. At most one email a day, free, and you stop whenever you like from the link in the email.",
+    "email": "Email address",
+    "submit": "Start watching",
+    "sentTitle": "Check your inbox",
+    "sentBody": "We sent an email to {email}. Click the link in it to confirm the alert.",
+    "errorEmail": "Enter a valid email address.",
+    "errorRate": "Too many attempts right now. Try again in a little while.",
+    "errorLimit": "That address already has ten alerts. End one of them first.",
+    "errorInvalid": "The search could not be saved. Reload the page and try again.",
+    "manageTitle": "Search alert",
+    "confirmTitle": "Confirm your alert",
+    "confirmBody": "You get an email by the morning after new homes appear that match {label}.",
+    "confirmButton": "Confirm alert",
+    "activeTitle": "Your alert is on",
+    "activeBody": "We are watching {label} for you and email {email} when new homes come in.",
+    "openSearch": "Open the search",
+    "endButton": "End alert",
+    "endedTitle": "The alert has ended",
+    "endedBody": "We send no more emails about this search. You can start a new alert from any search.",
+    "invalidTitle": "This link no longer works",
+    "invalidBody": "The alert has ended, or a newer email replaced the link. Open the latest email, or start a new alert from the search.",
+    "toSearch": "To the homes"
   },
   "map": {
     "hint": "Move the map, then search the new view",

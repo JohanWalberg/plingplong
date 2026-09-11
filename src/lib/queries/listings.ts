@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gt, gte, inArray, isNotNull, isNull, lte, ne, or, sql, type SQL } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { Locale } from "@/i18n/routing";
 import { PAGE_SIZE, RENT_MAX, type SearchFilters } from "@/lib/search-params";
@@ -10,7 +10,13 @@ import { LISTINGS_NS, memoize } from "@/lib/ttl-cache";
 
 const { listing, landlord, municipality, area, source, listingSource, landlordMunicipality } = schema;
 
-export type SearchScope = { municipalityId?: string; areaId?: string; bounds?: [west: number, south: number, east: number, north: number] };
+export type SearchScope = {
+  municipalityId?: string;
+  areaId?: string;
+  bounds?: [west: number, south: number, east: number, north: number];
+  /** Only homes first seen after this instant: what a search alert calls new. */
+  firstSeenAfter?: Date;
+};
 
 /**
  * What the public may see: active, and not taken down. A staff takedown must
@@ -29,6 +35,7 @@ function whereClauses(scope: SearchScope, f: SearchFilters): SQL[] {
     const [west, south, east, north] = scope.bounds;
     w.push(sql`${listing.location} && ST_MakeEnvelope(${west}, ${south}, ${east}, ${north}, 4326)`);
   }
+  if (scope.firstSeenAfter) w.push(gt(listing.firstSeenAt, scope.firstSeenAfter));
   // Null rent always passes a max-rent filter: we never hide a home for a value we do not know.
   if (f.maxRent && f.maxRent < RENT_MAX) w.push(or(isNull(listing.rentMonthly), lte(listing.rentMonthly, f.maxRent))!);
   if (f.rooms.length) {

@@ -50,6 +50,13 @@
       "when": 1788937168758,
       "tag": "0006_location_precision",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789136402540,
+      "tag": "0007_search_alert",
+      "breakpoints": true
     }
   ]
 }

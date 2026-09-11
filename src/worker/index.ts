@@ -7,6 +7,8 @@ import { QUEUES, createBoss } from "@/lib/jobs";
 import { dueSources, expireDirectListings, pruneRawPayloads, syncSource } from "./sync";
 import { purgeApplications } from "./retention";
 import { notifyExpiringListings } from "./notify";
+import { sendAlertDigests } from "./alerts";
+import { purgeUnconfirmedAlerts } from "@/lib/queries/alerts";
 import { requestRevalidate } from "@/lib/revalidate";
 import { assertProductionConfig } from "@/lib/env-check";
 import { initErrorReporting, reportError } from "@/lib/observability";
@@ -53,7 +55,8 @@ async function main() {
     const expired = await expireDirectListings();
     await pruneRawPayloads();
     const purged = await purgeApplications();
-    console.log(`[housekeeping] expired ${expired} direct listing(s), purged ${purged} application(s)`);
+    const staleAlerts = await purgeUnconfirmedAlerts();
+    console.log(`[housekeeping] expired ${expired} direct listing(s), purged ${purged} application(s), dropped ${staleAlerts} unconfirmed alert(s)`);
     if (expired > 0) await requestRevalidate("housekeeping expiry");
   });
 
@@ -65,7 +68,14 @@ async function main() {
 
   await boss.schedule(QUEUES.tick, "* * * * *", undefined, { tz: "Europe/Stockholm" });
   await boss.schedule(QUEUES.housekeeping, "15 3 * * *", undefined, { tz: "Europe/Stockholm" });
+  // Same rule as the reminders: no retry, so a half-sent morning never repeats a mail.
+  await boss.work(QUEUES.alerts, async () => {
+    const sent = await sendAlertDigests();
+    if (sent) console.log(`[alerts] ${sent} search alert digest(s) sent`);
+  });
+
   await boss.schedule(QUEUES.notify, "0 8 * * *", undefined, { tz: "Europe/Stockholm", retryLimit: 0 });
+  await boss.schedule(QUEUES.alerts, "30 7 * * *", undefined, { tz: "Europe/Stockholm", retryLimit: 0 });
   console.log("worker started: queues", Object.values(QUEUES).join(", "));
 
   // Deploys send SIGTERM: finish the running job instead of leaving a source run open.

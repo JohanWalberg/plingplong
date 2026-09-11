@@ -469,6 +469,33 @@ export const landlordInvitation = pgTable(
   (t) => [index("landlord_invitation_landlord_idx").on(t.landlordId)],
 );
 
+/**
+ * A search someone asked to be told about by email. The filters are the same
+ * query object the results URL carries, re-parsed at send time so an alert
+ * always means what the same URL means today. Unconfirmed rows are purged
+ * after a week; a confirmed one lives until its owner ends it from the link
+ * in every mail.
+ */
+export const searchAlert = pgTable(
+  "search_alert",
+  {
+    id: id(),
+    email: text("email").notNull(),
+    locale: text("locale").notNull().default("sv"),
+    label: text("label").notNull(),
+    municipalityId: text("municipality_id").references(() => municipality.id, { onDelete: "cascade" }),
+    areaId: text("area_id").references(() => area.id, { onDelete: "cascade" }),
+    query: jsonb("query").$type<Record<string, string>>().notNull().default({}),
+    tokenHash: text("token_hash").notNull().unique(),
+    confirmedAt: ts("confirmed_at"),
+    /** Homes first seen after this are "new" for the next digest. */
+    seenThrough: ts("seen_through").notNull().defaultNow(),
+    lastSentAt: ts("last_sent_at"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("search_alert_email_idx").on(t.email), index("search_alert_confirmed_idx").on(t.confirmedAt)],
+);
+
 export const staffUser = pgTable("staff_user", {
   userId: text("user_id")
     .primaryKey()

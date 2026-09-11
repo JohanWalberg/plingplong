@@ -86,6 +86,7 @@ erDiagram
   landlord ||--o{ landlord_member : "workspace"
   user ||--o{ landlord_member : "belongs to"
   landlord ||--o{ landlord_invitation : "invited"
+  municipality ||--o{ search_alert : "watched"
   user |o--o| staff_user : "is staff"
   user ||--o{ session : ""
   user ||--o{ account : "password"
@@ -106,6 +107,7 @@ erDiagram
   landlord_application_event { text id PK  text application_id FK  text kind  text message  text actor_id }
   landlord_member { text user_id PK  text landlord_id PK  enum role }
   landlord_invitation { text id PK  text landlord_id FK  text email  enum role  text token_hash  timestamptz expires_at }
+  search_alert { text id PK  text email  text label  text municipality_id FK  text area_id FK  jsonb query  text token_hash  timestamptz confirmed_at  timestamptz seen_through }
   staff_user { text user_id PK  enum role }
   user { text id PK  text name  text email  bool email_verified  text locale }
   session { text id PK  text user_id FK  text token  timestamptz expires_at }
@@ -163,6 +165,7 @@ erDiagram
       <div class="tbl"><h3>landlord_application_event</h3><p>Audit trail: submitted, needs_info with message, approved, rejected, reopened.</p><ul><li class="fk">application_id</li><li>kind</li><li>message</li><li>actor_id</li></ul></div>
       <div class="tbl"><h3>landlord_member</h3><p>Workspace membership. Owner publishes and invites; editor drafts.</p><ul><li class="fk">user_id</li><li class="fk">landlord_id</li><li>role: owner | editor</li></ul></div>
       <div class="tbl"><h3>landlord_invitation</h3><p>Hashed single-use token, 24-hour expiry.</p><ul><li class="fk">landlord_id</li><li>email</li><li>role</li><li>token_hash</li><li>invited_by</li><li>expires_at</li><li>accepted_at</li></ul></div>
+      <div class="tbl"><h3>search_alert</h3><p>A search someone wants by email, no account. Same query object as the results URL, re-parsed at send time. Only the token hash is stored and each mail carries a fresh token. Unconfirmed rows purged after seven days.</p><ul><li>email</li><li>locale</li><li>label</li><li class="fk">municipality_id</li><li class="fk">area_id</li><li>query (jsonb)</li><li>token_hash</li><li>confirmed_at</li><li>seen_through</li><li>last_sent_at</li></ul></div>
       <div class="tbl"><h3>staff_user</h3><p>Marks a user as staff. Sessions capped at eight hours by the guard.</p><ul><li class="fk">user_id</li><li>role: support | lead | engineer</li></ul></div>
     </div>
   </section>

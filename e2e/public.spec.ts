@@ -123,3 +123,17 @@ test("results paginate with page numbers", async ({ page }) => {
   await page.waitForURL(/page=2/);
   await expect(page.getByRole("navigation", { name: /Sida 2 av/ }).locator("[aria-current='page']")).toHaveText("2");
 });
+
+test("a search can be watched by email", async ({ page }) => {
+  await page.goto("/sv/bostader/solna?maxRent=10000");
+  await page.getByRole("button", { name: "Bevaka sökning" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("heading", { name: "Bevaka den här sökningen" })).toBeVisible();
+  await dialog.getByLabel("E-postadress").fill("inte-en-adress");
+  await dialog.getByRole("button", { name: "Starta bevakning" }).click();
+  await expect(dialog.getByRole("alert").first()).toContainText("giltig e-postadress");
+  await dialog.getByLabel("E-postadress").fill("e2e-bevakning@example.com");
+  await dialog.getByRole("button", { name: "Starta bevakning" }).click();
+  await expect(dialog.getByText("Kolla din inkorg")).toBeVisible();
+  await expect(dialog.getByText("e2e-bevakning@example.com")).toBeVisible();
+});

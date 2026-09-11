@@ -214,8 +214,11 @@ priority order.
    credentials set.
 8. **Email in production.** Emails log to the console unless `RESEND_API_KEY`
    is set. Templates are plain text in both languages.
-9. **Saved-search alerts** (post-MVP in the brief). Saved searches are
-   browser-only links today.
+9. **Saved-search alerts**: built 2026-09-11 as "Bevaka sökning". An address
+   plus the results URL's query object in `search_alert`; double opt-in by a
+   button on the mailed link, a daily digest job at 07:30, a fresh token per
+   mail, unconfirmed rows purged after a week. Browser-saved searches stay as
+   they were.
 10. **Observability.** Sentry is wired for the web server and the worker and
     activates with `SENTRY_DSN`; the account and DSN are still needed. No
     structured log shipping. Source health stays in the database as the brief
@@ -242,7 +245,7 @@ From section 4 of `DESIGN-REVIEW.md`:
 | 4 | Roles and invites not designed | Built: owner/editor, invitations, account page. |
 | 5 | Needs-info and rejection flows | Built with message, email and history. |
 | 6 | Admin route localisation | Localised under `/sv/admin` and `/en/admin`. |
-| 7 | Saved searches without accounts | Browser storage only. |
+| 7 | Saved searches without accounts | Browser storage, plus email alerts without an account (double opt-in). |
 | 8 | Segment enum mismatch | "Pets allowed" dropped; youth badge rendered. |
 | 9 | Two freshness wordings | One wording; "Senast kontrollerad" only on detail and landlord pages. |
 | 10 | Missing legal pages | Built: about collection, privacy, cookies, contact, FAQ, how it works. |

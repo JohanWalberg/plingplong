@@ -19,6 +19,7 @@ export const pathnames = {
   "/landlords": { sv: "/hyresvardar", en: "/landlords" },
   "/landlords/[slug]": { sv: "/hyresvardar/[slug]", en: "/landlords/[slug]" },
   "/saved": { sv: "/sparade", en: "/saved" },
+  "/alerts/[token]": { sv: "/bevakning/[token]", en: "/alerts/[token]" },
   "/how-it-works": { sv: "/sa-fungerar-det", en: "/how-it-works" },
   "/coverage": { sv: "/tackning", en: "/coverage" },
   "/faq": { sv: "/fragor-och-svar", en: "/faq" },

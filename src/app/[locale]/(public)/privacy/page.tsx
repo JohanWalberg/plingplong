@@ -24,6 +24,9 @@ export default async function Page({ params }: Props) {
       <Section title={t("privacyListingsTitle")}>
         <p>{t("privacyListingsBody")}</p>
       </Section>
+      <Section title={t("privacyAlertsTitle")}>
+        <p>{t("privacyAlertsBody")}</p>
+      </Section>
       <p>{t("privacyContact", { email: t("contactEmail") })}</p>
     </StaticPage>
   );
