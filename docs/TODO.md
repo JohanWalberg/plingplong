@@ -8,6 +8,12 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 
 ## A. Content and correctness (blocks launch)
 
+- [ ] **A0. Reference data for production.** A fresh database has no
+  municipalities or areas: the dev seed carries them but refuses to run in
+  production. Add an idempotent `pnpm db:reference` that inserts municipalities
+  and areas only (no users, no listings) and run it in the pre-deploy step after
+  migrations. Without it search, the municipality pages and the portal's
+  municipality picker are empty.
 - [?] **A1. Connect the first real landlord sources.** Pick three to five
   landlords (suggestion: Signalisten, Förvaltaren, Bostadsförmedlingen,
   Stockholmshem, Heimstaden), confirm feed or page per landlord, verify the
