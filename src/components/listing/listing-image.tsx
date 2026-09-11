@@ -45,3 +45,14 @@ export function ListingImage({
     </div>
   );
 }
+
+/**
+ * A photo filling whatever positioned box it sits in, for tiles that paint
+ * their own ground and text on top. On a failed hotlink it renders nothing,
+ * so the ground underneath simply shows.
+ */
+export function CoverImage({ src, sizes, className = "" }: { src: string; sizes: string; className?: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return null;
+  return <Image src={src} alt="" fill sizes={sizes} unoptimized={!isOptimizable(src)} onError={() => setFailed(true)} className={`object-cover ${className}`} />;
+}

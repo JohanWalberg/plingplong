@@ -4,6 +4,7 @@ import { resolveLocale } from "@/lib/locale";
 import { SiteHeader } from "@/components/site/header";
 import { SearchBox } from "@/components/search/search-box";
 import { ListingCard } from "@/components/listing/listing-card";
+import { CoverImage } from "@/components/listing/listing-image";
 import { RecentlyViewed } from "@/components/listing/recently-viewed";
 import { buttonClasses } from "@/components/ui/button";
 import { icons } from "@/components/ui/misc";
@@ -29,6 +30,28 @@ function HeroDecoration() {
   );
 }
 
+/** A municipality as a place, not a row: the newest home's photo behind the name and the count. */
+function MunicipalityTile({ name, slug, count, imageUrl }: { name: string; slug: string; count: string; imageUrl: string | null }) {
+  return (
+    <Link
+      href={{ pathname: "/homes/[place]", params: { place: slug } }}
+      className={`group relative flex min-h-[150px] overflow-hidden rounded-lg bg-navy text-white hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue sm:min-h-[170px]`}
+    >
+      <span aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,179,26,.35),transparent_55%),linear-gradient(160deg,#0f63c9,#052b55)]" />
+      {imageUrl ? (
+        <span aria-hidden="true" className="absolute inset-0 overflow-hidden">
+          <CoverImage src={imageUrl} sizes="(min-width: 768px) 300px, 50vw" className="transition-transform duration-300 group-hover:scale-[1.03]" />
+        </span>
+      ) : null}
+      <span aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,rgba(5,43,85,.9)_0%,rgba(5,43,85,.4)_50%,transparent_100%)]" />
+      <span className="relative mt-auto flex w-full flex-col gap-0.5 p-4">
+        <span className="text-[19px] font-[800] leading-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,.35)]">{name}</span>
+        <span className="text-[13px] font-[600] text-white/90 tabular [text-shadow:0_1px_2px_rgba(0,0,0,.35)]">{count}</span>
+      </span>
+    </Link>
+  );
+}
+
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await resolveLocale(params);
   const t = await getTranslations("home");
@@ -45,7 +68,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <HeroDecoration />
             <div className="relative max-w-[720px]">
               <h1 className="font-serif text-[40px] leading-[1.05] sm:text-[56px]">{t("title")}</h1>
-              <p className="mt-4 max-w-[46ch] text-[18px] leading-relaxed text-ink-2">{t("sub")}</p>
+              {/* What we actually have, never a share of the market: coverage is its own page. */}
+              <p className="mt-4 max-w-[52ch] text-[18px] leading-relaxed text-ink-2">
+                {totals.homes ? (
+                  <>
+                    {t("totals", { homes: totals.homes, landlords: totals.landlords, municipalities: totals.municipalities })}{" "}
+                    <Link href="/coverage" className="font-[600]">
+                      {t("totalsLink")}
+                    </Link>
+                  </>
+                ) : (
+                  t("sub")
+                )}
+              </p>
               <div className="mt-8 rounded-xl border border-line bg-surface p-3 shadow-[0_8px_30px_rgba(6,59,114,.08)] sm:p-4">
                 <SearchBox locale={locale} />
               </div>
@@ -61,15 +96,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </Link>
                 ))}
               </p>
-              {/* What we actually have, never a share of the market: coverage is its own page. */}
-              {totals.homes ? (
-                <p className="mt-5 text-[14px] text-ink-2">
-                  {t("totals", { homes: totals.homes, landlords: totals.landlords, municipalities: totals.municipalities })}{" "}
-                  <Link href="/coverage" className="font-[600]">
-                    {t("totalsLink")}
-                  </Link>
-                </p>
-              ) : null}
             </div>
           </div>
         </section>
@@ -110,16 +136,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   {t("allMunicipalities")} →
                 </Link>
               </div>
-              <ul className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+              <ul className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
                 {munis.map((m) => (
                   <li key={m.id} className="list-none">
-                    <Link
-                      href={{ pathname: "/homes/[place]", params: { place: municipalitySlug(m, locale) } }}
-                      className="flex min-h-touch-lg items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-ink hover:border-blue hover:no-underline hover:shadow-[0_4px_16px_rgba(6,59,114,.08)]"
-                    >
-                      <span className="text-[15px] font-[700] text-primary">{municipalityName(m, locale)}</span>
-                      <span className="text-meta text-muted tabular">{t("homesCount", { count: m.count })}</span>
-                    </Link>
+                    <MunicipalityTile name={municipalityName(m, locale)} slug={municipalitySlug(m, locale)} count={t("homesCount", { count: m.count })} imageUrl={m.imageUrl} />
                   </li>
                 ))}
               </ul>
