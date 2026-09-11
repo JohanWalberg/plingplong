@@ -25,7 +25,7 @@ services:
     # Runs after the build and before the new instance takes traffic, so the
     # schema is never behind the code serving it. Paid instance types only; on
     # the free tier run `pnpm db:migrate` from a shell instead.
-    preDeployCommand: pnpm db:migrate
+    preDeployCommand: pnpm db:migrate && pnpm db:reference
     startCommand: pnpm start
     healthCheckPath: /api/health
     # A persistent disk pins the service to one instance and makes each deploy

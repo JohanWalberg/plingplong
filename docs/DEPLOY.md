@@ -44,7 +44,7 @@ on, not a formality.
    `render.yaml`, creates the database, the disk and both services, and prompts
    for the `sync: false` values. Use `https://hyrabostad.onrender.com` for the
    two URLs until the domain is attached. Turn on snapshots for the disk.
-4. **Watch the first build.** It runs `pnpm db:migrate` before starting, which
+4. **Watch the first build.** It runs `pnpm db:migrate && pnpm db:reference` before starting, which
    creates PostGIS and applies every migration. If the service refuses to start,
    the log names the exact setting: that is the startup check working, not the
    deploy failing.
@@ -158,3 +158,11 @@ is a singleton by design and pg-boss holds the queue in Postgres.
 `starter` for both services and `basic-1gb` for Postgres is the smallest
 sensible shape. The worker is idle between crawls and can drop to the smallest
 instance; the web service should not, because the Next build runs there.
+
+## Reference data
+
+`pnpm db:reference` upserts the municipalities and areas the site needs to
+resolve searches, render municipality pages and offer a municipality picker in
+the portal. It inserts no users and no listings, is idempotent, and runs after
+migrations in the Render pre-deploy step. Run it by hand after the first
+migration on any other host.

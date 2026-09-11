@@ -8,7 +8,7 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done · `[?]` needs inpu
 
 ## A. Content and correctness (blocks launch)
 
-- [ ] **A0. Reference data for production.** A fresh database has no
+- [x] **A0. Reference data for production.** A fresh database has no
   municipalities or areas: the dev seed carries them but refuses to run in
   production. Add an idempotent `pnpm db:reference` that inserts municipalities
   and areas only (no users, no listings) and run it in the pre-deploy step after

@@ -27,7 +27,8 @@
     "postinstall": "node scripts/copy-maplibre-worker.mjs",
     "predev": "node scripts/copy-maplibre-worker.mjs",
     "prebuild": "node scripts/copy-maplibre-worker.mjs",
-    "test:db": "vitest run --config vitest.db.config.ts"
+    "test:db": "vitest run --config vitest.db.config.ts",
+    "db:reference": "tsx --env-file-if-exists=.env src/db/reference.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1127.0",
