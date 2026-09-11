@@ -130,10 +130,4 @@ export const icons = {
   ),
 };
 
-export function LogoMark({ className = "h-7 w-7" }: { className?: string }) {
-  return (
-    <span aria-hidden="true" className={`inline-flex items-center justify-center rounded-[6px] border-2 border-primary ${className}`}>
-      <span className="block h-[38%] w-[55%] rounded-[1px] bg-primary" />
-    </span>
-  );
-}
+export { LogoMark } from "./logo";
