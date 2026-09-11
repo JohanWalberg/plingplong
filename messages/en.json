@@ -79,7 +79,8 @@
     "landlordBody": "Publish your vacancies where people are already looking. Connect your website or add homes directly. Free, with no exclusivity, and applications always happen with you.",
     "landlordCta": "List a home",
     "landlordMore": "How it works for landlords",
-    "homesCount": "{count, plural, one {# available home} other {# available homes}}"
+    "homesCount": "{count, plural, one {# available home} other {# available homes}}",
+    "free": "Free for home seekers. No accounts, no subscriptions, no fees."
   },
   "results": {
     "heading": "{count, plural, =0 {No homes} one {# home} other {# homes}} in {place}",
@@ -361,7 +362,9 @@
     "cookies": "Cookies",
     "copyright": "© {year} plingplong",
     "noApply": "Applications always happen with the landlord.",
-    "terms": "Terms for landlords"
+    "terms": "Terms for landlords",
+    "support": "Questions? Email <email>{address}</email>. We reply on weekdays.",
+    "safeSearch": "Safe house hunting"
   },
   "pages": {
     "howItWorksTitle": "How it works",
@@ -406,6 +409,20 @@
     "privacyContact": "Questions about personal data: {email}",
     "privacyAlertsTitle": "Search alerts",
     "privacyAlertsBody": "When you start an alert we store your email address with the search until you end it from the link in the emails. An alert that is never confirmed is deleted after seven days. The address is used for the alert emails only.",
+    "safeTitle": "Safe house hunting",
+    "safeIntro": "Rental scams target people in a hurry. A few habits make life hard for scammers, and they cost nothing.",
+    "safe1Title": "Never pay before you have a contract and keys",
+    "safe1Body": "A genuine landlord never takes a deposit, first rent or a \"reservation fee\" before a contract is signed and you get access. Never pay to private accounts, in cryptocurrency or abroad for a home you have not seen.",
+    "safe2Title": "Check who the landlord is",
+    "safe2Body": "Look the company up at Bolagsverket and compare with the website you were given. Call the phone number on the landlord’s own site, not the one in the email. On plingplong every home links to the landlord’s own page, and we show the organisation number on the landlord profile when we have it.",
+    "safe3Title": "Visit the home",
+    "safe3Body": "See the flat before you sign, preferably with the person who turns out to be the landlord or the manager. A landlord who is \"abroad\" and can only post keys against payment is a classic scam.",
+    "safe4Title": "Read the contract",
+    "safe4Body": "Check that it is a first-hand contract if that is what was promised, that the rent matches the listing and that there is a notice period. The Swedish Union of Tenants can help review a contract.",
+    "safe5Title": "How plingplong works",
+    "safe5Body": "We broker no homes, take no fees and never handle payments. Applications are always made with the landlord. An email claiming to be from us and asking for money is not from us.",
+    "safe6Title": "If something feels wrong",
+    "safe6Body": "Stop the contact and pay nothing. If you already paid, contact your bank at once and report to the police. Tell us at {email} too, so we can remove the listing and warn others.",
     "cookiesTitle": "Cookies",
     "cookiesIntro": "plingplong uses no tracking cookies and no third-party analytics on the public pages.",
     "cookiesNecessaryTitle": "Necessary storage",
@@ -1300,6 +1317,24 @@
     "invalidTitle": "This link no longer works",
     "invalidBody": "The alert has ended, or a newer email replaced the link. Open the latest email, or start a new alert from the search.",
     "toSearch": "To the homes"
+  },
+  "intents": {
+    "popularSearches": "Popular searches in {place}:",
+    "seeAllFiltered": "{count, plural, =0 {Open the search} one {Show and filter # home} other {Show and filter # homes}}",
+    "allHomes": "All available homes in {place}",
+    "empty": "Right now no available home in {place} matches. Start an alert and we email you when one appears.",
+    "studentsLabel": "Students",
+    "studentsTitle": "Student housing in {place}",
+    "studentsIntro": "Student homes in {place} from municipal housing companies, foundations and private landlords, gathered in one place. Most require that you are admitted to studies and many run their own queue, so read the landlord’s terms before applying. We show when we last checked each home.",
+    "noQueueLabel": "No queue",
+    "noQueueTitle": "Rental homes without a queue in {place}",
+    "noQueueIntro": "Available rental homes in {place} where the landlord states that no queue time is required. Interest registration, income and references usually count instead, and these homes go fast. Watch the search and you get an email the morning a new one appears.",
+    "under8000Label": "Under 8,000 kr",
+    "under8000Title": "Rental homes under 8,000 kr in {place}",
+    "under8000Intro": "Available rental homes in {place} with rent under 8,000 kronor a month. Homes where the landlord gave no rent are shown too, so always confirm the amount with the landlord. Applications are always made on the landlord’s own site, never through us.",
+    "threeRoomsLabel": "3 rooms or more",
+    "threeRoomsTitle": "3 rooms or more in {place}",
+    "threeRoomsIntro": "Available rental homes in {place} with three rooms or more, for families and for anyone who needs a study. Larger flats are fewer and often queued, so it pays to watch the search and have your application ready with the landlord."
   },
   "map": {
     "hint": "Move the map, then search the new view",

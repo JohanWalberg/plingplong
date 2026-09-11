@@ -96,6 +96,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </Link>
                 ))}
               </p>
+              {/* The contrast with the paid portals, said once, where the search starts. */}
+              <p className="mt-5 flex items-center gap-2 text-[14.5px] font-[600] text-primary">
+                <span className="text-accent-hover">{icons.check}</span>
+                {t("free")}
+              </p>
             </div>
           </div>
         </section>

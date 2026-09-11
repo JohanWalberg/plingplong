@@ -139,6 +139,22 @@ user rows it promised to.
   carousel with arrows and a counter; crawled homes still have one hotlinked
   photo. The arrows sit above the card link and swallow their clicks.
 
+### Inspired by the paid portals, 2026-09-11
+
+What uthyrningsportal.se does well, taken without its paywall:
+
+- **Search alerts by email** ("Bevaka sökning"), see item 9 under Pending.
+- **Front page**: the totals line is the hero subheading; municipalities are photo tiles.
+- **Intent landing pages** per municipality: `/bostader/<kommun>/student`, `/utan-ko`,
+  `/under-8000`, `/3-rum-eller-fler` (English slugs in `src/lib/intents.ts`). Each is a
+  preset over the same search with its own editorial paragraph, indexed, in the
+  sitemap, linked from the municipality page and the plain municipality search.
+  The slugs live in the area segment, so no area may use one of them.
+- **"Säker bostadsjakt"** guide linked from every listing and the footer; the footer
+  says how to reach us and that we answer on weekdays.
+- **"Gratis för dig som söker"** under the search box: the contrast with the
+  subscription sites, said once where the search starts.
+
 ## Review
 
 A full code and security review from 2026-09-07 is in `REVIEW-2026-09-07.md`:

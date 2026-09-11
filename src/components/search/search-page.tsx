@@ -6,6 +6,8 @@ import { SearchBox } from "@/components/search/search-box";
 import { ActiveChips, FilterPanel, FilterSheet, SortSelect } from "@/components/search/filter-panel";
 import { SaveSearchButton } from "@/components/search/save-search-button";
 import { AlertButton } from "@/components/search/alert-button";
+import { IntentChips, IntentPage } from "@/components/search/intent-page";
+import { intentBySlug } from "@/lib/intents";
 import { ResultsRegion, SearchTransitionProvider } from "@/components/search/search-transition";
 import { ListingCard } from "@/components/listing/listing-card";
 import { Callout, icons } from "@/components/ui/misc";
@@ -49,6 +51,9 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
   if (placeSlug) {
     muni = await findMunicipalityBySlug(placeSlug);
     if (!muni) return <NoPlace locale={locale} query={placeSlug} />;
+    // The area segment doubles as the slot for the intent landing pages.
+    const intent = areaSlug ? intentBySlug(areaSlug, locale) : undefined;
+    if (intent) return <IntentPage locale={locale} muni={muni} intent={intent} />;
     if (areaSlug) {
       area = await findArea(muni.id, areaSlug);
       if (!area) return <NoPlace locale={locale} query={areaSlug} />;
@@ -104,7 +109,7 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
                   ) : null}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <div className="lg:hidden">
                   <FilterSheet filters={filters} landlords={landlords} total={result.total} />
                 </div>
@@ -131,6 +136,7 @@ export async function SearchPage({ locale, placeSlug, areaSlug, searchParams }: 
               <SortSelect filters={filters} />
             </div>
             <ActiveChips filters={filters} landlords={landlords} />
+            {muni && !area ? <IntentChips locale={locale} muni={muni} /> : null}
           </div>
 
           {failing.length ? (

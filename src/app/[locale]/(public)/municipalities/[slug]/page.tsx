@@ -8,6 +8,7 @@ import { alternatesFor } from "@/lib/seo";
 import { SiteHeader } from "@/components/site/header";
 import { CoverageCard } from "@/components/site/coverage-card";
 import { ListingCard } from "@/components/listing/listing-card";
+import { IntentChips } from "@/components/search/intent-page";
 import { Card } from "@/components/ui/misc";
 import { buttonClasses } from "@/components/ui/button";
 import { formatSek } from "@/lib/format";
@@ -122,6 +123,8 @@ export default async function MunicipalityPage({ params }: Props) {
                 </ul>
               </section>
             ) : null}
+
+            <IntentChips locale={locale} muni={muni} />
 
             <section aria-labelledby="listings">
               <h2 id="listings" className="text-h2">

@@ -26,6 +26,7 @@ export const pathnames = {
   "/contact": { sv: "/kontakt", en: "/contact" },
   "/about-collection": { sv: "/om-insamling", en: "/about-collection" },
   "/privacy": { sv: "/personuppgifter", en: "/privacy" },
+  "/safe-search": { sv: "/saker-bostadsjakt", en: "/safe-search" },
   "/terms": { sv: "/villkor", en: "/terms" },
   "/cookies": "/cookies",
 

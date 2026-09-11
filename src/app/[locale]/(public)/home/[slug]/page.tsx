@@ -315,7 +315,12 @@ export default async function ListingPage({ params }: Props) {
                     <Badge tone="info">{tb("direct")}</Badge>
                   </p>
                 ) : null}
-                <p className="mt-3 text-meta leading-relaxed text-muted">{t("sourceDisclaimer")}</p>
+                <p className="mt-3 text-meta leading-relaxed text-muted">
+                  {t("sourceDisclaimer")}{" "}
+                  <Link href="/safe-search" className="font-[650] text-ink-2 underline underline-offset-2">
+                    {tp("safeTitle")}
+                  </Link>
+                </p>
                 {/* The documented takedown channel, with the home already identified so nobody has to describe it. */}
                 <p className="mt-3 text-meta">
                   <a

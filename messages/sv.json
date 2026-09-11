@@ -79,7 +79,8 @@
     "landlordBody": "Publicera dina lediga hyresrätter där hyressökande letar. Anslut din webbplats eller lägg upp bostäder direkt. Kostnadsfritt, utan exklusivitet, och ansökan sker alltid hos dig.",
     "landlordCta": "Lägg upp bostad",
     "landlordMore": "Så fungerar det för hyresvärdar",
-    "homesCount": "{count, plural, one {# ledig bostad} other {# lediga bostäder}}"
+    "homesCount": "{count, plural, one {# ledig bostad} other {# lediga bostäder}}",
+    "free": "Gratis för dig som söker bostad. Inga konton, inga abonnemang, inga avgifter."
   },
   "results": {
     "heading": "{count, plural, =0 {Inga bostäder} one {# bostad} other {# bostäder}} i {place}",
@@ -361,7 +362,9 @@
     "cookies": "Cookies",
     "copyright": "© {year} plingplong",
     "noApply": "Ansökan sker alltid hos hyresvärden.",
-    "terms": "Villkor för hyresvärdar"
+    "terms": "Villkor för hyresvärdar",
+    "support": "Frågor? Mejla <email>{address}</email>. Vi svarar på vardagar.",
+    "safeSearch": "Säker bostadsjakt"
   },
   "pages": {
     "howItWorksTitle": "Så fungerar det",
@@ -406,6 +409,20 @@
     "privacyContact": "Frågor om personuppgifter: {email}",
     "privacyAlertsTitle": "Bevakningar",
     "privacyAlertsBody": "Startar du en bevakning sparar vi din e-postadress tillsammans med sökningen tills du avslutar den via länken i mejlen. En bevakning som inte bekräftas raderas efter sju dagar. Adressen används bara till bevakningens mejl.",
+    "safeTitle": "Säker bostadsjakt",
+    "safeIntro": "Bedrägerier med hyresrätter riktar sig mot den som har bråttom. Några vanor gör det svårt för bedragare, och de kostar inget.",
+    "safe1Title": "Betala aldrig innan du har kontrakt och nycklar",
+    "safe1Body": "En seriös hyresvärd tar aldrig deposition, första hyra eller \"reservationsavgift\" innan ett kontrakt är påskrivet och du får tillträde. Betala aldrig till privata konton, via kryptovaluta eller till utlandet för en bostad du inte sett.",
+    "safe2Title": "Kontrollera vem hyresvärden är",
+    "safe2Body": "Slå upp företaget på Bolagsverket och jämför med webbplatsen ni pratat om. Ring det telefonnummer som står på hyresvärdens egen sida, inte det i mejlet. På plingplong länkar varje bostad till hyresvärdens egen sida, och vi visar org.nummer på hyresvärdens profil när vi har det.",
+    "safe3Title": "Besök bostaden",
+    "safe3Body": "Se lägenheten innan du skriver på, helst med den som visar sig vara hyresvärd eller förvaltare. En hyresvärd som är \"utomlands\" och bara kan skicka nycklar mot betalning är en klassisk bluff.",
+    "safe4Title": "Läs kontraktet",
+    "safe4Body": "Kontrollera att det är ett förstahandskontrakt om det är vad som utlovats, att hyran stämmer med annonsen och att det finns en uppsägningstid. Hyresgästföreningen kan hjälpa till att granska ett kontrakt.",
+    "safe5Title": "Så fungerar plingplong",
+    "safe5Body": "Vi förmedlar inga bostäder, tar inga avgifter och hanterar aldrig betalningar. Ansökan sker alltid hos hyresvärden. Får du ett mejl som påstår sig komma från oss och ber om pengar är det inte från oss.",
+    "safe6Title": "Om något känns fel",
+    "safe6Body": "Avbryt kontakten och betala inget. Har du redan betalat, kontakta din bank direkt och gör en polisanmälan. Berätta gärna för oss på {email} så kan vi ta bort annonsen och varna andra.",
     "cookiesTitle": "Cookies",
     "cookiesIntro": "plingplong använder inga spårningscookies och ingen tredjepartsanalys på de publika sidorna.",
     "cookiesNecessaryTitle": "Nödvändig lagring",
@@ -1300,6 +1317,24 @@
     "invalidTitle": "Länken gäller inte längre",
     "invalidBody": "Bevakningen är avslutad eller så har ett nyare mejl ersatt länken. Öppna det senaste mejlet, eller starta en ny bevakning från sökningen.",
     "toSearch": "Till bostäderna"
+  },
+  "intents": {
+    "popularSearches": "Populära sökningar i {place}:",
+    "seeAllFiltered": "{count, plural, =0 {Öppna sökningen} one {Visa och filtrera # bostad} other {Visa och filtrera # bostäder}}",
+    "allHomes": "Alla lediga bostäder i {place}",
+    "empty": "Just nu finns ingen ledig bostad i {place} som matchar. Starta en bevakning så mejlar vi dig när det kommer en.",
+    "studentsLabel": "Student",
+    "studentsTitle": "Studentbostäder i {place}",
+    "studentsIntro": "Studentbostäder i {place} från kommunala bostadsbolag, stiftelser och privata hyresvärdar, samlade på ett ställe. De flesta kräver att du är antagen till studier och många har egen kö, så läs villkoren hos hyresvärden innan du söker. Vi visar när vi senast kontrollerade varje bostad.",
+    "noQueueLabel": "Utan kö",
+    "noQueueTitle": "Hyresrätter utan kö i {place}",
+    "noQueueIntro": "Lediga hyresrätter i {place} där hyresvärden uppger att ingen kötid krävs. Här räknas ofta intresseanmälan, inkomst och referenser i stället, och bostäderna går snabbt. Bevaka sökningen så får du mejl samma morgon som en ny dyker upp.",
+    "under8000Label": "Under 8 000 kr",
+    "under8000Title": "Hyresrätter under 8 000 kr i {place}",
+    "under8000Intro": "Lediga hyresrätter i {place} med en hyra under 8 000 kronor i månaden. Bostäder där hyresvärden inte angett hyra visas också, så kontrollera alltid beloppet hos hyresvärden. Ansökan sker alltid på hyresvärdens egen sida, aldrig via oss.",
+    "threeRoomsLabel": "3 rum eller fler",
+    "threeRoomsTitle": "3 rum och kök eller större i {place}",
+    "threeRoomsIntro": "Lediga hyresrätter i {place} med tre rum eller fler, för familjer och för dig som behöver ett arbetsrum. Större lägenheter är färre och ofta köade, så det lönar sig att bevaka sökningen och ha ansökan klar hos hyresvärden."
   },
   "map": {
     "hint": "Flytta kartan och sök om i det nya utsnittet",

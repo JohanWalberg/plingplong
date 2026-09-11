@@ -8,6 +8,7 @@ export async function SiteFooter() {
   const t = await getTranslations("footer");
   const tn = await getTranslations("navigation");
   const tc = await getTranslations("common");
+  const tp = await getTranslations("pages");
   const year = new Date().getFullYear();
 
   const cols: Array<{ title: string; links: Array<{ label: string; href: StaticPathname; highlight?: boolean }> }> = [
@@ -26,6 +27,7 @@ export async function SiteFooter() {
         { label: t("howItWorks"), href: "/how-it-works" },
         { label: t("coverage"), href: "/coverage" },
         { label: t("faq"), href: "/faq" },
+        { label: t("safeSearch"), href: "/safe-search" },
         { label: t("contact"), href: "/contact" },
         { label: t("aboutCollection"), href: "/about-collection" },
       ],
@@ -50,6 +52,16 @@ export async function SiteFooter() {
             <Logo tone="dark" />
           </p>
           <p className="mt-4 max-w-[36ch] text-[14px] leading-relaxed text-dark-muted">{t("blurb")}</p>
+          <p className="mt-3 max-w-[36ch] text-[14px] leading-relaxed text-dark-text">
+            {t.rich("support", {
+              address: tp("contactEmail"),
+              email: (chunks) => (
+                <a href={`mailto:${tp("contactEmail")}`} className="font-[650] text-dark-accent hover:text-dark-accent">
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
           <div className="mt-4">
             <LanguageSwitcher variant="text" />
           </div>
