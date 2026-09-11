@@ -116,5 +116,8 @@ services:
         fromService: { type: web, name: hyrabostad, envVarKey: RESEND_API_KEY }
       - key: EMAIL_FROM
         fromService: { type: web, name: hyrabostad, envVarKey: EMAIL_FROM }
+      # Sentry is optional; a worker cannot copy a value the web service does
+      # not have, so it is set here directly when wanted (sync: false would
+      # prompt on every sync).
       - key: SENTRY_DSN
-        fromService: { type: web, name: hyrabostad, envVarKey: SENTRY_DSN }
+        value: ""
